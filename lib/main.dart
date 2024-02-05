@@ -6,7 +6,7 @@ import 'package:imageoptimflutter/src/rust/frb_generated.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 
-import './table.dart';
+import 'table.dart';
 
 class Settings {
   int jpegQuality;
@@ -141,14 +141,23 @@ class BottomBar extends StatelessWidget {
                   label: 'PNGs',
                   extensions: <String>['png'],
                 );
-                final List<XFile> files =
-                    await openFiles(acceptedTypeGroups: <XTypeGroup>[
-                  jpgsTypeGroup,
-                  pngTypeGroup,
-                ]);
+                const XTypeGroup gifsTypeGroup = XTypeGroup(
+                  label: 'GIFs',
+                  extensions: <String>['gif'],
+                );
+                const XTypeGroup webpTypeGroup = XTypeGroup(
+                  label: 'WEBPs',
+                  extensions: <String>['webp'],
+                );
+                final List<XFile> files = await openFiles(
+                    acceptedTypeGroups: <XTypeGroup>[
+                      jpgsTypeGroup,
+                      pngTypeGroup,
+                      gifsTypeGroup,
+                      webpTypeGroup
+                    ]);
                 for (var file in files) {
                   ImageFiles.add(file.path);
-                  // print(imgcompress(path: file.path));
                 }
               },
               icon: const Icon(Icons.add),
@@ -160,9 +169,12 @@ class BottomBar extends StatelessWidget {
               width: 10,
             ),
             Expanded(child: Watch((context) {
-              var config = Config.signal.value;
-              return Text(
-                  'Lossy enabled (JPEG ${config.qualityJPEG}%, PNG ${config.qualityPNG}%, GIF ${config.qualityGIF}%, WEBP ${config.qualityWEBP})',
+              var files = ImageFiles.signal;
+              var message = 'No files added';
+              if (files.isNotEmpty) {
+                message = '${files.length} files added';
+              }
+              return Text(message,
                   style: const TextStyle(color: Colors.white70, fontSize: 12));
             })),
             const SizedBox(
@@ -188,12 +200,14 @@ class BottomBar extends StatelessWidget {
                   padding: const EdgeInsets.all(0),
                 ),
                 TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    ImageFiles.signal.value = [];
+                  },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white70,
                   ),
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Again'),
+                  icon: const Icon(Icons.clear),
+                  label: const Text('Clear'),
                 ),
               ],
             ),

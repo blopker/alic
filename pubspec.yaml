@@ -41,6 +41,7 @@ dependencies:
   file_selector: ^1.0.3
   signals: ^4.0.2
   open_file_macos: ^0.0.1
+  data_table_2: ^2.5.10
 
 dev_dependencies:
   flutter_test:

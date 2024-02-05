@@ -1,6 +1,6 @@
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:imageoptimflutter/imagefiles.dart';
-import 'package:open_file_macos/open_file_macos.dart';
 import 'package:signals/signals_flutter.dart';
 
 class FilesTable extends StatefulWidget {
@@ -11,19 +11,58 @@ class FilesTable extends StatefulWidget {
 }
 
 class _FilesTableState extends State<FilesTable> {
-  int _currentSortColumn = 0;
-  int? _currentSelectedRow;
+  int? _currentSortColumn;
   bool _isSortAsc = true;
-  List<String> columns = [
-    'Status',
-    'File',
-    'Size',
-    'Savings',
-  ];
   List<ImageFile> rows = [];
 
-  DataTable _createDataTable() {
-    return DataTable(
+  @override
+  void initState() {
+    print('initState');
+    super.initState();
+    ImageFiles.signal.listen(context, () {
+      setState(() {
+        rows = [...ImageFiles.signal];
+      });
+    });
+    setState(() {
+      rows = [...ImageFiles.signal];
+    });
+  }
+
+  Widget getStatusIcon(ImageFile file) {
+    return switch (file.status) {
+      ImageFileStatus.success => const Tooltip(
+          message: 'Success', child: Icon(Icons.check, color: Colors.green)),
+      ImageFileStatus.error => Tooltip(
+          message: file.errorMessage,
+          child: const Icon(Icons.error, color: Colors.red),
+        ),
+      ImageFileStatus.unoptimized => Tooltip(
+          message: file.status.value,
+          child: const Icon(Icons.warning, color: Colors.orange),
+        ),
+      _ => Tooltip(
+          message: file.status.value,
+          child: const SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              color: Colors.orange,
+              strokeWidth: 2,
+            ),
+          ),
+        ),
+    };
+  }
+
+  _createDataTable() {
+    return DataTable2(
+      headingRowHeight: 40,
+      dataRowHeight: 35,
+      dividerThickness: 1,
+      columnSpacing: 12,
+      horizontalMargin: 12,
+      minWidth: 600,
       columns: _createColumns(),
       rows: _createRows(),
       sortColumnIndex: _currentSortColumn,
@@ -32,132 +71,74 @@ class _FilesTableState extends State<FilesTable> {
     );
   }
 
-  List<DataColumn> _createColumns() {
-    return columns
-        .map((column) => DataColumn(
-              label: Row(
-                children: [
-                  Text(
-                    column,
-                  ),
-                  const SizedBox(width: 5),
-                ],
-              ),
-              onSort: (columnIndex, _) {
-                setState(() {
-                  _currentSortColumn = columnIndex;
-                  var columnId = columns[columnIndex].toLowerCase();
-                  if (_isSortAsc) {
-                    rows.sort((a, b) =>
-                        b.toJson()[columnId].compareTo(a.toJson()[columnId]));
-                  } else {
-                    rows.sort((a, b) =>
-                        a.toJson()[columnId].compareTo(b.toJson()[columnId]));
-                  }
-                  _isSortAsc = !_isSortAsc;
-                });
-              },
-            ))
-        .toList();
+  List<DataRow> _createRows() {
+    return List<DataRow>.generate(
+        rows.length,
+        (index) => DataRow(cells: [
+              DataCell(getStatusIcon(rows[index])),
+              DataCell(Text(rows[index].file)),
+              DataCell(Text(rows[index].sizeHumanReadable)),
+              DataCell(Text(rows[index].savings)),
+            ]));
   }
 
-  List<DataRow> _createRows() {
-    var dataRows = <DataRow>[];
-    for (final (index, row) in rows.indexed) {
-      dataRows.add(DataRow(
-        color: index % 2 == 0
-            ? MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> states) {
-                return Colors.black26;
-              })
-            : MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> states) {
-                return Colors.white10;
-              }),
-        cells: [
-          DataCell(Text(
-            row.status,
-          )),
-          DataCell(
-            Row(
-              children: [
-                ConstrainedBox(
-                  constraints: const BoxConstraints(
-                      maxWidth: 400, minWidth: 0, minHeight: 20, maxHeight: 20),
-                  child: Flexible(
-                    child: Text(
-                      row.file,
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  iconSize: 20,
-                  icon: const Icon(Icons.folder_open_outlined),
-                  onPressed: () async {
-                    final openFileMacosPlugin = OpenFileMacos();
-                    await openFileMacosPlugin.open(row.path,
-                        viewInFinder: true);
-                  },
-                ),
-              ],
-            ),
-            onDoubleTap: () async {
-              final openFileMacosPlugin = OpenFileMacos();
-              await openFileMacosPlugin.open(row.path, viewInFinder: true);
-            },
-          ),
-          DataCell(Text(
-            row.sizeAfterOptimization == null
-                ? row.size.toString()
-                : row.sizeAfterOptimization.toString(),
-          )),
-          DataCell(Text(
-            row.savings,
-          ))
-        ],
-        onSelectChanged: (value) {},
-      ));
+  List<DataColumn2> _createColumns() {
+    void sorter(Function getter, columnIndex, bool ascending) {
+      setState(() {
+        _currentSortColumn = columnIndex;
+        _isSortAsc = ascending;
+        if (ascending) {
+          rows.sort((a, b) => getter(b).compareTo(getter(a)));
+        } else {
+          rows.sort((a, b) => getter(a).compareTo(getter(b)));
+        }
+      });
     }
-    return dataRows;
+
+    var status = DataColumn2(
+      fixedWidth: 32,
+      label: const Text(''),
+      onSort: (columnIndex, asc) {
+        sorter((d) => d.status, columnIndex, asc);
+      },
+    );
+    var file = DataColumn2(
+      size: ColumnSize.L,
+      label: const Text('File '),
+      onSort: (columnIndex, asc) {
+        sorter((d) => d.file, columnIndex, asc);
+      },
+    );
+    var size = DataColumn2(
+      fixedWidth: 100,
+      label: const Text('Size '),
+      onSort: (columnIndex, asc) {
+        sorter((d) => d.size, columnIndex, asc);
+      },
+    );
+    var savings = DataColumn2(
+      fixedWidth: 100,
+      label: const Text('Savings '),
+      onSort: (columnIndex, asc) {
+        sorter((d) => d.savings, columnIndex, asc);
+      },
+    );
+    return [status, file, size, savings];
   }
 
   @override
   Widget build(BuildContext context) {
-    ImageFiles.signal.listen(context, () {
-      setState(() {
-        rows = [...ImageFiles.signal];
-      });
-    });
-    return SingleChildScrollView(
-      child: Theme(
-          data: Theme.of(context).copyWith(
-              // change icon color
-              iconTheme: const IconThemeData(color: Colors.white70),
-              dataTableTheme: DataTableThemeData(
-                dataRowColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.selected)) {
-                    return Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withOpacity(0.08);
-                  }
-                  return Colors.black12;
-                }),
-                headingRowColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                  return Colors.white10;
-                }),
-                dividerThickness: 0,
-                headingTextStyle: const TextStyle(
-                    color: Colors.white70, fontWeight: FontWeight.bold),
-                dataTextStyle: const TextStyle(color: Colors.white70),
-                headingRowHeight: 40,
-              )),
-          child: _createDataTable()),
-    );
+    if (rows.isEmpty) {
+      return const Center(child: Text('No files'));
+    }
+    return Theme(
+        data: Theme.of(context).copyWith(
+            iconTheme: const IconThemeData(color: Colors.white70),
+            dataTableTheme: const DataTableThemeData(
+              dataTextStyle: TextStyle(fontSize: 12, color: Colors.white70),
+              headingTextStyle: TextStyle(fontSize: 14, color: Colors.white70),
+              dividerThickness: 10,
+            )),
+        child: _createDataTable());
   }
 }

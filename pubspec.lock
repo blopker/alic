@@ -73,6 +73,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.6"
+  data_table_2:
+    dependency: "direct main"
+    description:
+      name: data_table_2
+      sha256: cec4010dd756bd7d0cc3eb8a30932b8109608132c6c8d643e80ea412d3e51a9c
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.10"
   fake_async:
     dependency: transitive
     description:

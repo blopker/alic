@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:imageoptimflutter/imagefiles.dart';
+import 'package:open_file_macos/open_file_macos.dart';
+import 'package:signals/signals_flutter.dart';
 
 class FilesTable extends StatefulWidget {
-  const FilesTable({super.key, required this.rows});
-  final List<Map<String, dynamic>> rows;
+  const FilesTable({super.key});
 
   @override
   State<FilesTable> createState() => _FilesTableState();
@@ -18,13 +20,7 @@ class _FilesTableState extends State<FilesTable> {
     'Size',
     'Savings',
   ];
-  List<Map<String, dynamic>> rows = [];
-
-  @override
-  void initState() {
-    super.initState();
-    rows = List.of(widget.rows);
-  }
+  List<ImageFile> rows = [];
 
   DataTable _createDataTable() {
     return DataTable(
@@ -52,9 +48,11 @@ class _FilesTableState extends State<FilesTable> {
                   _currentSortColumn = columnIndex;
                   var columnId = columns[columnIndex].toLowerCase();
                   if (_isSortAsc) {
-                    rows.sort((a, b) => b[columnId].compareTo(a[columnId]));
+                    rows.sort((a, b) =>
+                        b.toJson()[columnId].compareTo(a.toJson()[columnId]));
                   } else {
-                    rows.sort((a, b) => a[columnId].compareTo(b[columnId]));
+                    rows.sort((a, b) =>
+                        a.toJson()[columnId].compareTo(b.toJson()[columnId]));
                   }
                   _isSortAsc = !_isSortAsc;
                 });
@@ -78,14 +76,46 @@ class _FilesTableState extends State<FilesTable> {
               }),
         cells: [
           DataCell(Text(
-            '#${row['status']}',
+            row.status,
           )),
-          _createTitleCell(row['file']),
+          DataCell(
+            Row(
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(
+                      maxWidth: 400, minWidth: 0, minHeight: 20, maxHeight: 20),
+                  child: Flexible(
+                    child: Text(
+                      row.file,
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  iconSize: 20,
+                  icon: const Icon(Icons.folder_open_outlined),
+                  onPressed: () async {
+                    final openFileMacosPlugin = OpenFileMacos();
+                    await openFileMacosPlugin.open(row.path,
+                        viewInFinder: true);
+                  },
+                ),
+              ],
+            ),
+            onDoubleTap: () async {
+              final openFileMacosPlugin = OpenFileMacos();
+              await openFileMacosPlugin.open(row.path, viewInFinder: true);
+            },
+          ),
           DataCell(Text(
-            row['size'] as String,
+            row.sizeAfterOptimization == null
+                ? row.size.toString()
+                : row.sizeAfterOptimization.toString(),
           )),
           DataCell(Text(
-            row['savings'] as String,
+            row.savings,
           ))
         ],
         onSelectChanged: (value) {},
@@ -94,14 +124,13 @@ class _FilesTableState extends State<FilesTable> {
     return dataRows;
   }
 
-  DataCell _createTitleCell(bookTitle) {
-    return DataCell(Text(
-      bookTitle,
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
+    ImageFiles.signal.listen(context, () {
+      setState(() {
+        rows = [...ImageFiles.signal];
+      });
+    });
     return SingleChildScrollView(
       child: Theme(
           data: Theme.of(context).copyWith(
@@ -122,8 +151,6 @@ class _FilesTableState extends State<FilesTable> {
                     (Set<MaterialState> states) {
                   return Colors.white10;
                 }),
-                // horizontalMargin: 0,
-                // columnSpacing: 0,
                 dividerThickness: 0,
                 headingTextStyle: const TextStyle(
                     color: Colors.white70, fontWeight: FontWeight.bold),

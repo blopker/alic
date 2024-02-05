@@ -1,15 +1,28 @@
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:imageoptimflutter/config.dart';
+import 'package:imageoptimflutter/imagefiles.dart';
+import 'package:imageoptimflutter/src/rust/frb_generated.dart';
+import 'package:signals/signals_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 
 import './table.dart';
 
+class Settings {
+  int jpegQuality;
+  int pngQuality;
+  int gifQuality;
+  Settings(
+      {required this.jpegQuality,
+      required this.pngQuality,
+      required this.gifQuality});
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Must add this line.
+  await RustLib.init();
   await windowManager.ensureInitialized();
+  Config.init();
 
   WindowOptions windowOptions = const WindowOptions(
     minimumSize: Size(600, 400),
@@ -33,25 +46,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)
             .copyWith(background: const Color(0xFF1B1B1B)),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white),
+          bodySmall: TextStyle(color: Colors.white),
+          headlineLarge: TextStyle(color: Colors.white),
+          headlineMedium: TextStyle(color: Colors.white),
+          headlineSmall: TextStyle(color: Colors.white),
+          titleLarge: TextStyle(color: Colors.white),
+          titleMedium: TextStyle(color: Colors.white),
+          titleSmall: TextStyle(color: Colors.white),
+        ),
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -77,19 +85,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -103,44 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: FilesTable(rows: [
-              {
-                'status': 0,
-                'file': 'bo.jpg',
-                'size': '123,123',
-                'savings': '12,%'
-              },
-              {
-                'status': 1,
-                'file': 'bo.jpg',
-                'size': '123,123',
-                'savings': '12,%'
-              },
-              {
-                'status': 0,
-                'file': 'bo.jpg',
-                'size': '123,123',
-                'savings': '12,%'
-              },
-              {
-                'status': 1,
-                'file': 'bo.jpg',
-                'size': '123,123',
-                'savings': '12,%'
-              },
-              {
-                'status': 3,
-                'file': 'bo.jpg',
-                'size': '123,123',
-                'savings': '12,%'
-              },
-              {
-                'status': 1,
-                'file': 'bo.jpg',
-                'size': '123,123',
-                'savings': '12,%'
-              },
-            ]),
+            child: FilesTable(),
           ),
           BottomBar(),
         ],
@@ -175,15 +133,22 @@ class BottomBar extends StatelessWidget {
             IconButton(
               constraints: const BoxConstraints.tightFor(width: 37, height: 37),
               onPressed: () async {
-                FilePickerResult? result =
-                    await FilePicker.platform.pickFiles(allowMultiple: true);
-
-                if (result != null) {
-                  List<File> files =
-                      result.paths.map((path) => File(path!)).toList();
-                  print(files);
-                } else {
-                  // User canceled the picker
+                const XTypeGroup jpgsTypeGroup = XTypeGroup(
+                  label: 'JPEGs',
+                  extensions: <String>['jpg', 'jpeg'],
+                );
+                const XTypeGroup pngTypeGroup = XTypeGroup(
+                  label: 'PNGs',
+                  extensions: <String>['png'],
+                );
+                final List<XFile> files =
+                    await openFiles(acceptedTypeGroups: <XTypeGroup>[
+                  jpgsTypeGroup,
+                  pngTypeGroup,
+                ]);
+                for (var file in files) {
+                  ImageFiles.add(file.path);
+                  // print(imgcompress(path: file.path));
                 }
               },
               icon: const Icon(Icons.add),
@@ -194,10 +159,12 @@ class BottomBar extends StatelessWidget {
             const SizedBox(
               width: 10,
             ),
-            const Expanded(
-                child: Text(
-                    'Lossy minification enabled (JPEG 85%, PNG 80%, GIF 80%)',
-                    style: TextStyle(color: Colors.white70, fontSize: 12))),
+            Expanded(child: Watch((context) {
+              var config = Config.signal.value;
+              return Text(
+                  'Lossy enabled (JPEG ${config.qualityJPEG}%, PNG ${config.qualityPNG}%, GIF ${config.qualityGIF}%, WEBP ${config.qualityWEBP})',
+                  style: const TextStyle(color: Colors.white70, fontSize: 12));
+            })),
             const SizedBox(
               width: 10,
             ),
@@ -206,7 +173,15 @@ class BottomBar extends StatelessWidget {
                 IconButton(
                   constraints:
                       const BoxConstraints.tightFor(width: 37, height: 37),
-                  onPressed: () {},
+                  onPressed: () {
+                    // bottom sheet with settings
+
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const SettingsWidget();
+                        });
+                  },
                   icon: const Icon(Icons.settings),
                   iconSize: 20,
                   color: Colors.white70,
@@ -224,5 +199,114 @@ class BottomBar extends StatelessWidget {
             ),
           ],
         ));
+  }
+}
+
+class SettingsWidget extends StatelessWidget {
+  const SettingsWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      backgroundColor: const Color(0xFF2D2D2D),
+      title: const Text('Settings'),
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Watch(
+            (context) {
+              final config = Config.signal.value;
+              return Column(
+                children: [
+                  Row(
+                    children: [
+                      const Text('JPEG quality'),
+                      const Spacer(),
+                      SliderWidget(
+                          value: config.qualityJPEG,
+                          onChanged: (value) {
+                            Config.signal.value = Config.signal.value
+                                .copyWith(qualityJPEG: value);
+                          }),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Text('PNG quality'),
+                      const Spacer(),
+                      SliderWidget(
+                          value: config.qualityPNG,
+                          onChanged: (value) {
+                            Config.signal.value =
+                                Config.signal.value.copyWith(qualityPNG: value);
+                          }),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Text('GIF quality'),
+                      const Spacer(),
+                      SliderWidget(
+                          value: config.qualityGIF,
+                          onChanged: (value) {
+                            Config.signal.value =
+                                Config.signal.value.copyWith(qualityGIF: value);
+                          }),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Text('WEBP quality'),
+                      const Spacer(),
+                      SliderWidget(
+                          value: config.qualityWEBP,
+                          onChanged: (value) {
+                            Config.signal.value = Config.signal.value
+                                .copyWith(qualityWEBP: value);
+                          }),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        Row(
+          children: [
+            const Spacer(),
+            TextButton(
+                onPressed: () {
+                  Config.reset();
+                },
+                child: const Text('Reset')),
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Close')),
+            const Spacer(),
+          ],
+        )
+      ],
+    );
+  }
+}
+
+class SliderWidget extends StatelessWidget {
+  const SliderWidget({super.key, required this.value, required this.onChanged});
+  final int value;
+  final void Function(int) onChanged;
+  @override
+  Widget build(BuildContext context) {
+    return Slider(
+      value: value.toDouble(),
+      max: 100,
+      min: 10,
+      divisions: 90,
+      label: value.round().toString(),
+      onChanged: (double value) {
+        onChanged(value.round());
+      },
+    );
   }
 }

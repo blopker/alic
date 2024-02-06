@@ -40,7 +40,7 @@ class _MyDropRegionState extends State<MyDropRegion> {
           width: constraints.maxWidth,
           height: constraints.maxHeight,
           child: DropRegion(
-            formats: formats,
+            formats: Formats.standardFormats,
             hitTestBehavior: HitTestBehavior.opaque,
             onDropOver: (event) {
               debugPrint('onDropOver');
@@ -54,11 +54,13 @@ class _MyDropRegionState extends State<MyDropRegion> {
               return DropOperation.none;
             },
             onDropEnter: (event) {
+              debugPrint('onDropEnter');
               setState(() {
                 opacity = 1;
               });
             },
             onDropLeave: (event) {
+              debugPrint('onDropLeave');
               setState(() {
                 opacity = 0;
               });

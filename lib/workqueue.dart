@@ -1,21 +1,21 @@
+// ignore_for_file: avoid_print
+
 // A work queue that takes a function and arguments, then runs the function with the arguments in a stream.
 // Also has a maximum number of concurrent workers that can be set.
 
-// ignore_for_file: avoid_print
-
 import 'dart:async';
 import 'dart:io';
-
-var _processors = Platform.numberOfProcessors;
-var _defaultMaxWorkers = _processors <= 2 ? 2 : _processors - 2;
+import 'dart:math';
 
 class _WorkQueue {
-  late int _maxWorkers;
+  int _maxWorkers = max(2, Platform.numberOfProcessors - 2);
   final _queue = <Future<void> Function()>[];
   var _workers = 0;
 
   _WorkQueue({int? maxWorkers}) {
-    _maxWorkers = maxWorkers ?? _defaultMaxWorkers;
+    if (maxWorkers != null) {
+      _maxWorkers = maxWorkers;
+    }
   }
 
   void add(Future<void> Function() work) {

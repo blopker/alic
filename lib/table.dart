@@ -1,7 +1,10 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:imageoptimflutter/imagefiles.dart';
+import 'package:open_file_macos/open_file_macos.dart';
 import 'package:signals/signals_flutter.dart';
+
+final _openFileMacosPlugin = OpenFileMacos();
 
 class FilesTable extends StatefulWidget {
   const FilesTable({super.key});
@@ -65,9 +68,17 @@ class _FilesTableState extends State<FilesTable> {
 
   _createDataTable() {
     return DataTable2(
+      headingRowDecoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.white30,
+            width: 1,
+          ),
+        ),
+      ),
       headingRowHeight: 40,
       dataRowHeight: 35,
-      dividerThickness: 1,
+      dividerThickness: 0.2,
       columnSpacing: 12,
       horizontalMargin: 12,
       minWidth: 600,
@@ -79,12 +90,18 @@ class _FilesTableState extends State<FilesTable> {
     );
   }
 
-  List<DataRow> _createRows() {
-    return List<DataRow>.generate(
+  List<DataRow2> _createRows() {
+    return List<DataRow2>.generate(
         rows.length,
-        (index) => DataRow(cells: [
+        (index) => DataRow2(onSelectChanged: (_) {}, cells: [
               DataCell(getStatusIcon(rows[index])),
-              DataCell(Text(rows[index].file)),
+              DataCell(
+                Text(rows[index].file),
+                onDoubleTap: () {
+                  _openFileMacosPlugin.open(rows[index].path,
+                      viewInFinder: true);
+                },
+              ),
               DataCell(Text(rows[index].sizeHumanReadable)),
               DataCell(Text(rows[index].savings)),
             ]));

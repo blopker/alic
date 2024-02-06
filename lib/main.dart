@@ -8,6 +8,8 @@ import 'package:imageoptimflutter/table.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'glass.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await RustLib.init();
@@ -74,14 +76,16 @@ class _HomePageState extends State<HomePage> {
           ImageFiles.add(path);
         },
         dropOverlay: Container(
-            color: const Color(0xFF2D2D2D),
+            color: Colors.transparent,
             child: const Center(
               child: Icon(
                 Icons.download_sharp,
                 color: Colors.white70,
                 size: 400,
               ),
-            )),
+            )).asGlass(
+          tintColor: Colors.transparent,
+        ),
         child: const Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

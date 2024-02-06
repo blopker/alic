@@ -30,8 +30,9 @@ extension FileSizeExtensions on num {
             .toStringAsFixed(round);
 
     //Check if the result ends with .00000 (depending on how many decimals) and remove it if found.
-    if (result.endsWith("0" * round))
+    if (result.endsWith("0" * round)) {
       result = result.substring(0, result.length - round - 1);
+    }
 
     return "$result ${affixes[affix]}";
   }
@@ -58,10 +59,14 @@ class ImageFile {
   final String? errorMessage;
 
   String get savings {
-    if (sizeAfterOptimization == null) {
-      return '?';
-    }
-    return '${((1 - (sizeAfterOptimization!.toDouble() / size)) * 100).toStringAsFixed(2)}%';
+    return switch (status) {
+      ImageFileStatus.success => sizeAfterOptimization! >= size
+          ? '0%'
+          : '${((1 - (sizeAfterOptimization!.toDouble() / size)) * 100).toStringAsFixed(2)}%',
+      ImageFileStatus.error => '-',
+      ImageFileStatus.unoptimized => '-',
+      _ => '?',
+    };
   }
 
   String get file {
@@ -69,6 +74,9 @@ class ImageFile {
   }
 
   String get sizeHumanReadable {
+    if (sizeAfterOptimization != null) {
+      return sizeAfterOptimization!.toHumanReadableFileSize();
+    }
     return size.toHumanReadableFileSize();
   }
 
@@ -131,17 +139,14 @@ class ImageFiles {
   }
 
   static void compress(ImageFile file) {
-    final newFile = file.copyWith(status: ImageFileStatus.compressing);
-    update(newFile);
-    compressor(newFile, (p0) {
-      print('Compressed: $p0');
+    compressor(file, (p0) {
+      debugPrint('Update: $p0');
       update(p0);
     });
   }
 
   static void update(ImageFile file) {
     final index = signal.indexWhere((element) => element.path == file.path);
-    print(index);
     if (index == -1) {
       return;
     }
@@ -153,7 +158,7 @@ class ImageFiles {
         .where((element) => element.sizeAfterOptimization != null)
         .map((e) => e.size - e.sizeAfterOptimization!)
         .fold<int>(0, (previousValue, element) => previousValue + element);
-    return '$saved bytes';
+    return saved.toHumanReadableFileSize();
   }
 
   static String averagePercentSaved() {
@@ -178,5 +183,10 @@ class ImageFiles {
     return signal
         .where((element) => element.sizeAfterOptimization == null)
         .length;
+  }
+
+  static isProcessing() {
+    return signal
+        .any((element) => element.status == ImageFileStatus.compressing);
   }
 }

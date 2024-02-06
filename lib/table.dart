@@ -17,7 +17,7 @@ class _FilesTableState extends State<FilesTable> {
 
   @override
   void initState() {
-    print('initState');
+    debugPrint('initState');
     super.initState();
     ImageFiles.signal.listen(context, () {
       setState(() {
@@ -39,7 +39,15 @@ class _FilesTableState extends State<FilesTable> {
         ),
       ImageFileStatus.unoptimized => Tooltip(
           message: file.status.value,
-          child: const Icon(Icons.warning, color: Colors.orange),
+          child: const Icon(Icons.remove_outlined, color: Colors.orange),
+        ),
+      ImageFileStatus.pending => Tooltip(
+          message: file.status.value,
+          child: const SizedBox(
+            height: 20,
+            width: 20,
+            child: Icon(Icons.pending, color: Colors.white70),
+          ),
         ),
       _ => Tooltip(
           message: file.status.value,
@@ -83,7 +91,8 @@ class _FilesTableState extends State<FilesTable> {
   }
 
   List<DataColumn2> _createColumns() {
-    void sorter(Function getter, columnIndex, bool ascending) {
+    void sorter(
+        Comparable Function(ImageFile) getter, columnIndex, bool ascending) {
       setState(() {
         _currentSortColumn = columnIndex;
         _isSortAsc = ascending;
@@ -99,7 +108,7 @@ class _FilesTableState extends State<FilesTable> {
       fixedWidth: 32,
       label: const Text(''),
       onSort: (columnIndex, asc) {
-        sorter((d) => d.status, columnIndex, asc);
+        sorter((d) => d.status.value, columnIndex, asc);
       },
     );
     var file = DataColumn2(
@@ -129,7 +138,20 @@ class _FilesTableState extends State<FilesTable> {
   @override
   Widget build(BuildContext context) {
     if (rows.isEmpty) {
-      return const Center(child: Text('No files'));
+      return Center(
+          child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.black12,
+          border: Border.all(
+              color: Colors.white30, width: 2, style: BorderStyle.solid),
+        ),
+        child: const Icon(
+          Icons.file_download,
+          color: Colors.white30,
+          size: 200,
+        ),
+      ));
     }
     return Theme(
         data: Theme.of(context).copyWith(

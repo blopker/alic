@@ -8,7 +8,7 @@
 PRODUCT_NAME = alic
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.alic
+PRODUCT_BUNDLE_IDENTIFIER = co.bollc.alic
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2024 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 bollc.co. All rights reserved.

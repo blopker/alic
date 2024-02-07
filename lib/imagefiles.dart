@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:alic/compressor.dart';
+import 'package:flutter/material.dart';
 import 'package:signals/signals.dart' as signals;
 
 extension FileSizeExtensions on num {
@@ -188,5 +188,14 @@ class ImageFiles {
   static isProcessing() {
     return signal
         .any((element) => element.status == ImageFileStatus.compressing);
+  }
+
+  static void removeDone() {
+    final doneStatuses = [
+      ImageFileStatus.success,
+      ImageFileStatus.unoptimized,
+      ImageFileStatus.error
+    ];
+    signal.removeWhere((element) => doneStatuses.contains(element.status));
   }
 }

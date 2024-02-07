@@ -1,10 +1,9 @@
-import 'package:file_selector/file_selector.dart';
-import 'package:flutter/material.dart';
-import 'package:alic/config.dart';
 import 'package:alic/dropper.dart';
 import 'package:alic/imagefiles.dart';
 import 'package:alic/src/rust/frb_generated.dart';
 import 'package:alic/table.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -14,7 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await RustLib.init();
   await windowManager.ensureInitialized();
-  Config.init();
+  // Config.init();
 
   WindowOptions windowOptions = const WindowOptions(
     minimumSize: Size(600, 400),
@@ -36,7 +35,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Alic',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)
@@ -53,14 +52,13 @@ class MyApp extends StatelessWidget {
           titleSmall: TextStyle(color: Colors.white),
         ),
       ),
-      home: const HomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage(),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
-  final String title;
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -194,18 +192,22 @@ class BottomBar extends StatelessWidget {
                 //   color: Colors.white70,
                 //   padding: const EdgeInsets.all(0),
                 // ),
-                TextButton.icon(
-                  onPressed: () {
-                    ImageFiles.signal.value = [];
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white70,
+                Watch(
+                  (_) => TextButton.icon(
+                    onPressed: ImageFiles.signal.isEmpty
+                        ? null
+                        : () {
+                            ImageFiles.removeDone();
+                          },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white70,
+                    ),
+                    icon: const Icon(
+                      Icons.close,
+                      size: 20,
+                    ),
+                    label: const Text('Clear'),
                   ),
-                  icon: const Icon(
-                    Icons.close,
-                    size: 20,
-                  ),
-                  label: const Text('Clear'),
                 ),
               ],
             ),

@@ -7,7 +7,7 @@
   </a>
   <h3 align="center">Alic</h3>
   <p align="center">
-    Alic ('Alice') is a simple image compressor for MacOS.
+    Alic ('Alice') is A Little Image Compressor for MacOS.
     <br />
     <br />
     <a href="https://github.com/blopker/alic/releases/latest/download/Alic.Image.Compressor.dmg">Download</a>

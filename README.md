@@ -62,8 +62,9 @@ Drag and drop images into the window, images will automatically start compressin
 - [ ] Get the app signed with an Apple Developer ID
 - [ ] Automatically update the app
 - [ ] Add support for different optimization levels
+- [ ] Add support for lossless compression
 - [ ] Add support for dropping directories
-- [ ] Add context menu for opening images in Alic
+- [ ] Add context menu for opening images in Alic from Finder
 
 ## Built With
 

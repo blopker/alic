@@ -1,7 +1,7 @@
 name: alic
 description: "A little image compressor"
 publish_to: "none"
-version: 1.0.1+13
+version: 1.0.1+14
 
 environment:
   sdk: ">=3.2.6 <4.0.0"

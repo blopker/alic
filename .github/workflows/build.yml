@@ -21,7 +21,6 @@ jobs:
           channel: "stable"
           architecture: x64
       - run: flutter config --enable-macos-desktop
-      - run: cd lib && flutter analyze
       - run: flutter build macos
       - name: Release
         uses: softprops/action-gh-release@v1

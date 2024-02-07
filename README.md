@@ -1,11 +1,11 @@
 <a name="readme-top"></a>
 
-<!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://github.com/blopker/alic">
     <img src="assets/alic-logo.png" alt="Logo" width="100" >
   </a>
+  <h3 align="center">Alic</h3>
   <p align="center">
     Alic ('Alice') is a simple image compressor for MacOS.
     <br />

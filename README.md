@@ -4,7 +4,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/blopker/alic">
-    <img src="alic.min.png" alt="Logo" width="400" >
+    <img src="assets/alic-logo.png" alt="Logo" width="100" >
   </a>
   <p align="center">
     Alic ('Alice') is a simple image compressor for MacOS.

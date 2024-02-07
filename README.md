@@ -33,13 +33,23 @@ Supported image formats:
 
 Alic heavily inspired by [ImageOptim](https://imageoptim.com/mac), but with modern compression algorithms for better compression and speed.
 
-## Usage
+## Installation
 
 Start by downloading the latest release from the [releases page](https://github.com/blopker/alic/releases). Then, drag the app to your Applications folder and open it.
 
+**The first time you open Alic**, you will need to hold down the `option` key and right click the app in the Applications folder. Then click "Open" and then "Open" again. This is because Alic is not signed with an Apple Developer ID yet.
+
+## Usage
+
 Drag and drop images into the window, images will automatically start compressing. The compressed images will be saved in the same directory as the original images.
 
-**Careful**: compressing already compressed images times will result in a loss of quality.
+**Careful**, compressing already compressed images times will result in a loss of quality.
+
+## Roadmap
+
+- [ ] Get the app signed with an Apple Developer ID
+- [ ] Automatically update the app
+- [ ] Add support for different optimization levels
 
 ### Requirements
 

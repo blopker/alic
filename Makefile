@@ -9,3 +9,6 @@ watch_rust:
 
 create_dmg:
 	./scripts/create_dmg.sh
+
+release:
+	./scripts/release.sh

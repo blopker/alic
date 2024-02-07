@@ -4,7 +4,7 @@ set -e
 
 # Create a DMG for the app
 echo "Creating DMG..."
-APP_NAME="alic"
+APP_NAME="Alic Image Compressor"
 create-dmg \
     --volname "$APP_NAME" \
     --window-pos 200 120 \

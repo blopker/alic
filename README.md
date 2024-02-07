@@ -60,6 +60,7 @@ Drag and drop images into the window, images will automatically start compressin
 - [ ] Automatically update the app
 - [ ] Add support for different optimization levels
 - [ ] Add support for dropping directories
+- [ ] Add context menu for opening images in Alic
 
 ## Built With
 

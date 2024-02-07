@@ -17,8 +17,6 @@ void main() async {
 
   WindowOptions windowOptions = const WindowOptions(
     minimumSize: Size(600, 400),
-    size: Size(600, 400),
-    center: true,
     skipTaskbar: false,
   );
   windowManager.waitUntilReadyToShow(windowOptions, () async {

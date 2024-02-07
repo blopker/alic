@@ -64,8 +64,6 @@ Distributed under the GNU 3.0 License. See `LICENSE` for more information.
 
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
-
 Project Link: [https://github.com/blopker/alic](https://github.com/blopker/alic)
 
 ## Acknowledgments ❤️

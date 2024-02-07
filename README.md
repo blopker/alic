@@ -81,7 +81,7 @@ Project Link: [https://github.com/blopker/alic](https://github.com/blopker/alic)
 This project would not be possible without the following open source projects:
 
 - For compression: [libcaesium](https://github.com/Lymphatus/libcaesium)
-- Original inspirations: [ImageOptim](https://imageoptim.com/mac)
+- Original inspiration: [ImageOptim](https://imageoptim.com/mac)
 - Rust interop: [flutter_rust_bridge](https://cjycode.com/flutter_rust_bridge/)
 - UI: [Flutter](https://flutter.dev/)
 

@@ -20,7 +20,7 @@
 
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](alic-window.min.png)
+[![Product Name Screen Shot][product-screenshot]](alic-sc.min.png)
 
 Alic is a simple image compressor for MacOS. It's a GUI for the `libcaesium` Rust library, with a UI written in Flutter. It has simple drag and drop interface that allows you to lossy compress images. It's a great tool for quickly compressing images for the web.
 
@@ -80,4 +80,4 @@ This project would not be possible without the following open source projects:
 [license-url]: https://github.com/blopker/alic/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/blopker
-[product-screenshot]: alic-window.min.png
+[product-screenshot]: alic-sc.min.png

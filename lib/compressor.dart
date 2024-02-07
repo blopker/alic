@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:imageoptimflutter/imagefiles.dart';
-import 'package:imageoptimflutter/src/rust/api/simple.dart';
-import 'package:imageoptimflutter/workqueue.dart';
+import 'package:alic/imagefiles.dart';
+import 'package:alic/src/rust/api/simple.dart';
+import 'package:alic/workqueue.dart';
 
 void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
   // Compress the image file by adding it to the queue, then run the callback when done.

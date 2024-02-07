@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:signals/signals.dart' as signals;
 
 // A config file is created to store the configuration of the application.
-// Stored in $HOME/.config/imageoptimflutter/config.json
+// Stored in $HOME/.config/alic/config.json
 
 @immutable
 class ConfigData {
@@ -55,8 +55,7 @@ class ConfigData {
   }
 }
 
-final configDir =
-    Directory('${Platform.environment['HOME']}/.config/imageoptimflutter');
+final configDir = Directory('${Platform.environment['HOME']}/.config/alic');
 final configFile = File('${configDir.path}/config.json');
 
 class Config {

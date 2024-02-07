@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:imageoptimflutter/compressor.dart';
+import 'package:alic/compressor.dart';
 import 'package:signals/signals.dart' as signals;
 
 extension FileSizeExtensions on num {

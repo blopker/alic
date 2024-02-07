@@ -1,6 +1,6 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:imageoptimflutter/imagefiles.dart';
+import 'package:alic/imagefiles.dart';
 import 'package:open_file_macos/open_file_macos.dart';
 import 'package:signals/signals_flutter.dart';
 

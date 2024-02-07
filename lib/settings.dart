@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imageoptimflutter/config.dart';
+import 'package:alic/config.dart';
 import 'package:signals/signals_flutter.dart';
 
 class SettingsWidget extends StatelessWidget {

@@ -1,10 +1,10 @@
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:imageoptimflutter/config.dart';
-import 'package:imageoptimflutter/dropper.dart';
-import 'package:imageoptimflutter/imagefiles.dart';
-import 'package:imageoptimflutter/src/rust/frb_generated.dart';
-import 'package:imageoptimflutter/table.dart';
+import 'package:alic/config.dart';
+import 'package:alic/dropper.dart';
+import 'package:alic/imagefiles.dart';
+import 'package:alic/src/rust/frb_generated.dart';
+import 'package:alic/table.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 

@@ -22,7 +22,16 @@
 
 [![Product Name Screen Shot][product-screenshot]](alic-sc.min.png)
 
-Alic is a simple image compressor for MacOS. It's a GUI for the `libcaesium` Rust library, with a UI written in Flutter. It has simple drag and drop interface that allows you to lossy compress images. It's a great tool for quickly compressing images for the web.
+Alic is a simple image compressor for MacOS. It has simple drag and drop interface that allows you to lossy compress images. It's a great tool for quickly compressing images for the web.
+
+Why compress images?
+
+- Faster load times
+- Less bandwidth usage
+- Better SEO
+- Better user experience
+
+Alic also removes metadata from images, which is a privacy concern. Many cameras and phones embed metadata in images, which can include location, camera model, and other sensitive information.
 
 Supported image formats:
 
@@ -31,7 +40,7 @@ Supported image formats:
 - WebP
 - GIF
 
-Alic heavily inspired by [ImageOptim](https://imageoptim.com/mac), but with modern compression algorithms for better compression and speed.
+Alic is heavily inspired by [ImageOptim](https://imageoptim.com/mac), but with modern compression algorithms for better compression and speed.
 
 ## Installation
 
@@ -50,6 +59,10 @@ Drag and drop images into the window, images will automatically start compressin
 - [ ] Get the app signed with an Apple Developer ID
 - [ ] Automatically update the app
 - [ ] Add support for different optimization levels
+
+## Built With
+
+Alic a GUI for the [`libcaesium`](https://github.com/Lymphatus/libcaesium) Rust library, with a UI written in Flutter.
 
 ### Requirements
 

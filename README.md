@@ -59,6 +59,7 @@ Drag and drop images into the window, images will automatically start compressin
 - [ ] Get the app signed with an Apple Developer ID
 - [ ] Automatically update the app
 - [ ] Add support for different optimization levels
+- [ ] Add support for dropping directories
 
 ## Built With
 

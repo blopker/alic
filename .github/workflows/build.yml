@@ -17,11 +17,6 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: build/macos/Build/Products/Release/alic.app
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
@@ -29,3 +24,8 @@ jobs:
           architecture: x64
       - run: flutter config --enable-macos-desktop
       - run: flutter build macos
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/macos/Build/Products/Release/alic.app

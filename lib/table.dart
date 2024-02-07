@@ -1,6 +1,6 @@
+import 'package:alic/imagefiles.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:alic/imagefiles.dart';
 import 'package:open_file_macos/open_file_macos.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -96,7 +96,14 @@ class _FilesTableState extends State<FilesTable> {
         (index) => DataRow2(onSelectChanged: (_) {}, cells: [
               DataCell(getStatusIcon(rows[index])),
               DataCell(
-                Text(rows[index].file),
+                Tooltip(
+                  waitDuration: const Duration(seconds: 1),
+                  message: rows[index].path,
+                  child: Text(
+                    rows[index].file,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 onDoubleTap: () {
                   _openFileMacosPlugin.open(rows[index].path,
                       viewInFinder: true);

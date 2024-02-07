@@ -57,6 +57,11 @@ Drag and drop images into the window, images will automatically start compressin
 
 **Careful**, compressing already compressed images times will result in a loss of quality.
 
+## Differences from ImageOptim
+
+- Alic's compressor is written in Rust, uses modern compression algorithms and is done all in process. This makes Alic noticeably faster, and produces smaller file sizes.
+- Alic does not overwrite the original images, it saves the compressed images in the same directory as the original images with a `.min.` suffix.
+
 ## Roadmap
 
 - [ ] Get the app signed with an Apple Developer ID

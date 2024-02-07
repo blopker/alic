@@ -10,6 +10,9 @@
     Alic ('Alice') is a simple image compressor for MacOS.
     <br />
     <br />
+    <a href="https://github.com/blopker/alic/releases/latest/download/Alic.Image.Compressor.dmg">Download</a>
+    <br />
+    <br />
     <a href="https://github.com/blopker/alic/issues">Report Bug</a>
     ·
     <a href="https://github.com/blopker/alic/issues">Request Feature</a>

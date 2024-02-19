@@ -92,6 +92,14 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## Release
+
+To release a new version of Alic, follow these steps:
+
+1. Update the version in `pubspec.yaml`.
+1. Commit the changes, but do not push.
+1. Run `make release`.
+
 ## License
 
 Distributed under the GNU 3.0 License. See `LICENSE` for more information.

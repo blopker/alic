@@ -49,6 +49,8 @@ class ConfigData {
         'qualityPNG': qualityPNG,
         'qualityWEBP': qualityWEBP,
         'qualityGIF': qualityGIF,
+        'enablePostfix': enablePostfix,
+        'postfix': postfix,
       };
 
   ConfigData copyWith({

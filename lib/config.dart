@@ -14,6 +14,8 @@ class ConfigData {
   final int qualityPNG;
   final int qualityWEBP;
   final int qualityGIF;
+  final bool enablePostfix;
+  final String postfix;
 
   const ConfigData({
     required this.lossy,
@@ -21,14 +23,25 @@ class ConfigData {
     required this.qualityPNG,
     required this.qualityWEBP,
     required this.qualityGIF,
+    required this.enablePostfix,
+    required this.postfix,
   });
+
+  static validateQuality(dynamic quality, int defaultValue) {
+    if (quality is int) {
+      return quality.clamp(10, 100);
+    }
+    return defaultValue;
+  }
 
   ConfigData.fromJson(Map<String, dynamic> json)
       : lossy = json['lossy'] ?? true,
-        qualityJPEG = json['qualityJPEG'] ?? 80,
-        qualityPNG = json['qualityPNG'] ?? 80,
-        qualityWEBP = json['qualityWEBP'] ?? 60,
-        qualityGIF = json['qualityGIF'] ?? 80;
+        qualityJPEG = validateQuality(json['qualityJPEG'], 80),
+        qualityPNG = validateQuality(json['qualityPNG'], 80),
+        qualityWEBP = validateQuality(json['qualityWEBP'], 60),
+        qualityGIF = validateQuality(json['qualityGIF'], 80),
+        enablePostfix = json['enablePostfix'] ?? true,
+        postfix = json['postfix'] ?? '.min';
 
   Map<String, dynamic> toJson() => {
         'lossy': lossy,
@@ -44,6 +57,8 @@ class ConfigData {
     int? qualityPNG,
     int? qualityWEBP,
     int? qualityGIF,
+    bool? enablePostfix,
+    String? postfix,
   }) {
     return ConfigData(
       lossy: lossy ?? this.lossy,
@@ -51,6 +66,8 @@ class ConfigData {
       qualityPNG: qualityPNG ?? this.qualityPNG,
       qualityWEBP: qualityWEBP ?? this.qualityWEBP,
       qualityGIF: qualityGIF ?? this.qualityGIF,
+      enablePostfix: enablePostfix ?? this.enablePostfix,
+      postfix: postfix ?? this.postfix,
     );
   }
 }
@@ -65,6 +82,7 @@ class Config {
   static void init() {
     signal.value = readConfig();
     signals.effect(() {
+      print('Config changed: ${signal.value}');
       writeConfig(signal.value);
     });
   }
@@ -72,6 +90,7 @@ class Config {
   static ConfigData readConfig() {
     ensureConfigExists();
     var configData = configFile.readAsStringSync();
+    print('Read config: $configData');
     return ConfigData.fromJson(jsonDecode(configData));
   }
 

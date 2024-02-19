@@ -7,5 +7,18 @@ import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 Future<String> imgcompress(
-        {required String path, required String outPath, dynamic hint}) =>
-    RustLib.instance.api.imgcompress(path: path, outPath: outPath, hint: hint);
+        {required String path,
+        required String outPath,
+        required int jpegQuality,
+        required int pngQuality,
+        required int webpQuality,
+        required int gifQuality,
+        dynamic hint}) =>
+    RustLib.instance.api.imgcompress(
+        path: path,
+        outPath: outPath,
+        jpegQuality: jpegQuality,
+        pngQuality: pngQuality,
+        webpQuality: webpQuality,
+        gifQuality: gifQuality,
+        hint: hint);

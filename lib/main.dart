@@ -1,5 +1,6 @@
 import 'package:alic/dropper.dart';
 import 'package:alic/imagefiles.dart';
+import 'package:alic/settings.dart';
 import 'package:alic/src/rust/frb_generated.dart';
 import 'package:alic/table.dart';
 import 'package:file_selector/file_selector.dart';
@@ -7,13 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 
+import './config.dart';
 import 'glass.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await RustLib.init();
   await windowManager.ensureInitialized();
-  // Config.init();
+  Config.init();
 
   WindowOptions windowOptions = const WindowOptions(
     minimumSize: Size(600, 400),
@@ -39,15 +41,32 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)
             .copyWith(background: const Color(0xFF1B1B1B)),
         textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.white),
-          bodyMedium: TextStyle(color: Colors.white),
-          bodySmall: TextStyle(color: Colors.white),
-          headlineLarge: TextStyle(color: Colors.white),
-          headlineMedium: TextStyle(color: Colors.white),
-          headlineSmall: TextStyle(color: Colors.white),
-          titleLarge: TextStyle(color: Colors.white),
-          titleMedium: TextStyle(color: Colors.white),
-          titleSmall: TextStyle(color: Colors.white),
+          bodyLarge: TextStyle(color: Colors.white70),
+          bodyMedium: TextStyle(color: Colors.white70),
+          bodySmall: TextStyle(color: Colors.white70),
+          headlineLarge: TextStyle(color: Colors.white70),
+          headlineMedium: TextStyle(color: Colors.white70),
+          headlineSmall: TextStyle(color: Colors.white70),
+          titleLarge: TextStyle(color: Colors.white70),
+          titleMedium: TextStyle(color: Colors.white70),
+          titleSmall: TextStyle(color: Colors.white70),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white70,
+          ),
+        ),
+        iconButtonTheme: IconButtonThemeData(
+            style: IconButton.styleFrom(
+          foregroundColor: Colors.white70,
+        )),
+        sliderTheme: const SliderThemeData(
+          activeTrackColor: Colors.white70,
+          inactiveTrackColor: Colors.white70,
+          thumbColor: Colors.white70,
+          overlayColor: Colors.white38,
+          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10),
+          overlayShape: RoundSliderOverlayShape(overlayRadius: 10),
         ),
       ),
       home: const HomePage(),
@@ -175,31 +194,32 @@ class BottomBar extends StatelessWidget {
             ),
             Row(
               children: [
-                // IconButton(
-                //   constraints:
-                //       const BoxConstraints.tightFor(width: 37, height: 37),
-                //   onPressed: () {
-                //     showDialog(
-                //         context: context,
-                //         builder: (context) {
-                //           return const SettingsWidget();
-                //         });
-                //   },
-                //   icon: const Icon(Icons.settings),
-                //   iconSize: 20,
-                //   color: Colors.white70,
-                //   padding: const EdgeInsets.all(0),
-                // ),
+                IconButton(
+                  constraints:
+                      const BoxConstraints.tightFor(width: 37, height: 37),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return const SettingsWidget();
+                        });
+                  },
+                  icon: const Icon(Icons.settings),
+                  iconSize: 20,
+                  padding: const EdgeInsets.all(0),
+                ),
                 Watch(
                   (_) => TextButton.icon(
+                    style: TextButton.styleFrom(
+                      disabledIconColor: Colors.white30,
+                      disabledForegroundColor: Colors.white30,
+                      foregroundColor: Colors.white70,
+                    ),
                     onPressed: ImageFiles.signal.isEmpty
                         ? null
                         : () {
                             ImageFiles.removeDone();
                           },
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.white70,
-                    ),
                     icon: const Icon(
                       Icons.close,
                       size: 20,

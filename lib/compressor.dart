@@ -1,19 +1,29 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:alic/imagefiles.dart';
 import 'package:alic/src/rust/api/simple.dart';
 import 'package:alic/workqueue.dart';
+import 'package:flutter/foundation.dart';
+
+import './config.dart';
 
 void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
   // Compress the image file by adding it to the queue, then run the callback when done.
+  final config = Config.signal.value;
   final ext = imageFile.path.split('.').last;
-  final outPath = imageFile.path.replaceAll('.$ext', '.min.$ext');
+  final outPath = imageFile.path.replaceAll('.$ext', '${config.postfix}.$ext');
 
   workQueue.add(() async {
     callback(imageFile.copyWith(status: ImageFileStatus.compressing));
     final timer = Stopwatch()..start();
-    var result = await imgcompress(path: imageFile.path, outPath: outPath);
+
+    var result = await imgcompress(
+        path: imageFile.path,
+        outPath: outPath,
+        jpegQuality: config.qualityJPEG,
+        pngQuality: config.qualityPNG,
+        gifQuality: config.qualityGIF,
+        webpQuality: config.qualityWEBP);
     timer.stop();
     debugPrint(
         'Compressed ${imageFile.file} in ${timer.elapsedMilliseconds}ms');
@@ -32,6 +42,12 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
         status: ImageFileStatus.unoptimized,
       ));
       return;
+    }
+    // Success!
+    if (!config.enablePostfix) {
+      // If postfix is disabled, replace the original file with the optimized one
+      File(imageFile.path).delete();
+      File(outPath).rename(imageFile.path);
     }
     callback(imageFile.copyWith(
       sizeAfterOptimization: sizeAfterOptimization,

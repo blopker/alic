@@ -65,7 +65,13 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 
 abstract class RustLibApi extends BaseApi {
   Future<String> imgcompress(
-      {required String path, required String outPath, dynamic hint});
+      {required String path,
+      required String outPath,
+      required int jpegQuality,
+      required int pngQuality,
+      required int webpQuality,
+      required int gifQuality,
+      dynamic hint});
 
   Future<void> initApp({dynamic hint});
 }
@@ -80,12 +86,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<String> imgcompress(
-      {required String path, required String outPath, dynamic hint}) {
+      {required String path,
+      required String outPath,
+      required int jpegQuality,
+      required int pngQuality,
+      required int webpQuality,
+      required int gifQuality,
+      dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(path, serializer);
         sse_encode_String(outPath, serializer);
+        sse_encode_u_32(jpegQuality, serializer);
+        sse_encode_u_32(pngQuality, serializer);
+        sse_encode_u_32(webpQuality, serializer);
+        sse_encode_u_32(gifQuality, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 1, port: port_);
       },
@@ -94,7 +110,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         decodeErrorData: null,
       ),
       constMeta: kImgcompressConstMeta,
-      argValues: [path, outPath],
+      argValues: [
+        path,
+        outPath,
+        jpegQuality,
+        pngQuality,
+        webpQuality,
+        gifQuality
+      ],
       apiImpl: this,
       hint: hint,
     ));
@@ -102,7 +125,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kImgcompressConstMeta => const TaskConstMeta(
         debugName: "imgcompress",
-        argNames: ["path", "outPath"],
+        argNames: [
+          "path",
+          "outPath",
+          "jpegQuality",
+          "pngQuality",
+          "webpQuality",
+          "gifQuality"
+        ],
       );
 
   @override
@@ -142,6 +172,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int dco_decode_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
   int dco_decode_u_8(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -165,6 +201,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint32();
   }
 
   @protected
@@ -202,6 +244,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint32(self);
   }
 
   @protected

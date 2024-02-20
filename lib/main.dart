@@ -37,6 +37,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Alic',
       theme: ThemeData(
+        scrollbarTheme: ScrollbarThemeData(
+          trackVisibility: MaterialStateProperty.resolveWith((states) {
+            return states.contains(MaterialState.hovered) ||
+                states.contains(MaterialState.dragged) ||
+                states.contains(MaterialState.scrolledUnder);
+          }),
+          trackColor: MaterialStateProperty.all(Colors.white30),
+        ),
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)
             .copyWith(background: const Color(0xFF1B1B1B)),

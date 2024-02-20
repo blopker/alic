@@ -68,6 +68,7 @@ class _FilesTableState extends State<FilesTable> {
 
   _createDataTable() {
     return DataTable2(
+      isVerticalScrollBarVisible: true,
       headingRowDecoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(

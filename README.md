@@ -25,7 +25,7 @@
 
 [![Product Name Screen Shot][product-screenshot]](alic-sc.min.png)
 
-Alic is a simple image compressor for MacOS. It has simple drag and drop interface that allows you to lossy compress images. It's a great tool for quickly compressing images for the web.
+Alic is a image compressor for MacOS. It has simple drag and drop interface that allows you to lossy compress images. It's a great tool for quickly compressing images for the web.
 
 Why compress images?
 
@@ -43,7 +43,7 @@ Supported image formats:
 - WebP
 - GIF
 
-Alic is heavily inspired by [ImageOptim](https://imageoptim.com/mac), but with modern compression algorithms for better compression and speed.
+Alic is heavily inspired by [ImageOptim](https://imageoptim.com/mac), but with modern compression algorithms for smaller files and speed.
 
 ## Installation
 
@@ -66,9 +66,9 @@ Drag and drop images into the window, images will automatically start compressin
 
 - [ ] Get the app signed with an Apple Developer ID
 - [ ] Automatically update the app
-- [ ] Add support for different optimization levels
+- [x] Add support for different optimization levels
 - [ ] Add support for lossless compression
-- [ ] Add support for dropping directories
+- [x] Add support for dropping directories
 - [ ] Add context menu for opening images in Alic from Finder
 
 ## Built With

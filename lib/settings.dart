@@ -135,7 +135,6 @@ class GeneralPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final postfixValue = Config.signal.value.postfix;
     return Watch(
       (context) {
         final config = Config.signal.value;
@@ -143,13 +142,13 @@ class GeneralPage extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text('Add postfix to filename'),
+                const Text('Overwrite original files'),
                 const Spacer(),
                 Switch(
-                  value: config.enablePostfix,
+                  value: !config.enablePostfix,
                   onChanged: (value) {
                     Config.signal.value =
-                        Config.signal.value.copyWith(enablePostfix: value);
+                        Config.signal.value.copyWith(enablePostfix: !value);
                   },
                 ),
               ],

@@ -74,10 +74,11 @@ class ImageFile {
   }
 
   String get sizeHumanReadable {
-    if (sizeAfterOptimization != null) {
-      return sizeAfterOptimization!.toHumanReadableFileSize();
-    }
-    return size.toHumanReadableFileSize();
+    return tableSize.toHumanReadableFileSize();
+  }
+
+  int get tableSize {
+    return sizeAfterOptimization ?? size;
   }
 
   const ImageFile({

@@ -147,7 +147,7 @@ class _FilesTableState extends State<FilesTable> {
       fixedWidth: 100,
       label: const Text('Size '),
       onSort: (columnIndex, asc) {
-        sorter((d) => d.size, columnIndex, asc);
+        sorter((d) => d.tableSize, columnIndex, asc);
       },
     );
     var savings = DataColumn2(

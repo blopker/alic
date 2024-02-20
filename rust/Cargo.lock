@@ -538,6 +538,7 @@ dependencies = [
  "jpeg-decoder",
  "num-traits",
  "png",
+ "tiff",
 ]
 
 [[package]]
@@ -622,8 +623,8 @@ checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
 
 [[package]]
 name = "libcaesium"
-version = "0.14.1"
-source = "git+https://github.com/Lymphatus/libcaesium.git?tag=0.14.1#09eb085bf370704d1d2eae7ad2918dfb93b85827"
+version = "0.15.1"
+source = "git+https://github.com/Lymphatus/libcaesium.git?tag=0.15.1#0fcdf774528034c819779cb0096a9eacfee63f7d"
 dependencies = [
  "bytes",
  "gifsicle",
@@ -635,6 +636,7 @@ dependencies = [
  "lodepng",
  "mozjpeg-sys",
  "oxipng",
+ "tiff",
  "webp",
 ]
 
@@ -995,6 +997,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d050e60b33d41c19108b32cea32164033a9013fe3b46cbd4457559bfbf77afaa"
 dependencies = [
  "num_cpus",
+]
+
+[[package]]
+name = "tiff"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba1310fcea54c6a9a4fd1aad794ecc02c31682f6bfbecdf460bf19533eed1e3e"
+dependencies = [
+ "flate2",
+ "jpeg-decoder",
+ "weezl",
 ]
 
 [[package]]

@@ -8,4 +8,4 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 flutter_rust_bridge = "=2.0.0-dev.22"
-libcaesium = { git = "https://github.com/Lymphatus/libcaesium.git", tag = "0.14.1" }
+libcaesium = { git = "https://github.com/Lymphatus/libcaesium.git", tag = "0.15.1" }

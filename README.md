@@ -97,6 +97,7 @@ Don't forget to give the project a star! Thanks again!
 To release a new version of Alic, follow these steps:
 
 1. Update the version in `pubspec.yaml`.
+1. Update `CHANGELOG.md`.
 1. Commit the changes, but do not push.
 1. Run `make release`.
 

@@ -84,7 +84,7 @@ class Config {
   static void init() {
     signal.value = readConfig();
     signals.effect(() {
-      print('Config changed: ${signal.value}');
+      debugPrint('Config changed: ${signal.value}');
       writeConfig(signal.value);
     });
   }
@@ -92,7 +92,7 @@ class Config {
   static ConfigData readConfig() {
     ensureConfigExists();
     var configData = configFile.readAsStringSync();
-    print('Read config: $configData');
+    debugPrint('Read config: $configData');
     return ConfigData.fromJson(jsonDecode(configData));
   }
 
@@ -103,10 +103,10 @@ class Config {
 
   static void ensureConfigExists() {
     if (!configDir.existsSync()) {
-      configDir.createSync();
+      configDir.createSync(recursive: true);
     }
-    if (!configFile.existsSync()) {
-      configFile.writeAsStringSync('{}');
+    if (!configFile.existsSync() || configFile.lengthSync() == 0) {
+      configFile.writeAsStringSync('{}', flush: true);
     }
   }
 

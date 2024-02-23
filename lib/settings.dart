@@ -256,8 +256,6 @@ class AdvancedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: const Text('Advanced'),
-    );
+    return const Text('Advanced');
   }
 }

@@ -13,7 +13,7 @@ dependencies:
   window_manager: ^0.3.8
   rust_builder:
     path: rust_builder
-  flutter_rust_bridge: 2.0.0-dev.24
+  flutter_rust_bridge: 2.0.0-dev.28
   file_selector: ^1.0.3
   signals: ^4.0.2
   open_file_macos: ^0.0.1

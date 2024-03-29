@@ -10,6 +10,7 @@ import 'package:window_manager/window_manager.dart';
 
 import './config.dart';
 import 'glass.dart';
+import 'theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,50 +35,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final config = Config.signal;
     return MaterialApp(
       title: 'Alic',
-      theme: ThemeData(
-        scrollbarTheme: ScrollbarThemeData(
-          trackVisibility: MaterialStateProperty.resolveWith((states) {
-            return states.contains(MaterialState.hovered) ||
-                states.contains(MaterialState.dragged) ||
-                states.contains(MaterialState.scrolledUnder);
-          }),
-          trackColor: MaterialStateProperty.all(Colors.white30),
-        ),
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)
-            .copyWith(background: const Color(0xFF1B1B1B)),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.white70),
-          bodyMedium: TextStyle(color: Colors.white70),
-          bodySmall: TextStyle(color: Colors.white70),
-          headlineLarge: TextStyle(color: Colors.white70),
-          headlineMedium: TextStyle(color: Colors.white70),
-          headlineSmall: TextStyle(color: Colors.white70),
-          titleLarge: TextStyle(color: Colors.white70),
-          titleMedium: TextStyle(color: Colors.white70),
-          titleSmall: TextStyle(color: Colors.white70),
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white70,
-          ),
-        ),
-        iconButtonTheme: IconButtonThemeData(
-            style: IconButton.styleFrom(
-          foregroundColor: Colors.white70,
-        )),
-        sliderTheme: const SliderThemeData(
-          activeTrackColor: Colors.white70,
-          inactiveTrackColor: Colors.white70,
-          thumbColor: Colors.white70,
-          overlayColor: Colors.white38,
-          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10),
-          overlayShape: RoundSliderOverlayShape(overlayRadius: 10),
-        ),
-      ),
+      theme: const MaterialTheme(TextTheme()).light(),
+      darkTheme: const MaterialTheme(TextTheme()).dark(),
       home: const HomePage(),
+      themeMode: config.watch(context).themeMode,
     );
   }
 }
@@ -102,8 +66,7 @@ class _HomePageState extends State<HomePage> {
             color: Colors.transparent,
             child: const Center(
               child: Icon(
-                Icons.download_sharp,
-                color: Colors.white70,
+                Icons.file_download,
                 size: 400,
               ),
             )).asGlass(
@@ -130,15 +93,8 @@ class BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         height: 50,
-        decoration: const BoxDecoration(
-          //#2D2D2D
-          color: Color(0xFF2D2D2D),
-          border: Border(
-            top: BorderSide(
-              color: Colors.black,
-              width: 0.5,
-            ),
-          ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.secondaryContainer,
         ),
         child: Row(
           children: [
@@ -177,7 +133,6 @@ class BottomBar extends StatelessWidget {
               },
               icon: const Icon(Icons.add),
               iconSize: 20,
-              color: Colors.white70,
               padding: const EdgeInsets.all(0),
             ),
             const SizedBox(
@@ -194,8 +149,7 @@ class BottomBar extends StatelessWidget {
               if (ImageFiles.isProcessing()) {
                 message += ' Processing...';
               }
-              return Text(message,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12));
+              return Text(message, style: const TextStyle(fontSize: 12));
             })),
             const SizedBox(
               width: 10,
@@ -218,11 +172,6 @@ class BottomBar extends StatelessWidget {
                 ),
                 Watch(
                   (_) => TextButton.icon(
-                    style: TextButton.styleFrom(
-                      disabledIconColor: Colors.white30,
-                      disabledForegroundColor: Colors.white30,
-                      foregroundColor: Colors.white70,
-                    ),
                     onPressed: ImageFiles.signal.isEmpty
                         ? null
                         : () {

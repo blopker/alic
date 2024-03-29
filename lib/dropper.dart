@@ -26,7 +26,8 @@ class MyDropRegion extends StatefulWidget {
 }
 
 class _MyDropRegionState extends State<MyDropRegion> {
-  double opacity = 0;
+  bool _showOverlay = false;
+  bool _overlayVisible = false;
 
   final formats = const [
     Formats.jpeg,
@@ -35,6 +36,22 @@ class _MyDropRegionState extends State<MyDropRegion> {
     Formats.webp,
     folderFormat
   ];
+
+  showOverlay() {
+    setState(() {
+      _overlayVisible = true;
+    });
+    setState(() {
+      _showOverlay = true;
+    });
+  }
+
+  hideOverlay() {
+    setState(() {
+      _showOverlay = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -58,15 +75,11 @@ class _MyDropRegionState extends State<MyDropRegion> {
             },
             onDropEnter: (event) {
               debugPrint('onDropEnter');
-              setState(() {
-                opacity = 1;
-              });
+              showOverlay();
             },
             onDropLeave: (event) {
               debugPrint('onDropLeave');
-              setState(() {
-                opacity = 0;
-              });
+              hideOverlay();
             },
             onPerformDrop: (event) async {
               debugPrint('onPerformDrop');
@@ -90,12 +103,14 @@ class _MyDropRegionState extends State<MyDropRegion> {
             child: Stack(children: [
               widget.child,
               Visibility(
-                  maintainAnimation: true,
                   maintainState: true,
-                  visible: opacity != 0,
+                  visible: _overlayVisible,
                   child: AnimatedOpacity(
-                      opacity: opacity,
-                      duration: const Duration(milliseconds: 100),
+                      opacity: _showOverlay ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 200),
+                      onEnd: () => setState(() {
+                            _overlayVisible = _showOverlay;
+                          }),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           return SizedBox(

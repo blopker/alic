@@ -1,5 +1,11 @@
-build: build_rust
+build: build_rust build_gen
 	flutter build macos
+
+watch:
+	dart run build_runner watch --delete-conflicting-outputs
+
+build_gen:
+	dart run build_runner build --delete-conflicting-outputs
 
 build_rust:
 	flutter_rust_bridge_codegen generate

@@ -25,21 +25,11 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      shadowColor: Colors.black,
-      backgroundColor: const Color(0xFF2D2D2D),
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
           child: SegmentedButton(
             selectedIcon: Container(),
-            style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
-                  return Colors.black;
-                }
-                return Colors.white70;
-              }),
-            ),
             onSelectionChanged: (p0) {
               final newPage = SettingsPages.values.firstWhere(
                   (element) => element.toString() == p0.first.toString());
@@ -142,6 +132,32 @@ class GeneralPage extends StatelessWidget {
           children: [
             Row(
               children: [
+                const Text('Theme'),
+                const Spacer(),
+                DropdownButton<ThemeMode>(
+                    items: const [
+                      DropdownMenuItem(
+                        value: ThemeMode.system,
+                        child: Text('System'),
+                      ),
+                      DropdownMenuItem(
+                        value: ThemeMode.light,
+                        child: Text('Light'),
+                      ),
+                      DropdownMenuItem(
+                        value: ThemeMode.dark,
+                        child: Text('Dark'),
+                      ),
+                    ],
+                    value: config.themeMode,
+                    onChanged: (v) {
+                      if (v == null) return;
+                      Config.signal.value = config.copyWith(themeMode: v);
+                    }),
+              ],
+            ),
+            Row(
+              children: [
                 const Text('Overwrite original files'),
                 const Spacer(),
                 Switch(
@@ -153,27 +169,6 @@ class GeneralPage extends StatelessWidget {
                 ),
               ],
             ),
-            // Row(
-            //   children: [
-            //     const Text('Postfix'),
-            //     const Spacer(),
-            //     SizedBox(
-            //       width: 100,
-            //       child: TextField(
-            //         controller: TextEditingController(
-            //             text: postfixValue == '.min' ? '' : postfixValue),
-            //         onTapOutside: (value) {
-            //           final newVal = value.isEmpty ? '.min' : value;
-            //           Config.signal.value =
-            //               Config.signal.value.copyWith(postfix: newVal);
-            //         },
-            //         decoration: const InputDecoration(
-            //           labelText: '.min',
-            //         ),
-            //       ),
-            //     )
-            //   ],
-            // ),
           ],
         );
       },

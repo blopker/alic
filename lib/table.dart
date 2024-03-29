@@ -72,7 +72,6 @@ class _FilesTableState extends State<FilesTable> {
       headingRowDecoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Colors.white30,
             width: 1,
           ),
         ),
@@ -162,30 +161,25 @@ class _FilesTableState extends State<FilesTable> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     if (rows.isEmpty) {
       return Center(
           child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: Colors.black12,
+          color: theme.focusColor,
           border: Border.all(
-              color: Colors.white30, width: 2, style: BorderStyle.solid),
+              color: theme.primaryColor.withAlpha(40),
+              width: 2,
+              style: BorderStyle.solid),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.file_download,
-          color: Colors.white30,
+          color: theme.iconTheme.color!.withAlpha(40),
           size: 200,
         ),
       ));
     }
-    return Theme(
-        data: Theme.of(context).copyWith(
-            iconTheme: const IconThemeData(color: Colors.white70),
-            dataTableTheme: const DataTableThemeData(
-              dataTextStyle: TextStyle(fontSize: 12, color: Colors.white70),
-              headingTextStyle: TextStyle(fontSize: 14, color: Colors.white70),
-              dividerThickness: 10,
-            )),
-        child: _createDataTable());
+    return _createDataTable();
   }
 }

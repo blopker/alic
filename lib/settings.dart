@@ -89,7 +89,7 @@ class QualitySliderWidget extends StatelessWidget {
       value: value.toDouble(),
       max: 100,
       min: 10,
-      divisions: 10,
+      divisions: 90,
       label: value.round().toString(),
       onChanged: (double value) {
         onChanged(value.round());

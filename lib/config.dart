@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -10,6 +11,8 @@ part 'config.g.dart';
 
 // A config file is created to store the configuration of the application.
 // Stored in $HOME/.config/alic/config.json
+
+Timer? _debounce;
 
 @freezed
 class ConfigData with _$ConfigData {
@@ -52,7 +55,10 @@ class Config {
 
   static void writeConfig(ConfigData configData) {
     ensureConfigExists();
-    configFile.writeAsStringSync(jsonEncode(configData.toJson()));
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      configFile.writeAsStringSync(jsonEncode(configData.toJson()));
+    });
   }
 
   static void ensureConfigExists() {
@@ -60,8 +66,7 @@ class Config {
       configDir.createSync(recursive: true);
     }
     if (!configFile.existsSync() || configFile.lengthSync() == 0) {
-      configFile.writeAsStringSync(jsonEncode(signal.value.toJson()),
-          flush: true);
+      writeConfig(signal.value);
     }
   }
 

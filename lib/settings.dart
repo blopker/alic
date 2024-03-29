@@ -24,11 +24,11 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
-          child: SegmentedButton(
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(children: [
+          SegmentedButton(
             selectedIcon: Container(),
             onSelectionChanged: (p0) {
               final newPage = SettingsPages.values.firstWhere(
@@ -43,23 +43,26 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 .toList(),
             selected: <dynamic>{_selectedPage.toString()},
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-          child: _getSelectedPage(),
-        ),
-        Row(
-          children: [
-            const Spacer(),
-            TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Close')),
-            const Spacer(),
-          ],
-        )
-      ],
+          const SizedBox(height: 10),
+          _getSelectedPage(),
+          const Spacer(),
+          Row(
+            children: [
+              TextButton(
+                  onPressed: () {
+                    Config.reset();
+                  },
+                  child: const Text('Reset')),
+              const Spacer(),
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Close')),
+            ],
+          )
+        ]),
+      ),
     );
   }
 
@@ -82,18 +85,15 @@ class QualitySliderWidget extends StatelessWidget {
   final void Function(int) onChanged;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Slider(
-        value: value.toDouble(),
-        max: 100,
-        min: 10,
-        divisions: 10,
-        label: value.round().toString(),
-        onChanged: (double value) {
-          onChanged(value.round());
-        },
-      ),
+    return Slider(
+      value: value.toDouble(),
+      max: 100,
+      min: 10,
+      divisions: 10,
+      label: value.round().toString(),
+      onChanged: (double value) {
+        onChanged(value.round());
+      },
     );
   }
 }
@@ -233,12 +233,6 @@ class QualityPage extends StatelessWidget {
                     }),
               ],
             ),
-            const SizedBox(height: 10),
-            TextButton(
-                onPressed: () {
-                  Config.reset();
-                },
-                child: const Text('Reset')),
           ],
         );
       },

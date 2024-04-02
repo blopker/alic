@@ -31,7 +31,6 @@ dev_dependencies:
   signals_lint: ^4.2.0
   freezed: ^2.4.7
   flutter_lints: ^3.0.1
-  dogs_generator: ^5.0.10
   integration_test:
     sdk: flutter
   build_runner: ^2.4.9

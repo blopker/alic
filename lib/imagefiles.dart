@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:alic/compressor.dart';
@@ -123,6 +124,8 @@ class ImageFile {
 
 class ImageFiles {
   static final signal = signals.listSignal<ImageFile>([]);
+  static final _updateQueue = <ImageFile>[];
+  static Timer? _debounce;
 
   static void add(String path) {
     final file0 = File(path);
@@ -135,7 +138,7 @@ class ImageFiles {
     if (signal.any((element) => element.path == file.path)) {
       return;
     }
-    signal.add(file);
+    update(file);
     compress(file);
   }
 
@@ -147,11 +150,23 @@ class ImageFiles {
   }
 
   static void update(ImageFile file) {
-    final index = signal.indexWhere((element) => element.path == file.path);
-    if (index == -1) {
-      return;
-    }
-    signal[index] = file;
+    _updateQueue.add(file);
+    if (_debounce?.isActive ?? false) return;
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      var files = [..._updateQueue];
+      _updateQueue.clear();
+      var oldFiles = signal.value.toList();
+      for (var file in files) {
+        final index =
+            oldFiles.indexWhere((element) => element.path == file.path);
+        if (index == -1) {
+          oldFiles.add(file);
+        } else {
+          oldFiles[index] = file;
+        }
+      }
+      signal.value = oldFiles;
+    });
   }
 
   static String dataSaved() {

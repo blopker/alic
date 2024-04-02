@@ -33,34 +33,32 @@ class _FilesTableState extends State<FilesTable> {
   }
 
   Widget getStatusIcon(ImageFile file) {
+    var theme = Theme.of(context);
     return switch (file.status) {
-      ImageFileStatus.success => const Tooltip(
-          message: 'Success', child: Icon(Icons.check, color: Colors.green)),
+      ImageFileStatus.success => Tooltip(
+          message: 'Success', child: Icon(Icons.check, color: theme.hintColor)),
       ImageFileStatus.error => Tooltip(
           message: file.errorMessage,
-          child: const Icon(Icons.error, color: Colors.red),
+          child: Icon(Icons.error, color: theme.colorScheme.error),
         ),
       ImageFileStatus.unoptimized => Tooltip(
           message: file.status.value,
-          child: const Icon(Icons.remove_outlined, color: Colors.orange),
+          child: Icon(Icons.remove_outlined, color: theme.hintColor),
         ),
       ImageFileStatus.pending => Tooltip(
           message: file.status.value,
-          child: const SizedBox(
+          child: SizedBox(
             height: 20,
             width: 20,
-            child: Icon(Icons.pending, color: Colors.white70),
+            child: Icon(Icons.pending, color: theme.disabledColor),
           ),
         ),
       _ => Tooltip(
           message: file.status.value,
-          child: const SizedBox(
+          child: SizedBox(
             height: 20,
             width: 20,
-            child: CircularProgressIndicator(
-              color: Colors.orange,
-              strokeWidth: 2,
-            ),
+            child: Icon(Icons.compress, color: theme.hintColor),
           ),
         ),
     };
@@ -97,7 +95,7 @@ class _FilesTableState extends State<FilesTable> {
               DataCell(getStatusIcon(rows[index])),
               DataCell(
                 Tooltip(
-                  waitDuration: const Duration(seconds: 1),
+                  waitDuration: const Duration(milliseconds: 500),
                   message: rows[index].path,
                   child: Text(
                     rows[index].file,

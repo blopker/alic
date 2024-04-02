@@ -17,13 +17,17 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
     callback(imageFile.copyWith(status: ImageFileStatus.compressing));
     final timer = Stopwatch()..start();
 
-    var result = await imgcompress(
-        path: imageFile.path,
-        outPath: outPath,
-        jpegQuality: config.qualityJPEG,
-        pngQuality: config.qualityPNG,
-        gifQuality: config.qualityGIF,
-        webpQuality: config.qualityWEBP);
+    var result = await processImg(
+      path: imageFile.path,
+      outPath: outPath,
+      jpegQuality: config.qualityJPEG,
+      pngQuality: config.qualityPNG,
+      gifQuality: config.qualityGIF,
+      webpQuality: config.qualityWEBP,
+      resize: config.resizeImages,
+      resizeWidth: config.maxWidth,
+      resizeHeight: config.maxHeight,
+    );
     timer.stop();
     debugPrint(
         'Compressed ${imageFile.file} in ${timer.elapsedMilliseconds}ms');

@@ -185,22 +185,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
-  conduit_codable:
-    dependency: transitive
-    description:
-      name: conduit_codable
-      sha256: "2530ccffacf1d3c177da68f163ca388f41cc68441d1e4ce39850559493bddf4a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.4.0"
-  conduit_open_api:
-    dependency: transitive
-    description:
-      name: conduit_open_api
-      sha256: defc948645a53a69506c902203ca1e4579461fc79b35129641a8f31e88cb213b
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.4.0"
   convert:
     dependency: transitive
     description:
@@ -289,30 +273,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0"
-  dogs_core:
-    dependency: transitive
-    description:
-      name: dogs_core
-      sha256: "2fe98298c3d3516a87719a2d425465aba5ea21f79386d065817abeb71f347b05"
-      url: "https://pub.dev"
-    source: hosted
-    version: "9.0.1"
-  dogs_generator:
-    dependency: "direct dev"
-    description:
-      name: dogs_generator
-      sha256: "1dd8d88583f76dd835f6abfd7da93f05d5be6d03a810c7d67034064f651b3494"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.3.6"
-  duffer:
-    dependency: transitive
-    description:
-      name: duffer
-      sha256: "9b3a850249200bdd941abe3fed0a5d53922cd296b31c34e4f95e37fa7351e49d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.2"
   fake_async:
     dependency: transitive
     description:
@@ -631,22 +591,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  lyell:
-    dependency: transitive
-    description:
-      name: lyell
-      sha256: "8fca9f4917b4a525d547f7c88e11842d712d6a48ec64abdeefebfdd5231f9966"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
-  lyell_gen:
-    dependency: transitive
-    description:
-      name: lyell_gen
-      sha256: "287d66fde5cae3cedb1cd33a43c2c9765b1bdbb9d1651e97d4f0dc8762d3e63d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.1"
   matcher:
     dependency: transitive
     description:
@@ -679,14 +623,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  mutex:
-    dependency: transitive
-    description:
-      name: mutex
-      sha256: "8827da25de792088eb33e572115a5eb0d61d61a3c01acbc8bcbe76ed78f1a1f2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.0"
   open_file_macos:
     dependency: "direct main"
     description:
@@ -775,14 +711,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
-  pubspec:
-    dependency: transitive
-    description:
-      name: pubspec
-      sha256: f534a50a2b4d48dc3bc0ec147c8bd7c304280fff23b153f3f11803c4d49d927e
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.0"
   pubspec_parse:
     dependency: transitive
     description:
@@ -791,22 +719,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.3"
-  quiver:
-    dependency: transitive
-    description:
-      name: quiver
-      sha256: b1c1ac5ce6688d77f65f3375a9abb9319b3cb32486bdc7a1e0fdf004d7ba4e47
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.2.1"
-  recase:
-    dependency: transitive
-    description:
-      name: recase
-      sha256: e4eb4ec2dcdee52dcf99cb4ceabaffc631d7424ee55e56f280bc039737f89213
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.1.0"
   rust_builder:
     dependency: "direct main"
     description:
@@ -1019,14 +931,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.2"
-  uri:
-    dependency: transitive
-    description:
-      name: uri
-      sha256: "889eea21e953187c6099802b7b4cf5219ba8f3518f604a1033064d45b1b8268a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   uuid:
     dependency: transitive
     description:

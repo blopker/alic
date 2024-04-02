@@ -25,6 +25,9 @@ mixin _$ConfigData {
   int get qualityPNG => throw _privateConstructorUsedError;
   int get qualityWEBP => throw _privateConstructorUsedError;
   int get qualityGIF => throw _privateConstructorUsedError;
+  bool get resizeImages => throw _privateConstructorUsedError;
+  int get maxWidth => throw _privateConstructorUsedError;
+  int get maxHeight => throw _privateConstructorUsedError;
   bool get enablePostfix => throw _privateConstructorUsedError;
   String get postfix => throw _privateConstructorUsedError;
   ThemeMode get themeMode => throw _privateConstructorUsedError;
@@ -47,6 +50,9 @@ abstract class $ConfigDataCopyWith<$Res> {
       int qualityPNG,
       int qualityWEBP,
       int qualityGIF,
+      bool resizeImages,
+      int maxWidth,
+      int maxHeight,
       bool enablePostfix,
       String postfix,
       ThemeMode themeMode});
@@ -70,6 +76,9 @@ class _$ConfigDataCopyWithImpl<$Res, $Val extends ConfigData>
     Object? qualityPNG = null,
     Object? qualityWEBP = null,
     Object? qualityGIF = null,
+    Object? resizeImages = null,
+    Object? maxWidth = null,
+    Object? maxHeight = null,
     Object? enablePostfix = null,
     Object? postfix = null,
     Object? themeMode = null,
@@ -94,6 +103,18 @@ class _$ConfigDataCopyWithImpl<$Res, $Val extends ConfigData>
       qualityGIF: null == qualityGIF
           ? _value.qualityGIF
           : qualityGIF // ignore: cast_nullable_to_non_nullable
+              as int,
+      resizeImages: null == resizeImages
+          ? _value.resizeImages
+          : resizeImages // ignore: cast_nullable_to_non_nullable
+              as bool,
+      maxWidth: null == maxWidth
+          ? _value.maxWidth
+          : maxWidth // ignore: cast_nullable_to_non_nullable
+              as int,
+      maxHeight: null == maxHeight
+          ? _value.maxHeight
+          : maxHeight // ignore: cast_nullable_to_non_nullable
               as int,
       enablePostfix: null == enablePostfix
           ? _value.enablePostfix
@@ -125,6 +146,9 @@ abstract class _$$ConfigDataImplCopyWith<$Res>
       int qualityPNG,
       int qualityWEBP,
       int qualityGIF,
+      bool resizeImages,
+      int maxWidth,
+      int maxHeight,
       bool enablePostfix,
       String postfix,
       ThemeMode themeMode});
@@ -146,6 +170,9 @@ class __$$ConfigDataImplCopyWithImpl<$Res>
     Object? qualityPNG = null,
     Object? qualityWEBP = null,
     Object? qualityGIF = null,
+    Object? resizeImages = null,
+    Object? maxWidth = null,
+    Object? maxHeight = null,
     Object? enablePostfix = null,
     Object? postfix = null,
     Object? themeMode = null,
@@ -170,6 +197,18 @@ class __$$ConfigDataImplCopyWithImpl<$Res>
       qualityGIF: null == qualityGIF
           ? _value.qualityGIF
           : qualityGIF // ignore: cast_nullable_to_non_nullable
+              as int,
+      resizeImages: null == resizeImages
+          ? _value.resizeImages
+          : resizeImages // ignore: cast_nullable_to_non_nullable
+              as bool,
+      maxWidth: null == maxWidth
+          ? _value.maxWidth
+          : maxWidth // ignore: cast_nullable_to_non_nullable
+              as int,
+      maxHeight: null == maxHeight
+          ? _value.maxHeight
+          : maxHeight // ignore: cast_nullable_to_non_nullable
               as int,
       enablePostfix: null == enablePostfix
           ? _value.enablePostfix
@@ -196,6 +235,9 @@ class _$ConfigDataImpl implements _ConfigData {
       this.qualityPNG = 80,
       this.qualityWEBP = 60,
       this.qualityGIF = 80,
+      this.resizeImages = false,
+      this.maxWidth = 1920,
+      this.maxHeight = 1080,
       this.enablePostfix = true,
       this.postfix = '.min',
       this.themeMode = ThemeMode.system});
@@ -220,6 +262,15 @@ class _$ConfigDataImpl implements _ConfigData {
   final int qualityGIF;
   @override
   @JsonKey()
+  final bool resizeImages;
+  @override
+  @JsonKey()
+  final int maxWidth;
+  @override
+  @JsonKey()
+  final int maxHeight;
+  @override
+  @JsonKey()
   final bool enablePostfix;
   @override
   @JsonKey()
@@ -230,7 +281,7 @@ class _$ConfigDataImpl implements _ConfigData {
 
   @override
   String toString() {
-    return 'ConfigData(qualityJPEG: $qualityJPEG, lossy: $lossy, qualityPNG: $qualityPNG, qualityWEBP: $qualityWEBP, qualityGIF: $qualityGIF, enablePostfix: $enablePostfix, postfix: $postfix, themeMode: $themeMode)';
+    return 'ConfigData(qualityJPEG: $qualityJPEG, lossy: $lossy, qualityPNG: $qualityPNG, qualityWEBP: $qualityWEBP, qualityGIF: $qualityGIF, resizeImages: $resizeImages, maxWidth: $maxWidth, maxHeight: $maxHeight, enablePostfix: $enablePostfix, postfix: $postfix, themeMode: $themeMode)';
   }
 
   @override
@@ -247,6 +298,12 @@ class _$ConfigDataImpl implements _ConfigData {
                 other.qualityWEBP == qualityWEBP) &&
             (identical(other.qualityGIF, qualityGIF) ||
                 other.qualityGIF == qualityGIF) &&
+            (identical(other.resizeImages, resizeImages) ||
+                other.resizeImages == resizeImages) &&
+            (identical(other.maxWidth, maxWidth) ||
+                other.maxWidth == maxWidth) &&
+            (identical(other.maxHeight, maxHeight) ||
+                other.maxHeight == maxHeight) &&
             (identical(other.enablePostfix, enablePostfix) ||
                 other.enablePostfix == enablePostfix) &&
             (identical(other.postfix, postfix) || other.postfix == postfix) &&
@@ -256,8 +313,19 @@ class _$ConfigDataImpl implements _ConfigData {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, qualityJPEG, lossy, qualityPNG,
-      qualityWEBP, qualityGIF, enablePostfix, postfix, themeMode);
+  int get hashCode => Object.hash(
+      runtimeType,
+      qualityJPEG,
+      lossy,
+      qualityPNG,
+      qualityWEBP,
+      qualityGIF,
+      resizeImages,
+      maxWidth,
+      maxHeight,
+      enablePostfix,
+      postfix,
+      themeMode);
 
   @JsonKey(ignore: true)
   @override
@@ -280,6 +348,9 @@ abstract class _ConfigData implements ConfigData {
       final int qualityPNG,
       final int qualityWEBP,
       final int qualityGIF,
+      final bool resizeImages,
+      final int maxWidth,
+      final int maxHeight,
       final bool enablePostfix,
       final String postfix,
       final ThemeMode themeMode}) = _$ConfigDataImpl;
@@ -297,6 +368,12 @@ abstract class _ConfigData implements ConfigData {
   int get qualityWEBP;
   @override
   int get qualityGIF;
+  @override
+  bool get resizeImages;
+  @override
+  int get maxWidth;
+  @override
+  int get maxHeight;
   @override
   bool get enablePostfix;
   @override

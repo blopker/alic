@@ -64,16 +64,19 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<String> imgcompress(
+  Future<void> initApp({dynamic hint});
+
+  Future<String> processImg(
       {required String path,
       required String outPath,
       required int jpegQuality,
       required int pngQuality,
       required int webpQuality,
       required int gifQuality,
+      required bool resize,
+      required int resizeWidth,
+      required int resizeHeight,
       dynamic hint});
-
-  Future<void> initApp({dynamic hint});
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -83,57 +86,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     required super.generalizedFrbRustBinding,
     required super.portManager,
   });
-
-  @override
-  Future<String> imgcompress(
-      {required String path,
-      required String outPath,
-      required int jpegQuality,
-      required int pngQuality,
-      required int webpQuality,
-      required int gifQuality,
-      dynamic hint}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(path, serializer);
-        sse_encode_String(outPath, serializer);
-        sse_encode_u_32(jpegQuality, serializer);
-        sse_encode_u_32(pngQuality, serializer);
-        sse_encode_u_32(webpQuality, serializer);
-        sse_encode_u_32(gifQuality, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 1, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: null,
-      ),
-      constMeta: kImgcompressConstMeta,
-      argValues: [
-        path,
-        outPath,
-        jpegQuality,
-        pngQuality,
-        webpQuality,
-        gifQuality
-      ],
-      apiImpl: this,
-      hint: hint,
-    ));
-  }
-
-  TaskConstMeta get kImgcompressConstMeta => const TaskConstMeta(
-        debugName: "imgcompress",
-        argNames: [
-          "path",
-          "outPath",
-          "jpegQuality",
-          "pngQuality",
-          "webpQuality",
-          "gifQuality"
-        ],
-      );
 
   @override
   Future<void> initApp({dynamic hint}) {
@@ -159,10 +111,79 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         argNames: [],
       );
 
+  @override
+  Future<String> processImg(
+      {required String path,
+      required String outPath,
+      required int jpegQuality,
+      required int pngQuality,
+      required int webpQuality,
+      required int gifQuality,
+      required bool resize,
+      required int resizeWidth,
+      required int resizeHeight,
+      dynamic hint}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(path, serializer);
+        sse_encode_String(outPath, serializer);
+        sse_encode_u_32(jpegQuality, serializer);
+        sse_encode_u_32(pngQuality, serializer);
+        sse_encode_u_32(webpQuality, serializer);
+        sse_encode_u_32(gifQuality, serializer);
+        sse_encode_bool(resize, serializer);
+        sse_encode_u_32(resizeWidth, serializer);
+        sse_encode_u_32(resizeHeight, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 1, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: null,
+      ),
+      constMeta: kProcessImgConstMeta,
+      argValues: [
+        path,
+        outPath,
+        jpegQuality,
+        pngQuality,
+        webpQuality,
+        gifQuality,
+        resize,
+        resizeWidth,
+        resizeHeight
+      ],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kProcessImgConstMeta => const TaskConstMeta(
+        debugName: "process_img",
+        argNames: [
+          "path",
+          "outPath",
+          "jpegQuality",
+          "pngQuality",
+          "webpQuality",
+          "gifQuality",
+          "resize",
+          "resizeWidth",
+          "resizeHeight"
+        ],
+      );
+
   @protected
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as String;
+  }
+
+  @protected
+  bool dco_decode_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as bool;
   }
 
   @protected
@@ -197,6 +218,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  bool sse_decode_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint8() != 0;
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
@@ -227,15 +254,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  bool sse_decode_bool(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getUint8() != 0;
-  }
-
-  @protected
   void sse_encode_String(String self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
+  }
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint8(self ? 1 : 0);
   }
 
   @protected
@@ -267,11 +294,5 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt32(self);
-  }
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putUint8(self ? 1 : 0);
   }
 }

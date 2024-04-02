@@ -1,10 +1,12 @@
 import 'package:alic/config.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:signals/signals_flutter.dart';
 
 enum SettingsPages {
   general('General'),
-  quality('Quality');
+  quality('Quality'),
+  resize('Resize');
   // advanced('Advanced');
 
   const SettingsPages(this.title);
@@ -72,6 +74,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         return const GeneralPage();
       case SettingsPages.quality:
         return const QualityPage();
+      case SettingsPages.resize:
+        return const ResizePage();
       // case SettingsPages.advanced:
       //   return const AdvancedPage();
     }
@@ -94,28 +98,6 @@ class QualitySliderWidget extends StatelessWidget {
       onChanged: (double value) {
         onChanged(value.round());
       },
-    );
-  }
-}
-
-class SliderWidget extends StatelessWidget {
-  const SliderWidget({super.key, required this.value, required this.onChanged});
-  final int value;
-  final void Function(int) onChanged;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Slider(
-        value: value.toDouble(),
-        max: 100,
-        min: 0,
-        divisions: 10,
-        label: value.round().toString(),
-        onChanged: (double value) {
-          onChanged(value.round());
-        },
-      ),
     );
   }
 }
@@ -231,6 +213,85 @@ class QualityPage extends StatelessWidget {
                       Config.signal.value =
                           Config.signal.value.copyWith(qualityWEBP: value);
                     }),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class ResizePage extends StatelessWidget {
+  const ResizePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var theme = Theme.of(context);
+    return Watch(
+      (context) {
+        final config = Config.signal.value;
+        return Column(
+          children: [
+            const SizedBox(height: 10),
+            Text(
+              'Resize images to fit within the specified dimensions. Keeps original aspect ratio. Does not enlarge images.',
+              style: theme.textTheme.labelSmall,
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Text('Resize images'),
+                const Spacer(),
+                Switch(
+                  value: config.resizeImages,
+                  onChanged: (value) {
+                    Config.signal.value =
+                        Config.signal.value.copyWith(resizeImages: value);
+                  },
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Text('Maximum width'),
+                const Spacer(),
+                SizedBox(
+                    width: 150,
+                    child: TextFormField(
+                        initialValue: config.maxWidth.toString(),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        decoration:
+                            const InputDecoration(labelText: 'Max width (px)'),
+                        onChanged: (value) {
+                          if (value.isEmpty) return;
+                          Config.signal.value = Config.signal.value
+                              .copyWith(maxWidth: int.parse(value));
+                        })),
+              ],
+            ),
+            Row(
+              children: [
+                const Text('Maximum height'),
+                const Spacer(),
+                SizedBox(
+                    width: 150,
+                    child: TextFormField(
+                        initialValue: config.maxWidth.toString(),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        decoration:
+                            const InputDecoration(labelText: 'Max height (px)'),
+                        onChanged: (value) {
+                          if (value.isEmpty) return;
+                          Config.signal.value = Config.signal.value
+                              .copyWith(maxHeight: int.parse(value));
+                        })),
               ],
             ),
           ],

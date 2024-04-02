@@ -70,6 +70,7 @@ Drag and drop images into the window, images will automatically start compressin
 - [ ] Add support for lossless compression
 - [x] Add support for dropping directories
 - [ ] Add context menu for opening images in Alic from Finder
+- [x] Add support for resizing images if they are over a certain size
 
 ## Built With
 

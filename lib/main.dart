@@ -140,7 +140,14 @@ class BottomBar extends StatelessWidget {
             ),
             Expanded(child: Watch((context) {
               var files = ImageFiles.signal;
+              var config = Config.signal;
               var message = 'No files added';
+              if (!config().enablePostfix) {
+                message += ', overwriting original files';
+              }
+              if (config().resizeImages) {
+                message += ', resizing images';
+              }
               if (files.isNotEmpty) {
                 final filePlural = files.length == 1 ? 'file' : 'files';
                 message =

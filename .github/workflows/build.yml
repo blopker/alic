@@ -30,3 +30,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: "Alic Image Compressor.dmg"
+          body: "See [CHANGELOG](https://github.com/blopker/alic/blob/main/CHANGELOG.md) for details."

@@ -1,3 +1,7 @@
+# 1.2.2
+
+- Fixed a bug where the app would crash on first startup. Thanks @jsardev!
+
 # 1.2.1
 
 - Added a more helpful status message on startup showing activated settings.

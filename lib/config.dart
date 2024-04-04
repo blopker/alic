@@ -69,7 +69,7 @@ class Config {
       configDir.createSync(recursive: true);
     }
     if (!configFile.existsSync() || configFile.lengthSync() == 0) {
-      writeConfig(signal.value);
+      configFile.writeAsStringSync(jsonEncode(signal.value.toJson()));
     }
   }
 

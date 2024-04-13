@@ -43,11 +43,11 @@ Supported image formats:
 - WebP
 - GIF
 
-Alic is heavily inspired by [ImageOptim](https://imageoptim.com/mac), but with modern compression algorithms for smaller files and speed.
+Alic is heavily inspired by [ImageOptim](imageoptim-url), but with modern compression algorithms for smaller files and speed.
 
 ## Installation
 
-Start by downloading the latest release from the [releases page](https://github.com/blopker/alic/releases). Then, drag the app to your Applications folder and open it.
+Start by downloading the latest release from the [releases page](project-release-url). Then, drag the app to your Applications folder and open it.
 
 **The first time you open Alic**, you will need to hold down the `option` key and right click the app in the Applications folder. Then click "Open" and then "Open" again. This is because Alic is not signed with an Apple Developer ID yet.
 
@@ -60,7 +60,8 @@ Drag and drop images into the window, images will automatically start compressin
 ## Differences from ImageOptim
 
 - Alic's compressor is written in Rust, uses modern compression algorithms and is done all in process. This makes Alic noticeably faster, and produces smaller file sizes.
-- Alic does not overwrite the original images, it saves the compressed images in the same directory as the original images with a `.min.` suffix.
+- Alic does not overwrite the original images by default, it saves the compressed images in the same directory as the original images with a `.min.` suffix. Alic can be configured to overwrite the original images.
+- Alic can resize images if they are over a certain size. Images will not be resized by default, and images will not be upscaled.
 
 ## Roadmap
 
@@ -74,7 +75,7 @@ Drag and drop images into the window, images will automatically start compressin
 
 ## Built With
 
-Alic a GUI for the [`libcaesium`](https://github.com/Lymphatus/libcaesium) Rust library, with a UI written in Flutter.
+Alic a GUI for the [`libcaesium`](libcaesium-url) Rust library, with a UI written in Flutter.
 
 ### Requirements
 
@@ -108,18 +109,24 @@ Distributed under the GNU 3.0 License. See `LICENSE` for more information.
 
 ## Contact
 
-Project Link: [https://github.com/blopker/alic](https://github.com/blopker/alic)
+Use the issue tracker at the [Project Link](project-url).
 
 ## Acknowledgments ❤️
 
 This project would not be possible without the following open source projects:
 
-- For compression: [libcaesium](https://github.com/Lymphatus/libcaesium)
-- Original inspiration: [ImageOptim](https://imageoptim.com/mac)
-- Rust interop: [flutter_rust_bridge](https://cjycode.com/flutter_rust_bridge/)
-- UI: [Flutter](https://flutter.dev/)
+- For compression: [libcaesium](libcaesium-url)
+- Original inspiration: [ImageOptim](imageoptim-url)
+- Rust interop: [flutter_rust_bridge](flutter-rust-bridge-url)
+- UI: [Flutter](flutter-url)
 
 [license-url]: https://github.com/blopker/alic/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/blopker
 [product-screenshot]: alic-sc.min.png
+[libcaesium-url]: https://github.com/Lymphatus/libcaesium
+[flutter-rust-bridge-url]: https://cjycode.com/flutter_rust_bridge/
+[flutter-url]: https://flutter.dev/
+[imageoptim-url]: https://imageoptim.com/mac
+[project-url]: https://github.com/blopker/alic
+[project-release-url]: https://github.com/blopker/alic/releases

@@ -13,9 +13,9 @@ dependencies:
   window_manager: ^0.3.8
   rust_builder:
     path: rust_builder
-  flutter_rust_bridge: 2.0.0-dev.28
+  flutter_rust_bridge: 2.0.0-dev.31
   file_selector: ^1.0.3
-  signals: ^4.0.2
+  signals: ^5.0.0
   open_file_macos: ^0.0.1
   data_table_2: ^2.5.10
   super_drag_and_drop: ^0.8.4
@@ -28,7 +28,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  signals_lint: ^4.2.0
+  signals_lint: ^5.0.0
   freezed: ^2.4.7
   flutter_lints: ^3.0.1
   integration_test:

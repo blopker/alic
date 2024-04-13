@@ -43,11 +43,11 @@ Supported image formats:
 - WebP
 - GIF
 
-Alic is heavily inspired by [ImageOptim](imageoptim-url), but with modern compression algorithms for smaller files and speed.
+Alic is heavily inspired by [ImageOptim][imageoptim-url], but with modern compression algorithms for smaller files and speed.
 
 ## Installation
 
-Start by downloading the latest release from the [releases page](project-release-url). Then, drag the app to your Applications folder and open it.
+Start by downloading the latest release from the [releases page][project-release-url]. Then, drag the app to your Applications folder and open it.
 
 **The first time you open Alic**, you will need to hold down the `option` key and right click the app in the Applications folder. Then click "Open" and then "Open" again. This is because Alic is not signed with an Apple Developer ID yet.
 
@@ -75,7 +75,7 @@ Drag and drop images into the window, images will automatically start compressin
 
 ## Built With
 
-Alic a GUI for the [`libcaesium`](libcaesium-url) Rust library, with a UI written in Flutter.
+Alic a GUI for the [`libcaesium`][libcaesium-url] Rust library, with a UI written in Flutter.
 
 ### Requirements
 
@@ -109,7 +109,7 @@ Distributed under the GNU 3.0 License. See `LICENSE` for more information.
 
 ## Contact
 
-Use the issue tracker at the [Project Link](project-url).
+Use the issue tracker at the [Project Link][project-url].
 
 ## Acknowledgments ❤️
 

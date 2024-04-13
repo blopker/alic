@@ -115,10 +115,10 @@ Use the issue tracker at the [Project Link](project-url).
 
 This project would not be possible without the following open source projects:
 
-- For compression: [libcaesium](libcaesium-url)
-- Original inspiration: [ImageOptim](imageoptim-url)
-- Rust interop: [flutter_rust_bridge](flutter-rust-bridge-url)
-- UI: [Flutter](flutter-url)
+- For compression: [libcaesium][libcaesium-url]
+- Original inspiration: [ImageOptim][imageoptim-url]
+- Rust interop: [flutter_rust_bridge][flutter-rust-bridge-url]
+- UI: [Flutter][flutter-url]
 
 [license-url]: https://github.com/blopker/alic/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555

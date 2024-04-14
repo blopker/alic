@@ -1,3 +1,8 @@
+# 1.3.0
+
+- Added a way to check for updates. Click "Check for Updates" in the app menu bar to see if there is a new version available.
+- Update some dependencies
+
 # 1.2.2
 
 - Fixed a bug where the app would crash on first startup. Thanks @jsardev!

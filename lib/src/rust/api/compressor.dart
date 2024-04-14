@@ -9,22 +9,50 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 Future<String> processImg(
         {required String path,
         required String outPath,
-        required int jpegQuality,
-        required int pngQuality,
-        required int webpQuality,
-        required int gifQuality,
-        required bool resize,
-        required int resizeWidth,
-        required int resizeHeight,
+        required Parameters parameters,
         dynamic hint}) =>
     RustLib.instance.api.processImg(
-        path: path,
-        outPath: outPath,
-        jpegQuality: jpegQuality,
-        pngQuality: pngQuality,
-        webpQuality: webpQuality,
-        gifQuality: gifQuality,
-        resize: resize,
-        resizeWidth: resizeWidth,
-        resizeHeight: resizeHeight,
-        hint: hint);
+        path: path, outPath: outPath, parameters: parameters, hint: hint);
+
+class Parameters {
+  final int jpegQuality;
+  final int pngQuality;
+  final int webpQuality;
+  final int gifQuality;
+  final bool resize;
+  final int resizeWidth;
+  final int resizeHeight;
+
+  const Parameters({
+    required this.jpegQuality,
+    required this.pngQuality,
+    required this.webpQuality,
+    required this.gifQuality,
+    required this.resize,
+    required this.resizeWidth,
+    required this.resizeHeight,
+  });
+
+  @override
+  int get hashCode =>
+      jpegQuality.hashCode ^
+      pngQuality.hashCode ^
+      webpQuality.hashCode ^
+      gifQuality.hashCode ^
+      resize.hashCode ^
+      resizeWidth.hashCode ^
+      resizeHeight.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Parameters &&
+          runtimeType == other.runtimeType &&
+          jpegQuality == other.jpegQuality &&
+          pngQuality == other.pngQuality &&
+          webpQuality == other.webpQuality &&
+          gifQuality == other.gifQuality &&
+          resize == other.resize &&
+          resizeWidth == other.resizeWidth &&
+          resizeHeight == other.resizeHeight;
+}

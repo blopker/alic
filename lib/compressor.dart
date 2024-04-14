@@ -19,9 +19,7 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
     callback(imageFile.copyWith(status: ImageFileStatus.compressing));
     final timer = Stopwatch()..start();
 
-    var result = await processImg(
-      path: imageFile.path,
-      outPath: outPath,
+    var params = Parameters(
       jpegQuality: config.qualityJPEG,
       pngQuality: config.qualityPNG,
       gifQuality: config.qualityGIF,
@@ -29,6 +27,12 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
       resize: config.resizeImages,
       resizeWidth: config.maxWidth,
       resizeHeight: config.maxHeight,
+    );
+
+    var result = await processImg(
+      path: imageFile.path,
+      outPath: outPath,
+      parameters: params,
     );
     timer.stop();
     debugPrint(

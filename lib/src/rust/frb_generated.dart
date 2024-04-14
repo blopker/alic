@@ -69,13 +69,7 @@ abstract class RustLibApi extends BaseApi {
   Future<String> processImg(
       {required String path,
       required String outPath,
-      required int jpegQuality,
-      required int pngQuality,
-      required int webpQuality,
-      required int gifQuality,
-      required bool resize,
-      required int resizeWidth,
-      required int resizeHeight,
+      required Parameters parameters,
       dynamic hint});
 }
 
@@ -115,26 +109,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   Future<String> processImg(
       {required String path,
       required String outPath,
-      required int jpegQuality,
-      required int pngQuality,
-      required int webpQuality,
-      required int gifQuality,
-      required bool resize,
-      required int resizeWidth,
-      required int resizeHeight,
+      required Parameters parameters,
       dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(path, serializer);
         sse_encode_String(outPath, serializer);
-        sse_encode_u_32(jpegQuality, serializer);
-        sse_encode_u_32(pngQuality, serializer);
-        sse_encode_u_32(webpQuality, serializer);
-        sse_encode_u_32(gifQuality, serializer);
-        sse_encode_bool(resize, serializer);
-        sse_encode_u_32(resizeWidth, serializer);
-        sse_encode_u_32(resizeHeight, serializer);
+        sse_encode_box_autoadd_parameters(parameters, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 1, port: port_);
       },
@@ -143,17 +125,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         decodeErrorData: null,
       ),
       constMeta: kProcessImgConstMeta,
-      argValues: [
-        path,
-        outPath,
-        jpegQuality,
-        pngQuality,
-        webpQuality,
-        gifQuality,
-        resize,
-        resizeWidth,
-        resizeHeight
-      ],
+      argValues: [path, outPath, parameters],
       apiImpl: this,
       hint: hint,
     ));
@@ -161,17 +133,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kProcessImgConstMeta => const TaskConstMeta(
         debugName: "process_img",
-        argNames: [
-          "path",
-          "outPath",
-          "jpegQuality",
-          "pngQuality",
-          "webpQuality",
-          "gifQuality",
-          "resize",
-          "resizeWidth",
-          "resizeHeight"
-        ],
+        argNames: ["path", "outPath", "parameters"],
       );
 
   @protected
@@ -187,9 +149,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  Parameters dco_decode_box_autoadd_parameters(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_parameters(raw);
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
+  }
+
+  @protected
+  Parameters dco_decode_parameters(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    return Parameters(
+      jpegQuality: dco_decode_u_32(arr[0]),
+      pngQuality: dco_decode_u_32(arr[1]),
+      webpQuality: dco_decode_u_32(arr[2]),
+      gifQuality: dco_decode_u_32(arr[3]),
+      resize: dco_decode_bool(arr[4]),
+      resizeWidth: dco_decode_u_32(arr[5]),
+      resizeHeight: dco_decode_u_32(arr[6]),
+    );
   }
 
   @protected
@@ -224,10 +209,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  Parameters sse_decode_box_autoadd_parameters(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_parameters(deserializer));
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  Parameters sse_decode_parameters(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_jpegQuality = sse_decode_u_32(deserializer);
+    var var_pngQuality = sse_decode_u_32(deserializer);
+    var var_webpQuality = sse_decode_u_32(deserializer);
+    var var_gifQuality = sse_decode_u_32(deserializer);
+    var var_resize = sse_decode_bool(deserializer);
+    var var_resizeWidth = sse_decode_u_32(deserializer);
+    var var_resizeHeight = sse_decode_u_32(deserializer);
+    return Parameters(
+        jpegQuality: var_jpegQuality,
+        pngQuality: var_pngQuality,
+        webpQuality: var_webpQuality,
+        gifQuality: var_gifQuality,
+        resize: var_resize,
+        resizeWidth: var_resizeWidth,
+        resizeHeight: var_resizeHeight);
   }
 
   @protected
@@ -266,11 +277,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_parameters(
+      Parameters self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_parameters(self, serializer);
+  }
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
       Uint8List self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_parameters(Parameters self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self.jpegQuality, serializer);
+    sse_encode_u_32(self.pngQuality, serializer);
+    sse_encode_u_32(self.webpQuality, serializer);
+    sse_encode_u_32(self.gifQuality, serializer);
+    sse_encode_bool(self.resize, serializer);
+    sse_encode_u_32(self.resizeWidth, serializer);
+    sse_encode_u_32(self.resizeHeight, serializer);
   }
 
   @protected

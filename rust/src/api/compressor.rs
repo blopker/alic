@@ -2,17 +2,17 @@ use caesium;
 use image;
 use image::DynamicImage;
 
-pub fn process_img(
-    path: String,
-    out_path: String,
-    jpeg_quality: u32,
-    png_quality: u32,
-    webp_quality: u32,
-    gif_quality: u32,
-    resize: bool,
-    resize_width: u32,
-    resize_height: u32,
-) -> String {
+pub struct Parameters {
+    pub jpeg_quality: u32,
+    pub png_quality: u32,
+    pub webp_quality: u32,
+    pub gif_quality: u32,
+    pub resize: bool,
+    pub resize_width: u32,
+    pub resize_height: u32,
+}
+
+pub fn process_img(path: String, out_path: String, parameters: Parameters) -> String {
     let result = read_image(path.clone());
 
     if result.is_err() {
@@ -24,12 +24,12 @@ pub fn process_img(
     let mut width = 0;
 
     // set the largest dimension to the resize value, only if the image size is larger than the resize value
-    if resize {
-        if img.width() > resize_width || img.height() > resize_height {
+    if parameters.resize {
+        if img.width() > parameters.resize_width || img.height() > parameters.resize_height {
             if img.width() > img.height() {
-                width = resize_width;
+                width = parameters.resize_width;
             } else {
-                height = resize_height;
+                height = parameters.resize_height;
             }
         }
     }
@@ -37,10 +37,10 @@ pub fn process_img(
     let result = compress_image(
         path.clone(),
         out_path,
-        jpeg_quality,
-        png_quality,
-        webp_quality,
-        gif_quality,
+        parameters.jpeg_quality,
+        parameters.png_quality,
+        parameters.webp_quality,
+        parameters.gif_quality,
         width,
         height,
     );

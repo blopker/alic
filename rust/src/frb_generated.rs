@@ -93,26 +93,15 @@ fn wire_process_img_impl(
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_path = <String>::sse_decode(&mut deserializer);
             let api_out_path = <String>::sse_decode(&mut deserializer);
-            let api_jpeg_quality = <u32>::sse_decode(&mut deserializer);
-            let api_png_quality = <u32>::sse_decode(&mut deserializer);
-            let api_webp_quality = <u32>::sse_decode(&mut deserializer);
-            let api_gif_quality = <u32>::sse_decode(&mut deserializer);
-            let api_resize = <bool>::sse_decode(&mut deserializer);
-            let api_resize_width = <u32>::sse_decode(&mut deserializer);
-            let api_resize_height = <u32>::sse_decode(&mut deserializer);
+            let api_parameters =
+                <crate::api::compressor::Parameters>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse((move || {
                     Result::<_, ()>::Ok(crate::api::compressor::process_img(
                         api_path,
                         api_out_path,
-                        api_jpeg_quality,
-                        api_png_quality,
-                        api_webp_quality,
-                        api_gif_quality,
-                        api_resize,
-                        api_resize_width,
-                        api_resize_height,
+                        api_parameters,
                     ))
                 })())
             }
@@ -146,6 +135,28 @@ impl SseDecode for Vec<u8> {
             ans_.push(<u8>::sse_decode(deserializer));
         }
         return ans_;
+    }
+}
+
+impl SseDecode for crate::api::compressor::Parameters {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_jpegQuality = <u32>::sse_decode(deserializer);
+        let mut var_pngQuality = <u32>::sse_decode(deserializer);
+        let mut var_webpQuality = <u32>::sse_decode(deserializer);
+        let mut var_gifQuality = <u32>::sse_decode(deserializer);
+        let mut var_resize = <bool>::sse_decode(deserializer);
+        let mut var_resizeWidth = <u32>::sse_decode(deserializer);
+        let mut var_resizeHeight = <u32>::sse_decode(deserializer);
+        return crate::api::compressor::Parameters {
+            jpeg_quality: var_jpegQuality,
+            png_quality: var_pngQuality,
+            webp_quality: var_webpQuality,
+            gif_quality: var_gifQuality,
+            resize: var_resize,
+            resize_width: var_resizeWidth,
+            resize_height: var_resizeHeight,
+        };
     }
 }
 
@@ -204,6 +215,33 @@ fn pde_ffi_dispatcher_sync_impl(
 
 // Section: rust2dart
 
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::compressor::Parameters {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.jpeg_quality.into_into_dart().into_dart(),
+            self.png_quality.into_into_dart().into_dart(),
+            self.webp_quality.into_into_dart().into_dart(),
+            self.gif_quality.into_into_dart().into_dart(),
+            self.resize.into_into_dart().into_dart(),
+            self.resize_width.into_into_dart().into_dart(),
+            self.resize_height.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::compressor::Parameters
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::compressor::Parameters>
+    for crate::api::compressor::Parameters
+{
+    fn into_into_dart(self) -> crate::api::compressor::Parameters {
+        self
+    }
+}
+
 impl SseEncode for String {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -225,6 +263,19 @@ impl SseEncode for Vec<u8> {
         for item in self {
             <u8>::sse_encode(item, serializer);
         }
+    }
+}
+
+impl SseEncode for crate::api::compressor::Parameters {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u32>::sse_encode(self.jpeg_quality, serializer);
+        <u32>::sse_encode(self.png_quality, serializer);
+        <u32>::sse_encode(self.webp_quality, serializer);
+        <u32>::sse_encode(self.gif_quality, serializer);
+        <bool>::sse_encode(self.resize, serializer);
+        <u32>::sse_encode(self.resize_width, serializer);
+        <u32>::sse_encode(self.resize_height, serializer);
     }
 }
 

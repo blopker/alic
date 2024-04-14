@@ -59,7 +59,7 @@ Drag and drop images into the window, images will automatically start compressin
 
 ## Privacy
 
-All compression is done locally on your machine. Alic also does not have any analytics or tracking, including error reporting. Alic does not send any data to the internet. Because of this, Alic will not automatically update. You will need to check the [releases page][project-release-url] for updates.
+All compression is done locally on your machine. Alic also does not have any analytics or tracking, including error reporting. Alic does not passively send any data to the internet. Because of this, Alic will not automatically update. You will need to check the [releases page][project-release-url] for updates, or by clicking "Check for Updates" in the app menu bar.
 
 ## Differences from ImageOptim
 
@@ -70,6 +70,7 @@ All compression is done locally on your machine. Alic also does not have any ana
 ## Roadmap
 
 - [ ] Get the app signed with an Apple Developer ID
+- [x] Add a way to check for updates
 - [x] Add support for different optimization levels
 - [ ] Add support for lossless compression
 - [x] Add support for dropping directories

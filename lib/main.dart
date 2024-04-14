@@ -10,8 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 
-import './config.dart';
+import 'config.dart';
 import 'glass.dart';
+import 'menubar.dart';
 import 'theme.dart';
 
 void main() async {
@@ -59,29 +60,31 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ImageDropRegion(
-        onDrop: (files) {
-          debugPrint('Dropped: $files');
-          ImageFiles.add(files);
-        },
-        dropOverlay: Container(
-            color: Colors.transparent,
-            child: const Center(
-              child: Icon(
-                Icons.file_download,
-                size: 400,
+      body: MacMenuBar(
+        child: ImageDropRegion(
+          onDrop: (files) {
+            debugPrint('Dropped: $files');
+            ImageFiles.add(files);
+          },
+          dropOverlay: Container(
+              color: Colors.transparent,
+              child: const Center(
+                child: Icon(
+                  Icons.file_download,
+                  size: 400,
+                ),
+              )).asGlass(
+            tintColor: Colors.transparent,
+          ),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: FilesTable(),
               ),
-            )).asGlass(
-          tintColor: Colors.transparent,
-        ),
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: FilesTable(),
-            ),
-            BottomBar(),
-          ],
+              BottomBar(),
+            ],
+          ),
         ),
       ),
     );

@@ -26,11 +26,11 @@ void main() async {
     await windowManager.show();
     await windowManager.focus();
   });
-  runApp(const MyApp());
+  runApp(const Alic());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Alic extends StatelessWidget {
+  const Alic({super.key});
 
   // This widget is the root of your application.
   @override
@@ -104,29 +104,14 @@ class BottomBar extends StatelessWidget {
             // button with plus icon, and a thin border with radius around it
             IconButton(
               onPressed: () async {
-                const XTypeGroup jpgsTypeGroup = XTypeGroup(
-                  label: 'JPEGs',
-                  extensions: <String>['jpg', 'jpeg'],
+                const XTypeGroup imagesTypeGroup = XTypeGroup(
+                  label: 'Images',
+                  extensions: <String>['jpg', 'jpeg', 'webp', 'png', 'gif'],
                 );
-                const XTypeGroup pngTypeGroup = XTypeGroup(
-                  label: 'PNGs',
-                  extensions: <String>['png'],
-                );
-                const XTypeGroup gifsTypeGroup = XTypeGroup(
-                  label: 'GIFs',
-                  extensions: <String>['gif'],
-                );
-                const XTypeGroup webpTypeGroup = XTypeGroup(
-                  label: 'WEBPs',
-                  extensions: <String>['webp'],
-                );
-                final List<XFile> files = await openFiles(
-                    acceptedTypeGroups: <XTypeGroup>[
-                      jpgsTypeGroup,
-                      pngTypeGroup,
-                      gifsTypeGroup,
-                      webpTypeGroup
-                    ]);
+                final List<XFile> files =
+                    await openFiles(acceptedTypeGroups: <XTypeGroup>[
+                  imagesTypeGroup,
+                ]);
                 for (var file in files) {
                   ImageFiles.add(file.path);
                 }

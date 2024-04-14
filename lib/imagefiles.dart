@@ -189,7 +189,7 @@ class ImageFiles {
   static void update(ImageFile file) {
     _updateQueue.add(file);
     if (_debounce?.isActive ?? false) return;
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+    _debounce = Timer(const Duration(milliseconds: 200), () {
       var files = [..._updateQueue];
       _updateQueue.clear();
       var oldFiles = signal.value.toList();

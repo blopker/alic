@@ -137,7 +137,7 @@ class _FilesTableState extends State<FilesTable> {
       size: ColumnSize.L,
       label: const Text('File '),
       onSort: (columnIndex, asc) {
-        sorter((d) => d.file, columnIndex, asc);
+        sorter((d) => d.file.toLowerCase(), columnIndex, asc);
       },
     );
     var size = DataColumn2(

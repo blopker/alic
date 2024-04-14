@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:alic/imagefiles.dart';
 import 'package:flutter/material.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
@@ -11,21 +12,21 @@ const folderFormat = SimpleFileFormat(
   ],
 );
 
-class MyDropRegion extends StatefulWidget {
-  const MyDropRegion(
+class ImageDropRegion extends StatefulWidget {
+  const ImageDropRegion(
       {super.key,
       required this.child,
       required this.dropOverlay,
       required this.onDrop});
   final Widget child;
   final Widget dropOverlay;
-  final Function(String) onDrop;
+  final Function(List<File>) onDrop;
 
   @override
-  State<MyDropRegion> createState() => _MyDropRegionState();
+  State<ImageDropRegion> createState() => _ImageDropRegionState();
 }
 
-class _MyDropRegionState extends State<MyDropRegion> {
+class _ImageDropRegionState extends State<ImageDropRegion> {
   bool _showOverlay = false;
   bool _overlayVisible = false;
 
@@ -96,9 +97,7 @@ class _MyDropRegionState extends State<MyDropRegion> {
                 }
               }
               final paths = await _resolvePaths(mixedPaths);
-              for (var path in paths) {
-                widget.onDrop(path);
-              }
+              widget.onDrop(paths);
             },
             child: Stack(children: [
               widget.child,
@@ -141,35 +140,25 @@ Future<String?> _getValueFromItem(DropItem item) async {
   return completer.future;
 }
 
-Future<List<String>> _resolvePaths(List<String> paths) async {
-  List<String> resolvedPaths = [];
+Future<List<File>> _resolvePaths(List<String> paths) async {
+  List<File> resolvedPaths = [];
   for (var path in paths) {
     if (path.endsWith('/')) {
-      resolvedPaths.addAll(await _getImagesFromDirectory(path)
-          .then((imageFiles) => imageFiles.map((e) => e.path).toList()));
+      resolvedPaths.addAll(await _getImagesFromDirectory(Directory(path)));
     } else {
-      resolvedPaths.add(path);
+      resolvedPaths.add(File(path));
     }
   }
   return resolvedPaths;
 }
 
 // Return a list of images from a directory, recursively
-Future<List<File>> _getImagesFromDirectory(String path) async {
-  var dir = Directory(path);
-
+Future<List<File>> _getImagesFromDirectory(Directory dir) async {
   List<File> imageFiles = [];
-
   await for (var entity in dir.list(recursive: true, followLinks: false)) {
-    if (entity is File && _isImage(entity)) {
+    if (entity is File && ImageFormats.isImage(entity.path)) {
       imageFiles.add(entity);
     }
   }
-
   return imageFiles;
-}
-
-bool _isImage(File file) {
-  var ext = file.path.split('.').last;
-  return ['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(ext.toLowerCase());
 }

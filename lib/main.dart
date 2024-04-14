@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:alic/dropper.dart';
 import 'package:alic/imagefiles.dart';
 import 'package:alic/settings.dart';
@@ -57,10 +59,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: MyDropRegion(
-        onDrop: (path) {
-          debugPrint('Dropped: $path');
-          ImageFiles.add(path);
+      body: ImageDropRegion(
+        onDrop: (files) {
+          debugPrint('Dropped: $files');
+          ImageFiles.add(files);
         },
         dropOverlay: Container(
             color: Colors.transparent,
@@ -106,14 +108,14 @@ class BottomBar extends StatelessWidget {
               onPressed: () async {
                 const XTypeGroup imagesTypeGroup = XTypeGroup(
                   label: 'Images',
-                  extensions: <String>['jpg', 'jpeg', 'webp', 'png', 'gif'],
+                  extensions: ImageFormats.all,
                 );
                 final List<XFile> files =
                     await openFiles(acceptedTypeGroups: <XTypeGroup>[
                   imagesTypeGroup,
                 ]);
                 for (var file in files) {
-                  ImageFiles.add(file.path);
+                  ImageFiles.add([File(file.path)]);
                 }
               },
               icon: const Icon(Icons.add),

@@ -57,6 +57,10 @@ Drag and drop images into the window, images will automatically start compressin
 
 **Careful**, compressing already compressed images times will result in a loss of quality.
 
+## Privacy
+
+All compression is done locally on your machine. Alic also does not have any analytics or tracking, including error reporting. Alic does not send any data to the internet. Because of this, Alic will not automatically update. You will need to check the [releases page][project-release-url] for updates.
+
 ## Differences from ImageOptim
 
 - Alic's compressor is written in Rust, uses modern compression algorithms and is done all in process. This makes Alic noticeably faster, and produces smaller file sizes.
@@ -66,7 +70,6 @@ Drag and drop images into the window, images will automatically start compressin
 ## Roadmap
 
 - [ ] Get the app signed with an Apple Developer ID
-- [ ] Automatically update the app
 - [x] Add support for different optimization levels
 - [ ] Add support for lossless compression
 - [x] Add support for dropping directories

@@ -8,6 +8,8 @@ PODS:
     - FlutterMacOS
   - open_file_macos (0.0.1):
     - FlutterMacOS
+  - package_info_plus (0.0.1):
+    - FlutterMacOS
   - rust_builder (0.0.1):
     - FlutterMacOS
   - screen_retriever (0.0.1):
@@ -23,6 +25,7 @@ DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
   - irondash_engine_context (from `Flutter/ephemeral/.symlinks/plugins/irondash_engine_context/macos`)
   - open_file_macos (from `Flutter/ephemeral/.symlinks/plugins/open_file_macos/macos`)
+  - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - rust_builder (from `Flutter/ephemeral/.symlinks/plugins/rust_builder/macos`)
   - screen_retriever (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos`)
   - super_native_extensions (from `Flutter/ephemeral/.symlinks/plugins/super_native_extensions/macos`)
@@ -39,6 +42,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/irondash_engine_context/macos
   open_file_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/open_file_macos/macos
+  package_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   rust_builder:
     :path: Flutter/ephemeral/.symlinks/plugins/rust_builder/macos
   screen_retriever:
@@ -54,6 +59,7 @@ SPEC CHECKSUMS:
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   irondash_engine_context: da62996ee25616d2f01bbeb85dc115d813359478
   open_file_macos: 8dcc890a243632518f0ded579b352fa9524e4ce2
+  package_info_plus: fa739dd842b393193c5ca93c26798dff6e3d0e0c
   rust_builder: d6115f3c96b081d2c66f05771d1c2509559e2073
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
   super_native_extensions: 85efee3a7495b46b04befcfc86ed12069264ebf3

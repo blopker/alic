@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:alic/imagefiles.dart';
-import 'package:alic/src/rust/api/simple.dart';
+import 'package:alic/src/rust/api/compressor.dart';
 import 'package:alic/workqueue.dart';
 import 'package:flutter/foundation.dart';
 
 import './config.dart';
+
+const compressionThreshold = 0.95;
 
 void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
   // Compress the image file by adding it to the queue, then run the callback when done.
@@ -38,10 +40,12 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
       ));
       return;
     }
-    final sizeAfterOptimization = await File(outPath).length();
-    if (sizeAfterOptimization.toDouble() / imageFile.size > 0.95) {
+    final outFile = File(outPath);
+    final sizeAfterOptimization = await outFile.length();
+    if (sizeAfterOptimization.toDouble() / imageFile.size >
+        compressionThreshold) {
       // delete the file if it's not smaller
-      File(outPath).delete();
+      outFile.delete();
       callback(imageFile.copyWith(
         status: ImageFileStatus.unoptimized,
       ));
@@ -51,7 +55,7 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
     if (!config.enablePostfix) {
       // If postfix is disabled, replace the original file with the optimized one
       File(imageFile.path).delete();
-      File(outPath).rename(imageFile.path);
+      outFile.rename(imageFile.path);
     }
     callback(imageFile.copyWith(
       sizeAfterOptimization: sizeAfterOptimization,

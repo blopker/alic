@@ -21,3 +21,6 @@ create_dmg:
 
 release:
 	./scripts/release.sh
+
+run_release_build::
+	open build/macos/Build/Products/Release/"Alic Image Compressor.app"

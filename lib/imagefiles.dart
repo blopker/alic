@@ -39,12 +39,34 @@ extension FileSizeExtensions on num {
   }
 }
 
+class ImageFormats {
+  static const jpeg = ['jpeg', 'jpg'];
+  static const png = ['png'];
+  static const gif = ['gif'];
+  static const webp = ['webp'];
+  static const all = [...jpeg, ...png, ...gif, ...webp];
+  static contains(String ext) {
+    return all.contains(ext.toLowerCase());
+  }
+
+  static isImage(String path) {
+    final ext = path.split('.').last;
+    return all.contains(ext.toLowerCase());
+  }
+}
+
 enum ImageFileStatus {
   pending('Pending'),
   compressing('Compressing'),
   success('Success'),
   unoptimized('Unoptimized'),
   error('Error');
+
+  static const doneStatuses = [
+    ImageFileStatus.success,
+    ImageFileStatus.unoptimized,
+    ImageFileStatus.error
+  ];
 
   final String value;
 
@@ -127,19 +149,34 @@ class ImageFiles {
   static final _updateQueue = <ImageFile>[];
   static Timer? _debounce;
 
-  static void add(String path) {
-    final file0 = File(path);
-    final file = ImageFile(
-      path: file0.path,
-      size: file0.lengthSync(),
+  static void add(List<File> files) {
+    var images = <ImageFile>[];
+    for (var file in files) {
+      final imageFile = _add(file);
+      if (imageFile != null) {
+        images.add(imageFile);
+      }
+    }
+    for (var file in images) {
+      update(file);
+      compress(file);
+    }
+  }
+
+  static ImageFile? _add(File file) {
+    if (!ImageFormats.isImage(file.path)) {
+      return null;
+    }
+    if (signal.any((element) => element.path == file.path)) {
+      return null;
+    }
+    final imageFile = ImageFile(
+      path: file.path,
+      size: file.lengthSync(),
       sizeAfterOptimization: null,
       status: ImageFileStatus.pending,
     );
-    if (signal.any((element) => element.path == file.path)) {
-      return;
-    }
-    update(file);
-    compress(file);
+    return imageFile;
   }
 
   static void compress(ImageFile file) {
@@ -207,11 +244,7 @@ class ImageFiles {
   }
 
   static void removeDone() {
-    final doneStatuses = [
-      ImageFileStatus.success,
-      ImageFileStatus.unoptimized,
-      ImageFileStatus.error
-    ];
-    signal.removeWhere((element) => doneStatuses.contains(element.status));
+    signal.removeWhere(
+        (element) => ImageFileStatus.doneStatuses.contains(element.status));
   }
 }

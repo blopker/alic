@@ -62,9 +62,9 @@ fn wire_init_app_impl(
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             deserializer.end();
             move |context| {
-                transform_result_sse(
-                    (move || Result::<_, ()>::Ok(crate::api::simple::init_app()))(),
-                )
+                transform_result_sse((move || {
+                    Result::<_, ()>::Ok(crate::api::compressor::init_app())
+                })())
             }
         },
     )
@@ -103,7 +103,7 @@ fn wire_process_img_impl(
             deserializer.end();
             move |context| {
                 transform_result_sse((move || {
-                    Result::<_, ()>::Ok(crate::api::simple::process_img(
+                    Result::<_, ()>::Ok(crate::api::compressor::process_img(
                         api_path,
                         api_out_path,
                         api_jpeg_quality,

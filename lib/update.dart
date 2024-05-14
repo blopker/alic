@@ -62,5 +62,6 @@ Future<Update?> checkForUpdate({bool force = false}) async {
 
 void main() async {
   final buildNumber = await getLatestBuildNumber();
+  // ignore: avoid_print
   print('Latest Build Number: $buildNumber');
 }

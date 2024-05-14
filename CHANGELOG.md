@@ -1,3 +1,7 @@
+# Unreleased
+
+- Migrate to new Flutter color names
+
 # 1.3.1
 
 - Update various dependencies

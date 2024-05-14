@@ -8,14 +8,14 @@ part of 'config.dart';
 
 _$ConfigDataImpl _$$ConfigDataImplFromJson(Map<String, dynamic> json) =>
     _$ConfigDataImpl(
-      qualityJPEG: json['qualityJPEG'] as int? ?? 80,
+      qualityJPEG: (json['qualityJPEG'] as num?)?.toInt() ?? 80,
       lossy: json['lossy'] as bool? ?? true,
-      qualityPNG: json['qualityPNG'] as int? ?? 80,
-      qualityWEBP: json['qualityWEBP'] as int? ?? 60,
-      qualityGIF: json['qualityGIF'] as int? ?? 80,
+      qualityPNG: (json['qualityPNG'] as num?)?.toInt() ?? 80,
+      qualityWEBP: (json['qualityWEBP'] as num?)?.toInt() ?? 60,
+      qualityGIF: (json['qualityGIF'] as num?)?.toInt() ?? 80,
       resizeImages: json['resizeImages'] as bool? ?? false,
-      maxWidth: json['maxWidth'] as int? ?? 1920,
-      maxHeight: json['maxHeight'] as int? ?? 1080,
+      maxWidth: (json['maxWidth'] as num?)?.toInt() ?? 1920,
+      maxHeight: (json['maxHeight'] as num?)?.toInt() ?? 1080,
       enablePostfix: json['enablePostfix'] as bool? ?? true,
       postfix: json['postfix'] as String? ?? '.min',
       themeMode: $enumDecodeNullable(_$ThemeModeEnumMap, json['themeMode']) ??

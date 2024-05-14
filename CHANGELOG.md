@@ -1,3 +1,7 @@
+# 1.3.1
+
+- Update various dependencies
+
 # 1.3.0
 
 - Added a way to check for updates. Click "Check for Updates" in the app menu bar to see if there is a new version available.

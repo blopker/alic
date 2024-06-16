@@ -1,6 +1,11 @@
 # Unreleased
 
+- Nothing yet
+
+# 1.3.2
+
 - Migrate to new Flutter color names
+- Update various dependencies, crush images even faster now
 
 # 1.3.1
 

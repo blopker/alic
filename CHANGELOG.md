@@ -1,6 +1,8 @@
 # Unreleased
 
-- Nothing yet
+# 1.3.3
+
+- Update to the newest version of Rust
 
 # 1.3.2
 

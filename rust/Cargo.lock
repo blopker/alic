@@ -573,9 +573,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "033e831e28f1077ceae3490fb6d093dfdefefd09c5c6e8544c6579effe7e814f"
+checksum = "aebee2d1d5b8b3cfbbb11919b44791b4e0f037328195efd3832c7f7e0c6c6c8b"
 dependencies = [
  "allo-isolate",
  "android_logger",
@@ -600,9 +600,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_macros"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0217fc4b7131b52578be60bbe38c76b3edfc2f9fecab46d9f930510f40ef9023"
+checksum = "6c061770f5f09e99d6143612e95cfc1ba2ae773746fbe5826a9c914a533b0723"
 dependencies = [
  "hex",
  "md-5",
@@ -942,6 +942,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kamadak-exif"
+version = "0.5.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef4fc70d0ab7e5b6bafa30216a6b48705ea964cdfc29c050f2412295eba58077"
+dependencies = [
+ "mutate_once",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -961,8 +970,8 @@ checksum = "97b3888a4aecf77e811145cadf6eef5901f4782c53886191b2f693f24761847c"
 
 [[package]]
 name = "libcaesium"
-version = "0.15.5"
-source = "git+https://github.com/Lymphatus/libcaesium.git?tag=0.15.5#b52c7e33b4ce039fad4c2166c44687e2ec27a87c"
+version = "0.16.2"
+source = "git+https://github.com/Lymphatus/libcaesium.git?tag=0.16.2#a67f2475a0f69a2bf5b8da27a51cd50a2c610d86"
 dependencies = [
  "bytes",
  "gifsicle",
@@ -970,6 +979,7 @@ dependencies = [
  "imagequant",
  "img-parts",
  "infer",
+ "kamadak-exif",
  "libc",
  "lodepng",
  "mozjpeg-sys",
@@ -1123,6 +1133,12 @@ dependencies = [
  "libc",
  "nasm-rs",
 ]
+
+[[package]]
+name = "mutate_once"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16cf681a23b4d0a43fc35024c176437f9dcd818db34e0f42ab456a0ee5ad497b"
 
 [[package]]
 name = "nasm-rs"

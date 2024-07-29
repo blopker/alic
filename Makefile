@@ -1,5 +1,5 @@
 build: build_rust build_gen
-	flutter build macos --analyze-size 
+	flutter build macos
 
 watch:
 	dart run build_runner watch --delete-conflicting-outputs
@@ -22,5 +22,5 @@ create_dmg:
 release:
 	./scripts/release.sh
 
-run_release_build::
+run_release_build:
 	open build/macos/Build/Products/Release/"Alic Image Compressor.app"

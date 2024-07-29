@@ -7,6 +7,6 @@ edition = "2021"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-flutter_rust_bridge = "=2.0.0"
+flutter_rust_bridge = "=2.1.0"
 image = "^0.25"
-libcaesium = { git = "https://github.com/Lymphatus/libcaesium.git", tag = "0.15.5" }
+libcaesium = { git = "https://github.com/Lymphatus/libcaesium.git", tag = "0.16.2" }

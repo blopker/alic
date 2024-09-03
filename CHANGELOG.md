@@ -1,5 +1,11 @@
 # Unreleased
 
+# 1.4.0
+
+- Animated WebP support
+- Fix small memory leak
+- Update dependencies
+
 # 1.3.3
 
 - Update to the newest version of Rust

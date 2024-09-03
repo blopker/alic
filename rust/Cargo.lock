@@ -573,9 +573,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "2.1.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aebee2d1d5b8b3cfbbb11919b44791b4e0f037328195efd3832c7f7e0c6c6c8b"
+checksum = "f13c1e57b460f7adbd6cbf8b4cd0a1d14238ed64f5cc2a6c2ccb7a605ac01354"
 dependencies = [
  "allo-isolate",
  "android_logger",
@@ -590,6 +590,7 @@ dependencies = [
  "futures",
  "js-sys",
  "lazy_static",
+ "log",
  "oslog",
  "threadpool",
  "tokio",
@@ -600,9 +601,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_macros"
-version = "2.1.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c061770f5f09e99d6143612e95cfc1ba2ae773746fbe5826a9c914a533b0723"
+checksum = "16c85e62d6d34f5c1590af004ccd3dc45b1c726dba6721b632b164c19894fab4"
 dependencies = [
  "hex",
  "md-5",
@@ -970,8 +971,8 @@ checksum = "97b3888a4aecf77e811145cadf6eef5901f4782c53886191b2f693f24761847c"
 
 [[package]]
 name = "libcaesium"
-version = "0.16.2"
-source = "git+https://github.com/Lymphatus/libcaesium.git?tag=0.16.2#a67f2475a0f69a2bf5b8da27a51cd50a2c610d86"
+version = "0.16.4"
+source = "git+https://github.com/Lymphatus/libcaesium.git?tag=0.16.4#f9aab1ef784c9b781ad39a7114ebacb2e3ab4471"
 dependencies = [
  "bytes",
  "gifsicle",

@@ -32,8 +32,12 @@ mixin _$ConfigData {
   String get postfix => throw _privateConstructorUsedError;
   ThemeMode get themeMode => throw _privateConstructorUsedError;
 
+  /// Serializes this ConfigData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ConfigData
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ConfigDataCopyWith<ConfigData> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -68,6 +72,8 @@ class _$ConfigDataCopyWithImpl<$Res, $Val extends ConfigData>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ConfigData
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -162,6 +168,8 @@ class __$$ConfigDataImplCopyWithImpl<$Res>
       _$ConfigDataImpl _value, $Res Function(_$ConfigDataImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ConfigData
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -311,7 +319,7 @@ class _$ConfigDataImpl implements _ConfigData {
                 other.themeMode == themeMode));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -327,7 +335,9 @@ class _$ConfigDataImpl implements _ConfigData {
       postfix,
       themeMode);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ConfigData
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ConfigDataImplCopyWith<_$ConfigDataImpl> get copyWith =>
@@ -380,8 +390,11 @@ abstract class _ConfigData implements ConfigData {
   String get postfix;
   @override
   ThemeMode get themeMode;
+
+  /// Create a copy of ConfigData
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ConfigDataImplCopyWith<_$ConfigDataImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

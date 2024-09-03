@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  window_manager: ^0.3.8
+  window_manager: ^0.4.2
   rust_builder:
     path: rust_builder
   flutter_rust_bridge: 2.1.0

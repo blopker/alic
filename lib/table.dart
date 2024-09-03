@@ -13,7 +13,7 @@ class FilesTable extends StatefulWidget {
   State<FilesTable> createState() => _FilesTableState();
 }
 
-class _FilesTableState extends State<FilesTable> {
+class _FilesTableState extends State<FilesTable> with SignalsMixin {
   int? _currentSortColumn;
   bool _isSortAsc = true;
   List<ImageFile> rows = [];
@@ -22,13 +22,10 @@ class _FilesTableState extends State<FilesTable> {
   void initState() {
     debugPrint('initState');
     super.initState();
-    ImageFiles.signal.listen(context, () {
+    createEffect(() {
       setState(() {
         rows = [...ImageFiles.signal];
       });
-    });
-    setState(() {
-      rows = [...ImageFiles.signal];
     });
   }
 

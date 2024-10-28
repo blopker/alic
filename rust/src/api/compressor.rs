@@ -1,4 +1,5 @@
 use caesium;
+use caesium::parameters::CSParameters;
 use image;
 use image::DynamicImage;
 
@@ -65,7 +66,7 @@ fn compress_image(
     width: u32,
     height: u32,
 ) -> String {
-    let mut pars = caesium::initialize_parameters();
+    let mut pars = CSParameters::new();
     pars.jpeg.quality = jpeg_quality;
     pars.png.quality = png_quality;
     pars.webp.quality = webp_quality;

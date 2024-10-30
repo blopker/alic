@@ -12,14 +12,14 @@ const compressionThreshold = 0.95;
 void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
   // Compress the image file by adding it to the queue, then run the callback when done.
   final config = Config.signal.value;
-  final ext = imageFile.path.split('.').last;
-  final outPath = imageFile.path.replaceAll('.$ext', '${config.postfix}.$ext');
 
   workQueue.add(() async {
     callback(imageFile.copyWith(status: ImageFileStatus.compressing));
     final timer = Stopwatch()..start();
 
     var params = Parameters(
+      postfix: config.postfix,
+      path: imageFile.path,
       jpegQuality: config.qualityJPEG,
       pngQuality: config.qualityPNG,
       gifQuality: config.qualityGIF,
@@ -29,22 +29,25 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
       resizeHeight: config.maxHeight,
     );
 
-    var result = await processImg(
-      path: imageFile.path,
-      outPath: outPath,
-      parameters: params,
-    );
-    timer.stop();
-    debugPrint(
-        'Compressed ${imageFile.file} in ${timer.elapsedMilliseconds}ms');
-    if (result.toLowerCase().contains('error')) {
+    CompressResult result;
+    try {
+      result = await processImg(
+        parameters: params,
+      );
+    } catch (e) {
       callback(imageFile.copyWith(
         status: ImageFileStatus.error,
-        errorMessage: result,
+        errorMessage: e.toString(),
       ));
       return;
+    } finally {
+      timer.stop();
     }
-    final outFile = File(outPath);
+
+    debugPrint(
+        'Compressed ${imageFile.file} in ${timer.elapsedMilliseconds}ms');
+
+    final outFile = File(result.outPath);
     final sizeAfterOptimization = await outFile.length();
     if (sizeAfterOptimization.toDouble() / imageFile.size >
         compressionThreshold) {

@@ -9,4 +9,5 @@ crate-type = ["cdylib", "staticlib"]
 [dependencies]
 flutter_rust_bridge = "=2.5.1"
 image = "^0.25"
+infer = "0.16.0"
 libcaesium = "^0.17"

@@ -30,6 +30,7 @@ mixin _$ConfigData {
   int get maxHeight => throw _privateConstructorUsedError;
   bool get enablePostfix => throw _privateConstructorUsedError;
   String get postfix => throw _privateConstructorUsedError;
+  ImageType? get convertExtension => throw _privateConstructorUsedError;
   ThemeMode get themeMode => throw _privateConstructorUsedError;
 
   /// Serializes this ConfigData to a JSON map.
@@ -59,6 +60,7 @@ abstract class $ConfigDataCopyWith<$Res> {
       int maxHeight,
       bool enablePostfix,
       String postfix,
+      ImageType? convertExtension,
       ThemeMode themeMode});
 }
 
@@ -87,6 +89,7 @@ class _$ConfigDataCopyWithImpl<$Res, $Val extends ConfigData>
     Object? maxHeight = null,
     Object? enablePostfix = null,
     Object? postfix = null,
+    Object? convertExtension = freezed,
     Object? themeMode = null,
   }) {
     return _then(_value.copyWith(
@@ -130,6 +133,10 @@ class _$ConfigDataCopyWithImpl<$Res, $Val extends ConfigData>
           ? _value.postfix
           : postfix // ignore: cast_nullable_to_non_nullable
               as String,
+      convertExtension: freezed == convertExtension
+          ? _value.convertExtension
+          : convertExtension // ignore: cast_nullable_to_non_nullable
+              as ImageType?,
       themeMode: null == themeMode
           ? _value.themeMode
           : themeMode // ignore: cast_nullable_to_non_nullable
@@ -157,6 +164,7 @@ abstract class _$$ConfigDataImplCopyWith<$Res>
       int maxHeight,
       bool enablePostfix,
       String postfix,
+      ImageType? convertExtension,
       ThemeMode themeMode});
 }
 
@@ -183,6 +191,7 @@ class __$$ConfigDataImplCopyWithImpl<$Res>
     Object? maxHeight = null,
     Object? enablePostfix = null,
     Object? postfix = null,
+    Object? convertExtension = freezed,
     Object? themeMode = null,
   }) {
     return _then(_$ConfigDataImpl(
@@ -226,6 +235,10 @@ class __$$ConfigDataImplCopyWithImpl<$Res>
           ? _value.postfix
           : postfix // ignore: cast_nullable_to_non_nullable
               as String,
+      convertExtension: freezed == convertExtension
+          ? _value.convertExtension
+          : convertExtension // ignore: cast_nullable_to_non_nullable
+              as ImageType?,
       themeMode: null == themeMode
           ? _value.themeMode
           : themeMode // ignore: cast_nullable_to_non_nullable
@@ -248,6 +261,7 @@ class _$ConfigDataImpl implements _ConfigData {
       this.maxHeight = 1080,
       this.enablePostfix = true,
       this.postfix = '.min',
+      this.convertExtension = null,
       this.themeMode = ThemeMode.system});
 
   factory _$ConfigDataImpl.fromJson(Map<String, dynamic> json) =>
@@ -285,11 +299,14 @@ class _$ConfigDataImpl implements _ConfigData {
   final String postfix;
   @override
   @JsonKey()
+  final ImageType? convertExtension;
+  @override
+  @JsonKey()
   final ThemeMode themeMode;
 
   @override
   String toString() {
-    return 'ConfigData(qualityJPEG: $qualityJPEG, lossy: $lossy, qualityPNG: $qualityPNG, qualityWEBP: $qualityWEBP, qualityGIF: $qualityGIF, resizeImages: $resizeImages, maxWidth: $maxWidth, maxHeight: $maxHeight, enablePostfix: $enablePostfix, postfix: $postfix, themeMode: $themeMode)';
+    return 'ConfigData(qualityJPEG: $qualityJPEG, lossy: $lossy, qualityPNG: $qualityPNG, qualityWEBP: $qualityWEBP, qualityGIF: $qualityGIF, resizeImages: $resizeImages, maxWidth: $maxWidth, maxHeight: $maxHeight, enablePostfix: $enablePostfix, postfix: $postfix, convertExtension: $convertExtension, themeMode: $themeMode)';
   }
 
   @override
@@ -315,6 +332,8 @@ class _$ConfigDataImpl implements _ConfigData {
             (identical(other.enablePostfix, enablePostfix) ||
                 other.enablePostfix == enablePostfix) &&
             (identical(other.postfix, postfix) || other.postfix == postfix) &&
+            (identical(other.convertExtension, convertExtension) ||
+                other.convertExtension == convertExtension) &&
             (identical(other.themeMode, themeMode) ||
                 other.themeMode == themeMode));
   }
@@ -333,6 +352,7 @@ class _$ConfigDataImpl implements _ConfigData {
       maxHeight,
       enablePostfix,
       postfix,
+      convertExtension,
       themeMode);
 
   /// Create a copy of ConfigData
@@ -363,6 +383,7 @@ abstract class _ConfigData implements ConfigData {
       final int maxHeight,
       final bool enablePostfix,
       final String postfix,
+      final ImageType? convertExtension,
       final ThemeMode themeMode}) = _$ConfigDataImpl;
 
   factory _ConfigData.fromJson(Map<String, dynamic> json) =
@@ -388,6 +409,8 @@ abstract class _ConfigData implements ConfigData {
   bool get enablePostfix;
   @override
   String get postfix;
+  @override
+  ImageType? get convertExtension;
   @override
   ThemeMode get themeMode;
 

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:signals/signals.dart' as signals;
 
+import 'src/rust/api/compressor.dart';
+
 part 'config.freezed.dart';
 part 'config.g.dart';
 
@@ -27,6 +29,7 @@ class ConfigData with _$ConfigData {
     @Default(1080) int maxHeight,
     @Default(true) bool enablePostfix,
     @Default('.min') String postfix,
+    @Default(null) ImageType? convertExtension,
     @Default(ThemeMode.system) ThemeMode themeMode,
   }) = _ConfigData;
 

@@ -18,6 +18,9 @@ _$ConfigDataImpl _$$ConfigDataImplFromJson(Map<String, dynamic> json) =>
       maxHeight: (json['maxHeight'] as num?)?.toInt() ?? 1080,
       enablePostfix: json['enablePostfix'] as bool? ?? true,
       postfix: json['postfix'] as String? ?? '.min',
+      convertExtension:
+          $enumDecodeNullable(_$ImageTypeEnumMap, json['convertExtension']) ??
+              null,
       themeMode: $enumDecodeNullable(_$ThemeModeEnumMap, json['themeMode']) ??
           ThemeMode.system,
     );
@@ -34,8 +37,17 @@ Map<String, dynamic> _$$ConfigDataImplToJson(_$ConfigDataImpl instance) =>
       'maxHeight': instance.maxHeight,
       'enablePostfix': instance.enablePostfix,
       'postfix': instance.postfix,
+      'convertExtension': _$ImageTypeEnumMap[instance.convertExtension],
       'themeMode': _$ThemeModeEnumMap[instance.themeMode]!,
     };
+
+const _$ImageTypeEnumMap = {
+  ImageType.jpeg: 'jpeg',
+  ImageType.png: 'png',
+  ImageType.webp: 'webp',
+  ImageType.gif: 'gif',
+  ImageType.tiff: 'tiff',
+};
 
 const _$ThemeModeEnumMap = {
   ThemeMode.system: 'system',

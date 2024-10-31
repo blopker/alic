@@ -18,16 +18,16 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
     final timer = Stopwatch()..start();
 
     var params = Parameters(
-      postfix: config.postfix,
-      path: imageFile.path,
-      jpegQuality: config.qualityJPEG,
-      pngQuality: config.qualityPNG,
-      gifQuality: config.qualityGIF,
-      webpQuality: config.qualityWEBP,
-      resize: config.resizeImages,
-      resizeWidth: config.maxWidth,
-      resizeHeight: config.maxHeight,
-    );
+        postfix: config.postfix,
+        path: imageFile.path,
+        jpegQuality: config.qualityJPEG,
+        pngQuality: config.qualityPNG,
+        gifQuality: config.qualityGIF,
+        webpQuality: config.qualityWEBP,
+        resize: config.resizeImages,
+        resizeWidth: config.maxWidth,
+        resizeHeight: config.maxHeight,
+        convertExtension: config.convertExtension);
 
     CompressResult result;
     try {

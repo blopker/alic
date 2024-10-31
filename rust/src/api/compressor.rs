@@ -35,12 +35,21 @@ pub struct CompressResult {
 
 pub fn process_img(parameters: Parameters) -> Result<CompressResult, String> {
     let img = read_image(parameters.path.clone())?;
-    let image_type = guess_image_type(parameters.path.clone())?;
-    let out_path = get_out_path(&parameters, image_type);
+    let original_image_type = guess_image_type(parameters.path.clone())?;
+    let new_image_type = parameters.convert_extension.unwrap_or(original_image_type);
+    let out_path = get_out_path(&parameters, new_image_type);
 
     let csparams = create_csparameters(&parameters, img.width(), img.height());
 
-    let result = compress_image(parameters.path.clone(), out_path.clone(), csparams)?;
+    let should_convert = new_image_type != original_image_type;
+
+    let path = parameters.path.clone();
+    let result = if should_convert {
+        convert_image(path, out_path.clone(), csparams)?
+    } else {
+        compress_image(path, out_path.clone(), csparams)?
+    };
+
     return Ok(CompressResult {
         path: parameters.path,
         out_path: out_path.clone(),
@@ -92,12 +101,13 @@ fn guess_image_type(path: String) -> Result<ImageType, String> {
 
 fn get_out_path(parameters: &Parameters, image_type: ImageType) -> String {
     let mut out_path = parameters.path.clone();
+    let extension = parameters.convert_extension.unwrap_or(image_type);
     let path = Path::new(&out_path);
     let original_extension = path.extension().unwrap().to_str().unwrap().to_string();
     out_path = remove_extension(&path);
     out_path = out_path + &parameters.postfix;
     out_path = out_path + ".";
-    out_path = out_path + &convert_image_type(original_extension, image_type);
+    out_path = out_path + &convert_image_type(original_extension, extension);
     return out_path;
 }
 
@@ -115,32 +125,6 @@ fn convert_image_type(original_extension: String, image_type: ImageType) -> Stri
         ImageType::TIFF => "tiff".to_string(),
     }
 }
-
-// fn convert_image(    path: String, out_path: String,
-// mut params: CSParameters, image_type: ImageType){
-//     // strip the extension from the path
-//     // append the new extension
-
-//     let mut out_path = path.clone();
-//     let path = Path::new(&out_path);
-//     out_path = path.file_stem().unwrap().to_str().unwrap().to_string();
-//     match image_type {
-//         ImageType::JPEG => {
-//             out_path = out_path + ".jpeg";
-//         }
-//         ImageType::PNG => {
-//             out_path = out_path + ".png";
-//         }
-//         ImageType::WEBP => {
-//             out_path = out_path + ".webp";
-//         }
-//         ImageType::GIF => {
-//             out_path = out_path + ".gif";
-//         }
-//     }
-
-//     let result = caesium::compress(path, out_path, &mut params);
-// }
 
 fn create_csparameters(parameters: &Parameters, width: u32, height: u32) -> CSParameters {
     let mut new_height = 0;
@@ -174,6 +158,23 @@ fn compress_image(
     mut params: CSParameters,
 ) -> Result<String, String> {
     let result = caesium::compress(path, out_path, &mut params);
+    match result {
+        Ok(_) => Ok("Success".to_string()),
+        Err(err) => Err("Error: ".to_string() + &err.to_string()),
+    }
+}
+
+fn convert_image(
+    path: String,
+    out_path: String,
+    mut params: CSParameters,
+) -> Result<String, String> {
+    let result = caesium::convert(
+        path,
+        out_path,
+        &mut params,
+        caesium::SupportedFileTypes::WebP,
+    );
     match result {
         Ok(_) => Ok("Success".to_string()),
         Err(err) => Err("Error: ".to_string() + &err.to_string()),

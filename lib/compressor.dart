@@ -59,8 +59,8 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
       return;
     }
     // Success!
-    if (!config.enablePostfix) {
-      // If postfix is disabled, replace the original file with the optimized one
+    if (!config.enablePostfix && config.convertExtension == null) {
+      // If postfix is disabled (and no conversion is needed), replace the original file with the optimized one
       File(imageFile.path).delete();
       outFile.rename(imageFile.path);
     }

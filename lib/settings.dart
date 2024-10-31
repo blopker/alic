@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:signals/signals_flutter.dart';
 
+import 'src/rust/api/compressor.dart';
+
 enum SettingsPages {
   general('General'),
   quality('Quality'),
@@ -149,6 +151,25 @@ class GeneralPage extends StatelessWidget {
                         Config.signal.value.copyWith(enablePostfix: !value);
                   },
                 ),
+              ],
+            ),
+            Row(
+              children: [
+                const Text('Convert format to'),
+                const Spacer(),
+                DropdownButton<ImageType?>(
+                    items: [
+                      DropdownMenuItem(value: null, child: Text('Original')),
+                      ...ImageType.values.map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e.name),
+                          )),
+                    ],
+                    value: config.convertExtension,
+                    onChanged: (v) {
+                      Config.signal.value =
+                          config.copyWith(convertExtension: v);
+                    }),
               ],
             ),
           ],

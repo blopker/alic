@@ -138,6 +138,9 @@ class BottomBar extends StatelessWidget {
               if (config().resizeImages) {
                 message += ', resizing images';
               }
+              if (config().convertExtension != null) {
+                message += ', converting to ${config().convertExtension!.name}';
+              }
               if (files.isNotEmpty) {
                 final filePlural = files.length == 1 ? 'file' : 'files';
                 message =

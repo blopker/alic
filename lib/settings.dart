@@ -2,7 +2,7 @@ import 'package:alic/config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:signals/signals_flutter.dart';
-
+import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'src/rust/api/compressor.dart';
 
 enum SettingsPages {
@@ -29,43 +29,65 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(children: [
-          SegmentedButton(
-            selectedIcon: Container(),
-            onSelectionChanged: (p0) {
-              final newPage = SettingsPages.values.firstWhere(
-                  (element) => element.toString() == p0.first.toString());
-              setState(() {
-                _selectedPage = newPage;
-              });
-            },
-            segments: SettingsPages.values
-                .map((e) =>
-                    ButtonSegment(value: e.toString(), label: Text(e.title)))
-                .toList(),
-            selected: <dynamic>{_selectedPage.toString()},
-          ),
-          const SizedBox(height: 10),
-          _getSelectedPage(),
-          const Spacer(),
-          Row(
-            children: [
-              TextButton(
-                  onPressed: () {
-                    Config.reset();
-                  },
-                  child: const Text('Reset')),
-              const Spacer(),
-              TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Close')),
-            ],
-          )
-        ]),
+      child: KeyboardListener(
+        focusNode: FocusNode(),
+        onKeyEvent: (event) {
+          var nextPage = SettingsPages.values[
+              (SettingsPages.values.indexOf(_selectedPage) + 1) %
+                  SettingsPages.values.length];
+          if (event.logicalKey == LogicalKeyboardKey.tab) {
+            setState(() {
+              _selectedPage = nextPage;
+            });
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(children: [
+            CustomSlidingSegmentedControl<SettingsPages>(
+              initialValue: _selectedPage,
+              clipBehavior: Clip.antiAlias,
+              children: SettingsPages.values.fold({}, (map, element) {
+                map[element] = Text(element.title);
+                return map;
+              }),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              thumbDecoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              customSegmentSettings: CustomSegmentSettings(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              onValueChanged: (newPage) {
+                setState(() {
+                  _selectedPage = newPage;
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+            _getSelectedPage(),
+            const Spacer(),
+            Row(
+              children: [
+                TextButton(
+                    onPressed: () {
+                      Config.reset();
+                    },
+                    child: const Text('Reset')),
+                const Spacer(),
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Close')),
+              ],
+            )
+          ]),
+        ),
       ),
     );
   }

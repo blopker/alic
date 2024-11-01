@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 use caesium;
@@ -66,7 +67,8 @@ fn read_image(path: &str) -> Result<DynamicImage, String> {
 }
 
 fn guess_image_type(path: String) -> Result<ImageType, String> {
-    let kind = infer::get_from_path(path).unwrap();
+    let kind =
+        infer::get_from_path(path).map_err(|e| format!("Error determining file type: {}", e))?;
     match kind {
         Some(kind) => match kind.mime_type() {
             "image/jpeg" => Ok(ImageType::JPEG),
@@ -84,20 +86,19 @@ fn guess_image_type(path: String) -> Result<ImageType, String> {
 }
 
 fn get_out_path(parameters: &Parameters, image_type: ImageType) -> String {
-    let mut out_path = parameters.path.clone();
+    let out_path = parameters.path.clone();
     let extension = parameters.convert_extension.unwrap_or(image_type);
     let path = Path::new(&out_path);
-    let original_extension = path.extension().unwrap().to_str().unwrap().to_string();
-    out_path = remove_extension(&path);
+    let original_extension = path.extension().unwrap_or_default();
     format!(
         "{}{}.{}",
-        out_path,
+        remove_extension(&path),
         parameters.postfix,
         convert_image_type(original_extension, extension)
     )
 }
 
-fn convert_image_type(original_extension: String, image_type: ImageType) -> String {
+fn convert_image_type(original_extension: &OsStr, image_type: ImageType) -> String {
     match image_type {
         ImageType::JPEG => {
             if original_extension == "jpeg" {
@@ -164,22 +165,23 @@ fn convert_image(
     );
     match result {
         Ok(_) => Ok("Success".to_string()),
-        Err(err) => Err("Error: ".to_string() + &err.to_string()),
+        Err(err) => Err(format!("Error: {}", err)),
     }
 }
 
 fn remove_extension(path: &Path) -> String {
-    match path.file_stem() {
+    let result = match path.file_stem() {
         Some(stem) => {
             // Get the parent directory and append the stem to it
             if let Some(parent) = path.parent() {
-                parent.join(stem).to_str().unwrap().to_string()
+                parent.join(stem)
             } else {
-                PathBuf::from(stem).to_str().unwrap().to_string()
+                PathBuf::from(stem)
             }
         }
-        None => path.to_path_buf().to_str().unwrap().to_string(),
-    }
+        None => path.to_path_buf(),
+    };
+    result.to_string_lossy().to_string()
 }
 
 #[flutter_rust_bridge::frb(init)]
@@ -193,7 +195,7 @@ mod tests {
 
     #[test]
     fn test_convert_image_type() {
-        let result = convert_image_type("jpeg".to_string(), ImageType::JPEG);
+        let result = convert_image_type(OsStr::new("jpeg"), ImageType::JPEG);
         assert_eq!(result, "jpeg".to_string());
     }
 

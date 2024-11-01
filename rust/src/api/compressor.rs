@@ -34,7 +34,7 @@ pub struct CompressResult {
 }
 
 pub fn process_img(parameters: Parameters) -> Result<CompressResult, String> {
-    let img = read_image(parameters.path.clone())?;
+    let img = read_image(&parameters.path)?;
     let original_image_type = guess_image_type(parameters.path.clone())?;
     let new_image_type = parameters.convert_extension.unwrap_or(original_image_type);
     let out_path = get_out_path(&parameters, new_image_type);
@@ -50,52 +50,36 @@ pub fn process_img(parameters: Parameters) -> Result<CompressResult, String> {
         compress_image(path, out_path.clone(), csparams)?
     };
 
-    return Ok(CompressResult {
+    Ok(CompressResult {
         path: parameters.path,
         out_path: out_path.clone(),
         result,
-    });
+    })
 }
 
-fn read_image(path: String) -> Result<DynamicImage, String> {
-    let image = image::open(path.clone());
+fn read_image(path: &str) -> Result<DynamicImage, String> {
+    let image = image::open(&path);
     match image {
         Ok(image) => Ok(image),
-        Err(err) => Err("Error: ".to_string() + &err.to_string()),
+        Err(err) => Err(format!("Error: {}", err)),
     }
 }
 
 fn guess_image_type(path: String) -> Result<ImageType, String> {
-    println!("Guessing image type");
     let kind = infer::get_from_path(path).unwrap();
-    print!("{:?}", kind);
     match kind {
         Some(kind) => match kind.mime_type() {
-            "image/jpeg" => {
-                return Ok(ImageType::JPEG);
-            }
-            "image/png" => {
-                return Ok(ImageType::PNG);
-            }
-            "image/webp" => {
-                return Ok(ImageType::WEBP);
-            }
-            "image/gif" => {
-                return Ok(ImageType::GIF);
-            }
-            "image/tiff" => {
-                return Ok(ImageType::TIFF);
-            }
-            _ => {
-                return Err(format!(
-                    "Error: Unsupported image type: {}",
-                    kind.mime_type()
-                ));
-            }
+            "image/jpeg" => Ok(ImageType::JPEG),
+            "image/png" => Ok(ImageType::PNG),
+            "image/webp" => Ok(ImageType::WEBP),
+            "image/gif" => Ok(ImageType::GIF),
+            "image/tiff" => Ok(ImageType::TIFF),
+            _ => Err(format!(
+                "Error: Unsupported image type: {}",
+                kind.mime_type()
+            )),
         },
-        None => {
-            return Err("Error: Could not determine image type.".to_string());
-        }
+        None => Err("Error: Could not determine image type.".to_string()),
     }
 }
 
@@ -107,17 +91,17 @@ fn get_out_path(parameters: &Parameters, image_type: ImageType) -> String {
     out_path = remove_extension(&path);
     out_path = out_path + &parameters.postfix;
     out_path = out_path + ".";
-    out_path = out_path + &convert_image_type(original_extension, extension);
-    return out_path;
+    out_path + &convert_image_type(original_extension, extension)
 }
 
 fn convert_image_type(original_extension: String, image_type: ImageType) -> String {
     match image_type {
         ImageType::JPEG => {
             if original_extension == "jpeg" {
-                return "jpeg".to_string();
+                "jpeg".to_string()
+            } else {
+                "jpg".to_string()
             }
-            "jpg".to_string()
         }
         ImageType::PNG => "png".to_string(),
         ImageType::WEBP => "webp".to_string(),
@@ -149,7 +133,7 @@ fn create_csparameters(parameters: &Parameters, width: u32, height: u32) -> CSPa
     cspars.gif.quality = parameters.gif_quality;
     cspars.width = new_width;
     cspars.height = new_height;
-    return cspars;
+    cspars
 }
 
 fn compress_image(

@@ -89,9 +89,12 @@ fn get_out_path(parameters: &Parameters, image_type: ImageType) -> String {
     let path = Path::new(&out_path);
     let original_extension = path.extension().unwrap().to_str().unwrap().to_string();
     out_path = remove_extension(&path);
-    out_path = out_path + &parameters.postfix;
-    out_path = out_path + ".";
-    out_path + &convert_image_type(original_extension, extension)
+    format!(
+        "{}{}.{}",
+        out_path,
+        parameters.postfix,
+        convert_image_type(original_extension, extension)
+    )
 }
 
 fn convert_image_type(original_extension: String, image_type: ImageType) -> String {
@@ -144,7 +147,7 @@ fn compress_image(
     let result = caesium::compress(path, out_path, &mut params);
     match result {
         Ok(_) => Ok("Success".to_string()),
-        Err(err) => Err("Error: ".to_string() + &err.to_string()),
+        Err(err) => Err(format!("Error: {}", err)),
     }
 }
 

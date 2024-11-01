@@ -36,7 +36,7 @@ pub struct CompressResult {
 
 pub fn process_img(parameters: Parameters) -> Result<CompressResult, String> {
     let img = read_image(&parameters.path)?;
-    let original_image_type = guess_image_type(parameters.path.clone())?;
+    let original_image_type = guess_image_type(&parameters.path)?;
     let new_image_type = parameters.convert_extension.unwrap_or(original_image_type);
     let out_path = get_out_path(&parameters, new_image_type);
 
@@ -44,16 +44,15 @@ pub fn process_img(parameters: Parameters) -> Result<CompressResult, String> {
 
     let should_convert = new_image_type != original_image_type;
 
-    let path = parameters.path.clone();
     let result = if should_convert {
-        convert_image(path, out_path.clone(), csparams)?
+        convert_image(&parameters.path, &out_path, csparams)?
     } else {
-        compress_image(path, out_path.clone(), csparams)?
+        compress_image(&parameters.path, &out_path, csparams)?
     };
 
     Ok(CompressResult {
         path: parameters.path,
-        out_path: out_path.clone(),
+        out_path,
         result,
     })
 }
@@ -66,7 +65,7 @@ fn read_image(path: &str) -> Result<DynamicImage, String> {
     }
 }
 
-fn guess_image_type(path: String) -> Result<ImageType, String> {
+fn guess_image_type(path: &str) -> Result<ImageType, String> {
     let kind =
         infer::get_from_path(path).map_err(|e| format!("Error determining file type: {}", e))?;
     match kind {
@@ -86,9 +85,8 @@ fn guess_image_type(path: String) -> Result<ImageType, String> {
 }
 
 fn get_out_path(parameters: &Parameters, image_type: ImageType) -> String {
-    let out_path = parameters.path.clone();
     let extension = parameters.convert_extension.unwrap_or(image_type);
-    let path = Path::new(&out_path);
+    let path = Path::new(&parameters.path);
     let original_extension = path.extension().unwrap_or_default();
     format!(
         "{}{}.{}",
@@ -140,26 +138,18 @@ fn create_csparameters(parameters: &Parameters, width: u32, height: u32) -> CSPa
     cspars
 }
 
-fn compress_image(
-    path: String,
-    out_path: String,
-    mut params: CSParameters,
-) -> Result<String, String> {
-    let result = caesium::compress(path, out_path, &mut params);
+fn compress_image(path: &str, out_path: &str, mut params: CSParameters) -> Result<String, String> {
+    let result = caesium::compress(path.to_string(), out_path.to_string(), &mut params);
     match result {
         Ok(_) => Ok("Success".to_string()),
         Err(err) => Err(format!("Error: {}", err)),
     }
 }
 
-fn convert_image(
-    path: String,
-    out_path: String,
-    mut params: CSParameters,
-) -> Result<String, String> {
+fn convert_image(path: &str, out_path: &str, mut params: CSParameters) -> Result<String, String> {
     let result = caesium::convert(
-        path,
-        out_path,
+        path.to_string(),
+        out_path.to_string(),
         &mut params,
         caesium::SupportedFileTypes::WebP,
     );
@@ -201,7 +191,7 @@ mod tests {
 
     #[test]
     fn test_guess_image_type() {
-        let result = guess_image_type("test/test.png".to_string());
+        let result = guess_image_type("test/test.png");
         println!("{:?}", result);
         assert_eq!(result.unwrap(), ImageType::PNG);
     }

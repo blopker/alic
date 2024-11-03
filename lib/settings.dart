@@ -1,4 +1,5 @@
 import 'package:alic/config.dart';
+import 'package:alic/tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:signals/signals_flutter.dart';
@@ -80,7 +81,31 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               children: [
                 TextButton(
                     onPressed: () {
-                      Config.reset();
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Reset Settings'),
+                            content: const Text(
+                                'Are you sure you want to reset all settings to default?'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('Cancel'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              TextButton(
+                                child: const Text('Reset'),
+                                onPressed: () {
+                                  Config.reset();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                     child: const Text('Reset')),
                 const Spacer(),
@@ -136,6 +161,7 @@ class GeneralPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Watch(
       (context) {
         final config = Config.signal.value;
@@ -170,6 +196,15 @@ class GeneralPage extends StatelessWidget {
             Row(
               children: [
                 const Text('Overwrite original files'),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: AlicTooltip(
+                    message:
+                        'Original files will be overwritten with the compressed version. Original files are moved to the Trash. '
+                        'If disabled, the compressed version will be saved in the same directory as the original file, with a postfix.',
+                    child: Icon(Icons.help, color: theme.hintColor),
+                  ),
+                ),
                 const Spacer(),
                 Switch(
                   value: !config.enablePostfix,

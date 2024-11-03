@@ -41,11 +41,12 @@ pub fn process_img(parameters: Parameters) -> Result<CompressResult, String> {
     let out_path = get_out_path(&parameters, new_image_type);
 
     let csparams = create_csparameters(&parameters, img.width(), img.height());
+    drop(img);
 
     let should_convert = new_image_type != original_image_type;
 
     let result = if should_convert {
-        convert_image(&parameters.path, &out_path, csparams)?
+        convert_image(&parameters.path, &out_path, csparams, new_image_type)?
     } else {
         compress_image(&parameters.path, &out_path, csparams)?
     };
@@ -146,13 +147,26 @@ fn compress_image(path: &str, out_path: &str, mut params: CSParameters) -> Resul
     }
 }
 
-fn convert_image(path: &str, out_path: &str, mut params: CSParameters) -> Result<String, String> {
+fn convert_image(
+    path: &str,
+    out_path: &str,
+    mut params: CSParameters,
+    image_type: ImageType,
+) -> Result<String, String> {
+    let supported_type = match image_type {
+        ImageType::JPEG => caesium::SupportedFileTypes::Jpeg,
+        ImageType::PNG => caesium::SupportedFileTypes::Png,
+        ImageType::WEBP => caesium::SupportedFileTypes::WebP,
+        ImageType::GIF => caesium::SupportedFileTypes::Gif,
+        ImageType::TIFF => caesium::SupportedFileTypes::Tiff,
+    };
     let result = caesium::convert(
         path.to_string(),
         out_path.to_string(),
         &mut params,
-        caesium::SupportedFileTypes::WebP,
+        supported_type,
     );
+
     match result {
         Ok(_) => Ok("Success".to_string()),
         Err(err) => Err(format!("Error: {}", err)),

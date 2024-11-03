@@ -5,6 +5,7 @@ import 'package:alic/imagefiles.dart';
 import 'package:alic/settings.dart';
 import 'package:alic/src/rust/frb_generated.dart';
 import 'package:alic/table.dart';
+import 'package:alic/log.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:signals/signals_flutter.dart';
@@ -63,7 +64,7 @@ class _HomePageState extends State<HomePage> {
       body: MacMenuBar(
         child: ImageDropRegion(
           onDrop: (files) {
-            debugPrint('Dropped: $files');
+            log.d('Dropped: $files');
             ImageFiles.add(files);
           },
           dropOverlay: Container(

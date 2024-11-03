@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:alic/log.dart';
 
 import 'strings.dart';
 
@@ -52,10 +53,10 @@ Future<Update?> checkForUpdate({bool force = false}) async {
 
   // 3. Compare
   if (latestBuildNumber > currentBuildNumber || force) {
-    debugPrint('Update available: ${update.version}');
+    log.d('Update available: ${update.version}');
     return update;
   } else {
-    debugPrint('You have the latest version');
+    log.d('You have the latest version');
     return null;
   }
 }
@@ -63,5 +64,5 @@ Future<Update?> checkForUpdate({bool force = false}) async {
 void main() async {
   final buildNumber = await getLatestBuildNumber();
   // ignore: avoid_print
-  print('Latest Build Number: $buildNumber');
+  log.d('Latest Build Number: $buildNumber');
 }

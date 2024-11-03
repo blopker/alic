@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:alic/imagefiles.dart';
+import 'package:alic/log.dart';
 import 'package:alic/src/rust/api/compressor.dart';
 import 'package:alic/workqueue.dart';
-import 'package:flutter/foundation.dart';
 
 import './config.dart';
 
@@ -44,8 +44,7 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
       timer.stop();
     }
 
-    debugPrint(
-        'Compressed ${imageFile.file} in ${timer.elapsedMilliseconds}ms');
+    log.d('Compressed ${imageFile.file} in ${timer.elapsedMilliseconds}ms');
 
     final outFile = File(result.outPath);
     final sizeAfterOptimization = await outFile.length();
@@ -59,14 +58,23 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
       return;
     }
     // Success!
-    if (!config.enablePostfix && config.convertExtension == null) {
-      // If postfix is disabled (and no conversion is needed), replace the original file with the optimized one
+    if (!config.enablePostfix) {
+      // If postfix is disabled, replace the original file with the optimized one
       File(imageFile.path).delete();
-      outFile.rename(imageFile.path);
+      outFile.rename(replaceLast(outFile.path, config.postfix, ''));
     }
     callback(imageFile.copyWith(
       sizeAfterOptimization: sizeAfterOptimization,
       status: ImageFileStatus.success,
     ));
   });
+}
+
+String replaceLast(String string, String from, String to) {
+  final lastIndex = string.lastIndexOf(from);
+  if (lastIndex < 0) return string;
+
+  return string.substring(0, lastIndex) +
+      to +
+      string.substring(lastIndex + from.length);
 }

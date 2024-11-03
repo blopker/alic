@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:alic/log.dart';
 import 'package:alic/compressor.dart';
 import 'package:flutter/material.dart';
 import 'package:signals/signals.dart' as signals;
@@ -181,7 +182,7 @@ class ImageFiles {
 
   static void compress(ImageFile file) {
     compressor(file, (p0) {
-      debugPrint('Update: $p0');
+      log.d('Update: $p0');
       update(p0);
     });
   }

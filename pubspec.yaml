@@ -28,6 +28,7 @@ dependencies:
   http: ^1.2.1
   url_launcher: ^6.2.6
   custom_sliding_segmented_control: ^1.8.3
+  logger: ^2.4.0
 
 dev_dependencies:
   flutter_test:

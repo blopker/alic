@@ -3,6 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file_macos/open_file_macos.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:alic/log.dart';
 
 final _openFileMacosPlugin = OpenFileMacos();
 
@@ -20,7 +21,7 @@ class _FilesTableState extends State<FilesTable> with SignalsMixin {
 
   @override
   void initState() {
-    debugPrint('initState');
+    log.d('initState');
     super.initState();
     createEffect(() {
       setState(() {

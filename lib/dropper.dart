@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:alic/log.dart';
 import 'package:alic/imagefiles.dart';
 import 'package:flutter/material.dart';
 import 'package:super_clipboard/super_clipboard.dart';
@@ -64,7 +65,7 @@ class _ImageDropRegionState extends State<ImageDropRegion> {
             formats: Formats.standardFormats,
             hitTestBehavior: HitTestBehavior.opaque,
             onDropOver: (event) {
-              debugPrint('onDropOver');
+              log.d('onDropOver');
               for (var item in event.session.items) {
                 for (var format in formats) {
                   if (item.canProvide(format)) {
@@ -75,15 +76,15 @@ class _ImageDropRegionState extends State<ImageDropRegion> {
               return DropOperation.none;
             },
             onDropEnter: (event) {
-              debugPrint('onDropEnter');
+              log.d('onDropEnter');
               showOverlay();
             },
             onDropLeave: (event) {
-              debugPrint('onDropLeave');
+              log.d('onDropLeave');
               hideOverlay();
             },
             onPerformDrop: (event) async {
-              debugPrint('onPerformDrop');
+              log.d('onPerformDrop');
               final items = event.session.items;
               final mixedPaths = <String>[];
               for (var item in items) {

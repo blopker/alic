@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:alic/log.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:signals/signals.dart' as signals;
@@ -47,7 +48,7 @@ class Config {
   static void init() {
     signal.value = readConfig();
     signals.effect(() {
-      debugPrint('Config changed: ${signal.value}');
+      log.d('Config changed: ${signal.value}');
       writeConfig(signal.value);
     });
   }
@@ -55,7 +56,7 @@ class Config {
   static ConfigData readConfig() {
     ensureConfigExists();
     var configData = configFile.readAsStringSync();
-    debugPrint('Read config: $configData');
+    log.d('Read config: $configData');
     return ConfigData.fromJson(jsonDecode(configData));
   }
 

@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:alic/log.dart';
 
 class _WorkQueue {
   int _maxWorkers = max(2, Platform.numberOfProcessors - 2);
@@ -46,9 +47,9 @@ void main(List<String> args) {
   var queue = _WorkQueue(maxWorkers: 4);
   for (var i = 0; i < 10; i++) {
     queue.add(() async {
-      print('Running $i');
+      log.d('Running $i');
       await Future.delayed(const Duration(seconds: 1));
-      print('Done $i');
+      log.d('Done $i');
     });
   }
   queue.join();

@@ -23,15 +23,16 @@ class Update {
 }
 
 Future<Update> getLatestBuildNumber() async {
-  final uri = Uri.parse(Strings.githubAPI);
+  var url = Strings.githubAPI;
+  final uri = Uri.parse(url);
   final response =
       await http.get(uri, headers: {"Accept": "application/vnd.github+json"});
-
+  // log.d('Response: ${response.body}');
   if (response.statusCode == 200) {
-    final List decodedData = jsonDecode(response.body);
-    final tags = decodedData.map((e) => e['name'].toString()).toList();
-    final latestBuild = tags.firstWhere((element) => element.contains('+'));
+    final Map<String, dynamic> decodedData = jsonDecode(response.body);
+    final latestBuild = decodedData['tag_name'];
     final buildNumber = int.parse(latestBuild.split('+').last);
+    log.d('Latest build: $latestBuild, build number: $buildNumber');
     return Update(
       version: latestBuild,
       buildNumber: buildNumber,

@@ -18,10 +18,12 @@ class _FilesTableState extends State<FilesTable> with SignalsMixin {
   int? _currentSortColumn;
   bool _isSortAsc = true;
   List<ImageFile> rows = [];
+  ColorTween compressIconTween =
+      ColorTween(begin: Colors.blue, end: Colors.amber);
 
   @override
   void initState() {
-    log.d('initState');
+    log.d('FilesTable initState');
     super.initState();
     createEffect(() {
       setState(() {
@@ -51,12 +53,25 @@ class _FilesTableState extends State<FilesTable> with SignalsMixin {
             child: Icon(Icons.pending, color: theme.disabledColor),
           ),
         ),
-      _ => Tooltip(
+      ImageFileStatus.compressing => Tooltip(
           message: file.status.value,
           child: SizedBox(
             height: 20,
             width: 20,
-            child: Icon(Icons.compress, color: theme.hintColor),
+            child: TweenAnimationBuilder<Color?>(
+              tween: compressIconTween,
+              duration: const Duration(seconds: 1),
+              onEnd: () {
+                setState(() {
+                  compressIconTween = ColorTween(
+                    begin: compressIconTween.end,
+                    end: compressIconTween.begin,
+                  );
+                }); // Trigger rebuild to restart animation
+              },
+              builder: (context, color, child) =>
+                  Icon(Icons.compress, color: color),
+            ),
           ),
         ),
     };

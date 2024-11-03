@@ -1,3 +1,3 @@
 import 'package:logger/logger.dart';
 
-final log = Logger();
+final log = Logger(printer: SimplePrinter());

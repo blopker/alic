@@ -48,15 +48,20 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               initialValue: _selectedPage,
               clipBehavior: Clip.antiAlias,
               children: SettingsPages.values.fold({}, (map, element) {
-                map[element] = Text(element.title);
+                map[element] = Text(element.title,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary));
                 return map;
               }),
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.secondaryContainer,
                 borderRadius: BorderRadius.circular(16),
               ),
               thumbDecoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondaryContainer,
+                color: Theme.of(context)
+                    .colorScheme
+                    .primaryContainer
+                    .withOpacity(0.6),
                 borderRadius: BorderRadius.circular(16),
               ),
               customSegmentSettings: CustomSegmentSettings(

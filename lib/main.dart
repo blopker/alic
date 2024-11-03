@@ -60,6 +60,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
       body: MacMenuBar(
         child: ImageDropRegion(
@@ -69,9 +70,10 @@ class _HomePageState extends State<HomePage> {
           },
           dropOverlay: Container(
               color: Colors.transparent,
-              child: const Center(
+              child: Center(
                 child: Icon(
                   Icons.file_download,
+                  color: theme.iconTheme.color!.withAlpha(40),
                   size: 400,
                 ),
               )).asGlass(

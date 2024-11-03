@@ -178,10 +178,9 @@ class _FilesTableState extends State<FilesTable> with SignalsMixin {
           child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: theme.focusColor,
           border: Border.all(
-              color: theme.primaryColor.withAlpha(40),
-              width: 2,
+              color: theme.iconTheme.color!.withAlpha(40),
+              width: 1,
               style: BorderStyle.solid),
         ),
         child: Icon(

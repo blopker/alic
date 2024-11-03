@@ -1,5 +1,18 @@
 # Unreleased
 
+- Nothing yet
+
+# 1.5.0
+
+- You can now drop images and folders into the app icon on the dock
+- Added ability to convert image formats in settings
+- New settings page selector
+- Overwritten images will now be moved to the Trash, instead of deleted
+- Added a fun animation when compressing images
+- New help text for some settings
+- Performance and memory improvements
+- Update dependencies
+
 # 1.4.0
 
 - Animated WebP support

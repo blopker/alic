@@ -87,7 +87,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                           return AlertDialog(
                             title: const Text('Reset Settings'),
                             content: const Text(
-                                'Are you sure you want to reset all settings to default?'),
+                                'Are you sure you want to reset all settings to the defaults?'),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text('Cancel'),

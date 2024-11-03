@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:alic/dockdrop.dart';
 import 'package:alic/dropper.dart';
 import 'package:alic/imagefiles.dart';
 import 'package:alic/settings.dart';
@@ -21,7 +22,6 @@ void main() async {
   await RustLib.init();
   await windowManager.ensureInitialized();
   Config.init();
-
   WindowOptions windowOptions = const WindowOptions(
     minimumSize: Size(600, 400),
     skipTaskbar: false,
@@ -29,6 +29,10 @@ void main() async {
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.show();
     await windowManager.focus();
+  });
+  registerDockDropHandler((files) {
+    log.d('Dropped: $files');
+    ImageFiles.add(files);
   });
   runApp(const Alic());
 }

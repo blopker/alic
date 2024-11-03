@@ -16,6 +16,6 @@ class NativeFileManager {
   }
 }
 
-trash(File file) {
-  NativeFileManager.trashItem(file.path);
+trash(File file) async {
+  await NativeFileManager.trashItem(file.path);
 }

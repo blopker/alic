@@ -52,7 +52,7 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
     if (sizeAfterOptimization.toDouble() / imageFile.size >
         compressionThreshold) {
       // delete the file if it's not smaller
-      trash(outFile);
+      await trash(outFile);
       callback(imageFile.copyWith(
         status: ImageFileStatus.unoptimized,
       ));
@@ -61,7 +61,7 @@ void compressor(ImageFile imageFile, void Function(ImageFile) callback) {
     // Success!
     if (!config.enablePostfix) {
       // If postfix is disabled, replace the original file with the optimized one
-      trash(File(imageFile.path));
+      await trash(File(imageFile.path));
       outFile.rename(replaceLast(outFile.path, config.postfix, ''));
     }
     callback(imageFile.copyWith(

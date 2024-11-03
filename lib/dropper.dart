@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:alic/filesystem.dart';
 import 'package:alic/log.dart';
-import 'package:alic/imagefiles.dart';
 import 'package:flutter/material.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
@@ -97,7 +97,7 @@ class _ImageDropRegionState extends State<ImageDropRegion> {
                   }
                 }
               }
-              final paths = await _resolvePaths(mixedPaths);
+              final paths = await resolvePaths(mixedPaths);
               widget.onDrop(paths);
             },
             child: Stack(children: [
@@ -139,27 +139,4 @@ Future<String?> _getValueFromItem(DropItem item) async {
     }
   });
   return completer.future;
-}
-
-Future<List<File>> _resolvePaths(List<String> paths) async {
-  List<File> resolvedPaths = [];
-  for (var path in paths) {
-    if (path.endsWith('/')) {
-      resolvedPaths.addAll(await _getImagesFromDirectory(Directory(path)));
-    } else {
-      resolvedPaths.add(File(path));
-    }
-  }
-  return resolvedPaths;
-}
-
-// Return a list of images from a directory, recursively
-Future<List<File>> _getImagesFromDirectory(Directory dir) async {
-  List<File> imageFiles = [];
-  await for (var entity in dir.list(recursive: true, followLinks: false)) {
-    if (entity is File && ImageFormats.isImage(entity.path)) {
-      imageFiles.add(entity);
-    }
-  }
-  return imageFiles;
 }

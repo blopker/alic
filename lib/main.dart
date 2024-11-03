@@ -164,6 +164,7 @@ class BottomBar extends StatelessWidget {
             Row(
               children: [
                 IconButton(
+                  tooltip: 'Settings',
                   constraints:
                       const BoxConstraints.tightFor(width: 37, height: 37),
                   onPressed: () {

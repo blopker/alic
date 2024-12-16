@@ -2,6 +2,14 @@
 
 - Nothing yet
 
+# 2.0.0
+
+- Complete rewrite to use Tauri and SolidJS
+- Add profiles
+- Add paste images from clipboard
+- Add configurable parallelism
+- New keyboard shortcuts
+
 # 1.5.0
 
 - You can now drop images and folders into the app icon on the dock

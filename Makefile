@@ -17,11 +17,5 @@ build_dmg:
 open_app_folder:
 	open ~/Library/Application Support/io.kbl.alic
 
-release_major:
-	bun run scripts/release.ts major
-
-release_minor:
-	bun run scripts/release.ts minor
-
-release_patch:
-	bun run scripts/release.ts patch
+release:
+	bun run scripts/release.ts

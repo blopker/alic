@@ -70,11 +70,11 @@ All compression is done locally on your machine. Alic also does not have any ana
 ## Roadmap
 
 - [ ] Get the app signed with an Apple Developer ID
-- [x] Add a way to check for updates
+- [ ] Add a way to check for updates
 - [x] Add support for different optimization levels
 - [ ] Add support for lossless compression
 - [x] Add support for dropping directories
-- [ ] Add context menu for opening images in Alic from Finder
+- [x] Add context menu for opening images in Alic from Finder
 - [x] Add support for resizing images if they are over a certain size
 
 ## Built With
@@ -102,7 +102,7 @@ Don't forget to give the project a star! Thanks again!
 
 To release a new version of Alic, follow these steps:
 
-1. Update the version in `pubspec.yaml`.
+1. Update the version in `tauri.conf.json`.
 1. Update `CHANGELOG.md`.
 1. Commit the changes, but do not push.
 1. Run `make release`.
@@ -121,16 +121,14 @@ This project would not be possible without the following open source projects:
 
 - For compression: [libcaesium][libcaesium-url]
 - Original inspiration: [ImageOptim][imageoptim-url]
-- Rust interop: [flutter_rust_bridge][flutter-rust-bridge-url]
-- UI: [Flutter][flutter-url]
+- UI: [Tauri][tauri-url]
 
 [license-url]: https://github.com/blopker/alic/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/blopker
 [product-screenshot]: alic-sc.min.png
 [libcaesium-url]: https://github.com/Lymphatus/libcaesium
-[flutter-rust-bridge-url]: https://cjycode.com/flutter_rust_bridge/
-[flutter-url]: https://flutter.dev/
+[tauri-url]: https://tauri.app/
 [imageoptim-url]: https://imageoptim.com/mac
 [project-url]: https://github.com/blopker/alic
 [project-release-url]: https://github.com/blopker/alic/releases

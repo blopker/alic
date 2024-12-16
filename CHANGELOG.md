@@ -1,7 +1,5 @@
 # Unreleased
 
-- Nothing yet
-
 # 2.0.0
 
 - Complete rewrite to use Tauri and SolidJS

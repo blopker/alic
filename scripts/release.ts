@@ -12,9 +12,9 @@ function getVersion() {
 async function main() {
   try {
     // Make sure we're on main branch and it's clean
-    $`git diff-index --quiet HEAD --`;
-    $`git checkout main`;
-    $`git pull origin main`;
+    await $`git diff-index --quiet HEAD --`;
+    await $`git checkout main`;
+    await $`git pull origin main`;
 
     // Update version
     const newVersion = getVersion();
@@ -26,8 +26,8 @@ async function main() {
       throw `Tag ${tag} already exists`;
     }
 
-    $`git tag -a v${newVersion} -m "Release v${newVersion}"`;
-    $`git push origin --tags --all`;
+    await $`git tag -a v${newVersion} -m "Release v${newVersion}"`;
+    await $`git push origin --tags --all`;
 
     console.log("\nReleasing version $newVersion!");
     console.log("1. Wait for GitHub Actions to finish");

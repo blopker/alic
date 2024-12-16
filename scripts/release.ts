@@ -28,6 +28,7 @@ async function main() {
 
     await $`git tag -a v${newVersion} -m "Release v${newVersion}"`;
     await $`git push origin --all`;
+    await $`git push origin --tags`;
 
     console.log("\nReleasing version $newVersion!");
     console.log("1. Wait for GitHub Actions to finish");

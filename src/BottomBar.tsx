@@ -102,7 +102,9 @@ function ClearButton() {
 }
 
 async function settingsWindow() {
-  await commands.openSettingsWindow(null);
+  await commands.openSettingsWindow(
+    `/settings/profile/${getProfileActive().id}`,
+  );
 }
 
 function StatusText() {

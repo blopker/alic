@@ -352,6 +352,8 @@ fn create_csparameters(
     cspars.gif.quality = parameters.gif_quality;
     cspars.width = new_width;
     cspars.height = new_height;
+    cspars.optimize = false;
+    cspars.keep_metadata = false;
     cspars
 }
 

@@ -196,7 +196,7 @@ function MyTable() {
 function PlaceHolder() {
   return (
     <div class="flex h-full w-full grow items-center justify-center">
-      <BsArrowDownSquare size={100} class="opacity-50" />
+      <BsArrowDownSquare size={150} class="opacity-10" />
     </div>
   );
 }

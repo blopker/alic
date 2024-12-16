@@ -1,5 +1,10 @@
 # Unreleased
 
+# 2.0.4
+
+- App is now signed by Apple
+- Added metadata and lossless options
+
 # 2.0.1
 
 - Fix release script

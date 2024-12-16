@@ -110,7 +110,7 @@ export type FileEntry = { path: string; file: string | null; status: FileEntrySt
 export type FileEntryStatus = "Processing" | "Compressing" | "Complete" | "AlreadySmaller" | "Error"
 export type FileInfoResult = { size: number; extension: string; filename: string }
 export type ImageType = "JPEG" | "PNG" | "WEBP" | "GIF" | "TIFF"
-export type ProfileData = { name: string; id: number; active: boolean; should_resize: boolean; should_convert: boolean; should_overwrite: boolean; enable_lossy?: boolean; add_posfix?: boolean; convert_extension: ImageType; postfix: string; resize_width: number; resize_height: number; jpeg_quality: number; png_quality: number; webp_quality: number; gif_quality: number }
+export type ProfileData = { name: string; id: number; active: boolean; should_resize: boolean; should_convert: boolean; should_overwrite: boolean; enable_lossy?: boolean; keep_metadata?: boolean; add_posfix?: boolean; convert_extension: ImageType; postfix: string; resize_width: number; resize_height: number; jpeg_quality: number; png_quality: number; webp_quality: number; gif_quality: number }
 export type SettingsData = { version: number; theme: ThemeKind; threads?: number; profiles: ProfileData[] }
 export type ThemeKind = "Light" | "Dark" | "System"
 

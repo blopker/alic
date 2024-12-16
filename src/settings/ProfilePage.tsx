@@ -27,11 +27,26 @@ function ProfilePage() {
     }
     return d;
   };
+  const lossy = () => data().enable_lossy ?? false;
   return (
     <SettingsPage title={`Profile | ${data().name}`}>
       <SettingBox title="Quality">
+        <SettingRow
+          title="Enable Lossy Compression"
+          helpText="Lossy compression reduces the image quality for potentially large space savings. The image may end up looking different."
+        >
+          <SettingsToggle
+            value={lossy()}
+            onChange={(value) => {
+              updateProfile(data().id, {
+                enable_lossy: value,
+              });
+            }}
+          />
+        </SettingRow>
         <SettingRow title="JPEG Quality">
           <QualitySlider
+            disabled={!lossy()}
             value={data().jpeg_quality}
             onChange={(value) => {
               updateProfile(data().id, { jpeg_quality: value });
@@ -40,6 +55,7 @@ function ProfilePage() {
         </SettingRow>
         <SettingRow title="PNG Quality">
           <QualitySlider
+            disabled={!lossy()}
             value={data().png_quality}
             onChange={(value) => {
               updateProfile(data().id, { png_quality: value });
@@ -48,6 +64,7 @@ function ProfilePage() {
         </SettingRow>
         <SettingRow title="WEBP Quality">
           <QualitySlider
+            disabled={!lossy()}
             value={data().webp_quality}
             onChange={(value) => {
               updateProfile(data().id, { webp_quality: value });
@@ -56,6 +73,7 @@ function ProfilePage() {
         </SettingRow>
         <SettingRow title="GIF Quality">
           <QualitySlider
+            disabled={!lossy()}
             value={data().gif_quality}
             onChange={(value) => {
               updateProfile(data().id, { gif_quality: value });
@@ -112,6 +130,19 @@ function ProfilePage() {
             onChange={(value) => {
               updateProfile(data().id, {
                 should_overwrite: value,
+              });
+            }}
+          />
+        </SettingRow>
+        <SettingRow
+          title="Keep Metadata"
+          helpText="Disable to remove all EXIF and color profile information. This may cause colors to change slightly, but removes potentially sensitive or identifying data from the image. For example: location data."
+        >
+          <SettingsToggle
+            value={data().keep_metadata ?? true}
+            onChange={(value) => {
+              updateProfile(data().id, {
+                keep_metadata: value,
               });
             }}
           />
@@ -220,10 +251,12 @@ function ProfilePage() {
 function QualitySlider(props: {
   value: number;
   onChange: (value: number) => void;
+  disabled?: boolean;
 }) {
   return (
     <div class="flex gap-4">
       <input
+        disabled={props.disabled ?? false}
         type="range"
         min="1"
         max="10"

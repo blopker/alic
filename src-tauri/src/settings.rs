@@ -48,6 +48,8 @@ pub struct ProfileData {
     #[serde(default)]
     pub enable_lossy: bool,
     #[serde(default)]
+    pub keep_metadata: bool,
+    #[serde(default)]
     pub add_posfix: bool,
     pub convert_extension: ImageType,
     pub postfix: String,
@@ -69,6 +71,7 @@ impl ProfileData {
             should_convert: false,
             should_overwrite: false,
             enable_lossy: true,
+            keep_metadata: true,
             add_posfix: true,
             convert_extension: ImageType::WEBP,
             postfix: ".min".to_string(),

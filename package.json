@@ -1,0 +1,37 @@
+{
+  "name": "alic",
+  "version": "2.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "tauri": "tauri"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@corvu/tooltip": "^0.2.1",
+    "@solid-primitives/keyboard": "^1.2.8",
+    "@solidjs/router": "^0.15.2",
+    "@tailwindcss/vite": "^4.0.0-beta.6",
+    "@tauri-apps/api": "^2.1.1",
+    "@tauri-apps/plugin-clipboard-manager": "^2.2.0",
+    "@tauri-apps/plugin-deep-link": "~2.2.0",
+    "@tauri-apps/plugin-dialog": "~2.2.0",
+    "@tauri-apps/plugin-shell": "^2.2.0",
+    "@tauri-apps/plugin-store": "~2.2.0",
+    "@types/bun": "^1.1.14",
+    "solid-icons": "^1.1.0",
+    "solid-js": "^1.9.3",
+    "solid-transition-group": "^0.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.9",
+    "@tauri-apps/cli": "^2.1.0",
+    "tailwindcss": "^4.0.0-beta.6",
+    "vite": "^6.0.3",
+    "vite-plugin-solid": "^2.11.0"
+  }
+}

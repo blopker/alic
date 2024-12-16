@@ -1,0 +1,74 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@theme inline {
+    --color-primary: var(--color-theme-primary);
+    --color-secondary: var(--color-theme-secondary);
+    --color-accent: var(--color-theme-accent);
+    --color-text-primary: var(--color-theme-text-primary);
+}
+
+:root {
+    --color-theme-primary: #fff;
+    --color-theme-secondary: #e9e9e9;
+    --color-theme-accent: #dedede;
+    --color-theme-text-primary: #0f0f0f;
+    @media (prefers-color-scheme: dark) {
+        --color-theme-primary: #1b1b1b;
+        --color-theme-secondary: #242424;
+        --color-theme-accent: #3d3d3d;
+        --color-theme-text-primary: #f6f6f6;
+    }
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 400;
+
+    color: var(--color-text-primary);
+    background-color: var(--color-primary);
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+}
+
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
+* {
+    overscroll-behavior-y: none;
+}
+
+body {
+    overscroll-behavior-y: none;
+    height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.frost {
+    border-radius: 8px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px;
+}
+
+.fade-enter-active,
+.fade-exit-active {
+    transition:
+        opacity 0.3s,
+        transform 0.3s;
+}
+.fade-enter,
+.fade-exit-to {
+    opacity: 0;
+}
+.fade-enter {
+    opacity: 1;
+}

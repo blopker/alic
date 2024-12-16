@@ -1,26 +1,27 @@
-build: build_rust build_gen
-	flutter build macos
+dev:
+	bun run tauri dev
 
-watch:
-	dart run build_runner watch --delete-conflicting-outputs
+setup:
+	bun install
+	cd src-tauri && cargo build
 
-build_gen:
-	dart run build_runner build --delete-conflicting-outputs
+build:
+	bun run tauri build --no-bundle
 
-build_rust:
-	flutter_rust_bridge_codegen generate
+open_release:
+	open src-tauri/target/release
 
-watch_rust:
-	flutter_rust_bridge_codegen generate --watch
+build_dmg:
+	bun run tauri build
 
-update_rust:
-	cargo install 'flutter_rust_bridge_codegen' && flutter_rust_bridge_codegen generate
+open_app_folder:
+	open ~/Library/Application Support/io.kbl.alic
 
-create_dmg:
-	./scripts/create_dmg.sh
+release_major:
+	bun run scripts/release.ts major
 
-release:
-	./scripts/release.sh
+release_minor:
+	bun run scripts/release.ts minor
 
-run_release_build:
-	open build/macos/Build/Products/Release/"Alic Image Compressor.app"
+release_patch:
+	bun run scripts/release.ts patch

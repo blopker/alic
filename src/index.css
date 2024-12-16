@@ -62,8 +62,8 @@ body {
 .fade-enter-active,
 .fade-exit-active {
     transition:
-        opacity 0.3s,
-        transform 0.3s;
+        opacity 0.6s,
+        transform 0.6s;
 }
 .fade-enter,
 .fade-exit-to {

@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.0.1
+
+- Fix release script
+
 # 2.0.0
 
 - Complete rewrite to use Tauri and SolidJS

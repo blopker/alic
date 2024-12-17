@@ -490,8 +490,13 @@ fn is_image(path: &Path) -> bool {
         return false;
     }
     let supported_exts = ["png", "jpeg", "jpg", "gif", "webp", "tiff"];
-    let ext = path.extension().unwrap_or_default();
-    if !supported_exts.contains(&ext.to_str().unwrap()) {
+    let ext = path
+        .extension()
+        .unwrap_or_default()
+        .to_str()
+        .unwrap()
+        .to_lowercase();
+    if !supported_exts.contains(&ext.as_str()) {
         return false;
     }
     true

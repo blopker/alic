@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.0.6
+
+- Allow for upper case extensions
+
 # 2.0.5
 
 - Add update checker

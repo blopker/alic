@@ -1,32 +1,32 @@
-import { listen } from "@tauri-apps/api/event";
+import { events } from "./bindings";
 
 function openFileDialogListener(cb: () => void) {
-  return listen("open-find-image-dialog", () => {
+  return events.openAddFileDialogEvent.listen(() => {
     cb();
   });
 }
 
 function addFileListener(cb: (path: string) => void) {
-  return listen<string>("add-file", (event) => {
+  return events.addFileEvent.listen((event) => {
     cb(event.payload);
   });
 }
 
 function clearFilesListener(cb: () => void) {
-  return listen("clear-files", (_) => {
+  return events.clearFilesEvent.listen(() => {
     cb();
   });
 }
 
 function settingsChangedListener(cb: () => void) {
-  listen("settings-changed", (_) => {
+  return events.settingsChangedEvent.listen(() => {
     cb();
   });
 }
 
 function updateResultListener(cb: (result: string) => void) {
-  listen<string>("update-result", (result) => {
-    cb(result.payload);
+  return events.updateResultsEvent.listen((event) => {
+    cb(event.payload);
   });
 }
 

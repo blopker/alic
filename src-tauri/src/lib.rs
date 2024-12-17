@@ -16,7 +16,7 @@ use tauri::{
 
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_store::StoreExt;
-use tauri_specta::{collect_commands, Builder};
+use tauri_specta::{collect_commands, collect_events, Builder};
 
 #[tauri::command]
 #[specta::specta]
@@ -98,21 +98,29 @@ fn save_clipboard_image(app: &tauri::AppHandle) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
-        open_settings_window,
-        open_link_in_browser,
-        compress::process_img,
-        compress::get_file_info,
-        compress::get_all_images,
-        settings::get_settings,
-        settings::save_settings,
-        settings::reset_settings,
-        settings::reset_profile,
-        settings::delete_profile,
-        settings::add_profile,
-        macos::open_finder_at_path,
-        macos::get_cpu_count,
-    ]);
+    let builder = Builder::<tauri::Wry>::new()
+        .commands(collect_commands![
+            open_settings_window,
+            open_link_in_browser,
+            compress::process_img,
+            compress::get_file_info,
+            compress::get_all_images,
+            settings::get_settings,
+            settings::save_settings,
+            settings::reset_settings,
+            settings::reset_profile,
+            settings::delete_profile,
+            settings::add_profile,
+            macos::open_finder_at_path,
+            macos::get_cpu_count,
+        ])
+        .events(collect_events![
+            events::AddFileEvent,
+            events::ClearFilesEvent,
+            events::SettingsChangedEvent,
+            events::OpenAddFileDialogEvent,
+            events::UpdateResultsEvent
+        ]);
 
     #[cfg(debug_assertions)] // <- Only export on non-release builds
     builder

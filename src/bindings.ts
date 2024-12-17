@@ -99,6 +99,19 @@ async getCpuCount() : Promise<number> {
 /** user-defined events **/
 
 
+export const events = __makeEvents__<{
+addFileEvent: AddFileEvent,
+clearFilesEvent: ClearFilesEvent,
+openAddFileDialogEvent: OpenAddFileDialogEvent,
+settingsChangedEvent: SettingsChangedEvent,
+updateResultsEvent: UpdateResultsEvent
+}>({
+addFileEvent: "add-file-event",
+clearFilesEvent: "clear-files-event",
+openAddFileDialogEvent: "open-add-file-dialog-event",
+settingsChangedEvent: "settings-changed-event",
+updateResultsEvent: "update-results-event"
+})
 
 /** user-defined constants **/
 
@@ -106,6 +119,8 @@ async getCpuCount() : Promise<number> {
 
 /** user-defined types **/
 
+export type AddFileEvent = string
+export type ClearFilesEvent = null
 export type CompressError = { error: string; errorType: CompressErrorType }
 export type CompressErrorType = "Unknown" | "FileTooLarge" | "FileNotFound" | "UnsupportedFileType" | "WontOverwrite" | "NotSmaller"
 export type CompressResult = { path: string; outSize: number; outPath: string; result: string }
@@ -113,9 +128,12 @@ export type FileEntry = { path: string; file: string | null; status: FileEntrySt
 export type FileEntryStatus = "Processing" | "Compressing" | "Complete" | "AlreadySmaller" | "Error"
 export type FileInfoResult = { size: number; extension: string; filename: string }
 export type ImageType = "JPEG" | "PNG" | "WEBP" | "GIF" | "TIFF"
+export type OpenAddFileDialogEvent = null
 export type ProfileData = { name: string; id: number; active: boolean; should_resize: boolean; should_convert: boolean; should_overwrite: boolean; enable_lossy?: boolean; keep_metadata?: boolean; add_posfix?: boolean; convert_extension: ImageType; postfix: string; resize_width: number; resize_height: number; jpeg_quality: number; png_quality: number; webp_quality: number; gif_quality: number }
+export type SettingsChangedEvent = null
 export type SettingsData = { version: number; theme: ThemeKind; threads?: number; profiles: ProfileData[] }
 export type ThemeKind = "Light" | "Dark" | "System"
+export type UpdateResultsEvent = string
 
 /** tauri-specta globals **/
 

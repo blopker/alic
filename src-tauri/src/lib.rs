@@ -113,6 +113,9 @@ pub fn run() {
         )
         .expect("Failed to export typescript bindings");
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_window_state::Builder::new().build())
+        .plugin(tauri_plugin_persisted_scope::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {
             println!("Second instance detected:");

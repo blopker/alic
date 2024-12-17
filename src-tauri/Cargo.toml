@@ -41,6 +41,9 @@ objc2-foundation = { version = "0.2.2", features = [
     "NSFileManager",
     "NSAutoreleasePool",
 ] }
+tauri-plugin-persisted-scope = "2"
+tauri-plugin-fs = "2"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
+tauri-plugin-window-state = "2"

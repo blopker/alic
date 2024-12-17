@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.0.5
+
+- Add update checker
+
 # 2.0.4
 
 - App is now signed by Apple

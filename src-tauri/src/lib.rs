@@ -2,10 +2,12 @@ mod compress;
 mod events;
 mod macos;
 mod settings;
+mod update;
 
 use std::hash::{DefaultHasher, Hash, Hasher};
+use tauri_plugin_opener::OpenerExt;
 
-use events::{emit_add_file, emit_clear_files, emit_open_add_file_dialog};
+use events::{emit_add_file, emit_clear_files, emit_open_add_file_dialog, emit_update_results};
 use image;
 use tauri::{
     menu::{AboutMetadataBuilder, Menu, MenuItem, SubmenuBuilder},
@@ -20,6 +22,12 @@ use tauri_specta::{collect_commands, Builder};
 #[specta::specta]
 async fn open_settings_window(app: tauri::AppHandle, path: Option<String>) {
     _open_settings_window(&app, path);
+}
+
+#[tauri::command]
+#[specta::specta]
+async fn open_link_in_browser(app: tauri::AppHandle, url: String) {
+    app.opener().open_url(url, None::<&str>).unwrap();
 }
 
 fn _open_settings_window(app: &tauri::AppHandle, path: Option<String>) {
@@ -92,6 +100,7 @@ fn save_clipboard_image(app: &tauri::AppHandle) {
 pub fn run() {
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
         open_settings_window,
+        open_link_in_browser,
         compress::process_img,
         compress::get_file_info,
         compress::get_all_images,
@@ -113,6 +122,7 @@ pub fn run() {
         )
         .expect("Failed to export typescript bindings");
     tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_persisted_scope::init())
@@ -134,8 +144,9 @@ pub fn run() {
                 .build();
             let submenu = SubmenuBuilder::new(app, "Main")
                 .about(Some(about))
-                .item(&MenuItem::new(
+                .item(&MenuItem::with_id(
                     app,
+                    "update_check",
                     "Check for Updates",
                     true,
                     None::<&str>,
@@ -208,6 +219,24 @@ pub fn run() {
                 }
                 "paste" => {
                     save_clipboard_image(app);
+                }
+                "update_check" => {
+                    println!("Checking for updates");
+                    let result = update::check_for_update(
+                        app.package_info().version.clone(),
+                        "blopker",
+                        "alic",
+                    );
+                    println!("{:?}", result);
+                    let result_str = match result {
+                        Ok(Some((version, _))) => {
+                            format!("New version available: {}.", version)
+                        }
+                        Ok(None) => "No new version available.".to_string(),
+                        Err(e) => format!("Error checking for updates: {}", e),
+                    };
+                    println!("{}", result_str);
+                    emit_update_results(&app, result_str);
                 }
                 _ => {}
             };

@@ -8,6 +8,9 @@ export const commands = {
 async openSettingsWindow(path: string | null) : Promise<void> {
     await TAURI_INVOKE("open_settings_window", { path });
 },
+async openLinkInBrowser(url: string) : Promise<void> {
+    await TAURI_INVOKE("open_link_in_browser", { url });
+},
 async processImg(parameters: ProfileData, file: FileEntry) : Promise<Result<CompressResult, CompressError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("process_img", { parameters, file }) };

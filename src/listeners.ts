@@ -24,9 +24,16 @@ function settingsChangedListener(cb: () => void) {
   });
 }
 
+function updateResultListener(cb: (result: string) => void) {
+  listen<string>("update-result", (result) => {
+    cb(result.payload);
+  });
+}
+
 export {
   openFileDialogListener,
   addFileListener,
   clearFilesListener,
   settingsChangedListener,
+  updateResultListener,
 };

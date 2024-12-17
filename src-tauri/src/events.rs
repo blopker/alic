@@ -15,3 +15,7 @@ pub fn emit_settings_changed(app: &tauri::AppHandle) {
 pub fn emit_open_add_file_dialog(app: &tauri::AppHandle) {
     app.emit("open-add-file-dialog", ()).unwrap()
 }
+
+pub fn emit_update_results(app: &tauri::AppHandle, result: String) {
+    app.emit("update-result", result).unwrap()
+}

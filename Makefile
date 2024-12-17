@@ -1,6 +1,9 @@
 dev:
 	bun run tauri dev
 
+test:
+	cd src-tauri && cargo test
+
 setup:
 	bun install
 	cd src-tauri && cargo build

@@ -7,7 +7,7 @@ mod update;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use tauri_plugin_opener::OpenerExt;
 
-use events::{emit_add_file, emit_clear_files, emit_open_add_file_dialog, emit_update_results};
+use events::{AddFileEvent, ClearFilesEvent, OpenAddFileDialogEvent};
 use image;
 use tauri::{
     menu::{AboutMetadataBuilder, Menu, MenuItem, SubmenuBuilder},
@@ -16,7 +16,7 @@ use tauri::{
 
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_store::StoreExt;
-use tauri_specta::{collect_commands, collect_events, Builder};
+use tauri_specta::{collect_commands, collect_events, Builder, Event};
 
 #[tauri::command]
 #[specta::specta]
@@ -93,7 +93,7 @@ fn save_clipboard_image(app: &tauri::AppHandle) {
     std::fs::create_dir_all(&dir).unwrap();
     let path = format!("{dir}/{}.png", h);
     image.save(&path).unwrap();
-    emit_add_file(&app, path);
+    AddFileEvent(path).emit(app).unwrap()
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -219,12 +219,8 @@ pub fn run() {
                 "newprofile" => {
                     _open_settings_window(app, Some("/settings/newprofile".to_string()));
                 }
-                "open" => {
-                    emit_open_add_file_dialog(app);
-                }
-                "clear" => {
-                    emit_clear_files(app);
-                }
+                "open" => OpenAddFileDialogEvent.emit(app).unwrap(),
+                "clear" => ClearFilesEvent.emit(app).unwrap(),
                 "paste" => {
                     save_clipboard_image(app);
                 }
@@ -236,15 +232,7 @@ pub fn run() {
                         "alic",
                     );
                     println!("{:?}", result);
-                    let result_str = match result {
-                        Ok(Some((version, _))) => {
-                            format!("New version available: {}.", version)
-                        }
-                        Ok(None) => "No new version available.".to_string(),
-                        Err(e) => format!("Error checking for updates: {}", e),
-                    };
-                    println!("{}", result_str);
-                    emit_update_results(&app, result_str);
+                    result.unwrap().emit(app).unwrap()
                 }
                 _ => {}
             };

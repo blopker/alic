@@ -2,33 +2,12 @@ import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import BottomBar from "./BottomBar";
 import Dropper from "./Dropper";
 import Table from "./Table";
-import { ToastContainer, addToast } from "./Toast";
-import { commands } from "./bindings";
+import { ToastContainer } from "./Toast";
 import { updateResultListener } from "./listeners";
 import { addFile } from "./store";
+import { showUpdateToast } from "./updater";
 
-updateResultListener((result) => {
-  addToast({
-    message: (
-      <span>
-        {result}{" "}
-        <button
-          class="text-blue-500"
-          type="button"
-          onClick={() =>
-            commands.openLinkInBrowser(
-              "https://github.com/blopker/alic/releases/",
-            )
-          }
-        >
-          See Releases.
-        </button>
-      </span>
-    ),
-    type: "info",
-    duration: -1,
-  });
-});
+updateResultListener(showUpdateToast);
 
 onOpenUrl((urls) => {
   console.log("deep link:", urls);

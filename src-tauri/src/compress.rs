@@ -1,4 +1,4 @@
-use crate::events::emit_add_file;
+use crate::events::AddFileEvent;
 use crate::macos;
 
 use super::settings;
@@ -10,6 +10,7 @@ use serde;
 use specta::Type;
 use std::fs;
 use std::os::unix::fs::MetadataExt;
+use tauri_specta::Event;
 
 use std::path::{Path, PathBuf};
 
@@ -409,7 +410,7 @@ fn remove_extension(path: &Path) -> String {
 #[tauri::command]
 #[specta::specta]
 pub async fn get_all_images(app: tauri::AppHandle, path: String) -> Result<(), String> {
-    let on_event = |path: String| emit_add_file(&app, path);
+    let on_event = |path: String| AddFileEvent(path).emit(&app).unwrap();
 
     let file = Path::new(&path);
     if !file.exists() {

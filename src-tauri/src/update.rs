@@ -2,6 +2,8 @@ use reqwest;
 use semver::Version;
 use serde::Deserialize;
 
+use crate::events::UpdateResultsEvent;
+
 #[derive(Deserialize)]
 struct GithubRelease {
     tag_name: String,
@@ -13,7 +15,7 @@ pub fn check_for_update(
     current: Version,
     repo_owner: &str,
     repo_name: &str,
-) -> Result<Option<(Version, String)>, String> {
+) -> Result<UpdateResultsEvent, String> {
     let releases_url = format!(
         "https://api.github.com/repos/{}/{}/releases",
         repo_owner, repo_name
@@ -50,11 +52,35 @@ pub fn check_for_update(
 
     println!("newst: {:?}", newest);
     // Return newer version if found
-    Ok(match &newest {
-        Some((version, ref url)) if version > &current => Some((version.clone(), url.clone())),
-        _ => None,
+    // Ok(match &newest {
+    //     Some((version, ref url)) if version > &current => Some((version.clone(), url.clone())),
+    //     _ => None,
+    // });
+
+    Ok(UpdateResultsEvent {
+        new_version: "0.1.1".to_string(),
+        update_available: true,
+        download_url: "".to_string(),
+        error: None,
     })
 }
+
+// fn get_current_releases() -> Result<Version, String> {
+//     let releases_url = format!(
+//         "https://api.github.com/repos/{}/{}/releases",
+//         repo_owner, repo_name
+//     );
+
+//     let client = reqwest::blocking::Client::builder()
+//         .user_agent("update-checker")
+//         .build()
+//         .map_err(|e| e.to_string())?;
+//     let releases = client
+//         .get(&releases_url)
+//         .send()
+//         .map_err(|e| e.to_string())?;
+//     releases.json().map_err(|e| e.to_string())?;
+// }
 
 #[cfg(test)]
 mod tests {

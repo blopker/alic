@@ -1,4 +1,4 @@
-use crate::events::AddFileEvent;
+use crate::events::{AddFileEvent, BadFileEvent};
 use crate::macos;
 
 use super::settings;
@@ -418,6 +418,7 @@ pub async fn get_all_images(app: tauri::AppHandle, path: String) -> Result<(), S
     }
     if file.is_file() {
         if !is_image(&file) {
+            BadFileEvent(path).emit(&app).unwrap();
             return Ok(());
         }
         on_event(path);

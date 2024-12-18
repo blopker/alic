@@ -6,6 +6,9 @@ use tauri_specta::Event;
 pub struct AddFileEvent(pub String);
 
 #[derive(Serialize, Deserialize, Debug, Clone, Type, Event)]
+pub struct BadFileEvent(pub String);
+
+#[derive(Serialize, Deserialize, Debug, Clone, Type, Event)]
 pub struct ClearFilesEvent;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Type, Event)]

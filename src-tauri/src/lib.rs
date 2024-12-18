@@ -115,10 +115,11 @@ pub fn run() {
         ])
         .events(collect_events![
             events::AddFileEvent,
+            events::BadFileEvent,
             events::ClearFilesEvent,
             events::SettingsChangedEvent,
             events::OpenAddFileDialogEvent,
-            events::UpdateStateEvent
+            events::UpdateStateEvent,
         ]);
 
     #[cfg(debug_assertions)] // <- Only export on non-release builds

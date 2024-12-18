@@ -12,6 +12,12 @@ function addFileListener(cb: (path: string) => void) {
   });
 }
 
+function badFileListener(cb: (path: string) => void) {
+  return events.badFileEvent.listen((event) => {
+    cb(event.payload);
+  });
+}
+
 function clearFilesListener(cb: () => void) {
   return events.clearFilesEvent.listen(() => {
     cb();
@@ -36,4 +42,5 @@ export {
   clearFilesListener,
   settingsChangedListener,
   updateResultListener,
+  badFileListener,
 };

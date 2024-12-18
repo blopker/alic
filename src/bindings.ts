@@ -101,12 +101,14 @@ async getCpuCount() : Promise<number> {
 
 export const events = __makeEvents__<{
 addFileEvent: AddFileEvent,
+badFileEvent: BadFileEvent,
 clearFilesEvent: ClearFilesEvent,
 openAddFileDialogEvent: OpenAddFileDialogEvent,
 settingsChangedEvent: SettingsChangedEvent,
 updateStateEvent: UpdateStateEvent
 }>({
 addFileEvent: "add-file-event",
+badFileEvent: "bad-file-event",
 clearFilesEvent: "clear-files-event",
 openAddFileDialogEvent: "open-add-file-dialog-event",
 settingsChangedEvent: "settings-changed-event",
@@ -120,6 +122,7 @@ updateStateEvent: "update-state-event"
 /** user-defined types **/
 
 export type AddFileEvent = string
+export type BadFileEvent = string
 export type ClearFilesEvent = null
 export type CompressError = { error: string; errorType: CompressErrorType }
 export type CompressErrorType = "Unknown" | "FileTooLarge" | "FileNotFound" | "UnsupportedFileType" | "WontOverwrite" | "NotSmaller"

@@ -1,4 +1,7 @@
 # Unreleased
+# 2.0.7
+
+- Try to get updater working
 
 # 2.0.6
 

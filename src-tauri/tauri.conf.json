@@ -44,6 +44,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "createUpdaterArtifacts": true,
     "fileAssociations": [
       {
         "ext": ["jpg"]
@@ -80,6 +81,12 @@
       "desktop": {
         "schemes": ["alic", "alicscheme"]
       }
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQ5RjA0MDEwNTA2OUIxQ0YKUldUUHNXbFFFRUR3U1R5SDJLYThCdUp3N1JyZCsvV09SSE9Ca1NleCtNUzJRUWNRRkNHT3VFRlkK",
+      "endpoints": [
+        "https://github.com/blopker/alic/releases/latest/download/latest.json"
+      ]
     }
   }
 }

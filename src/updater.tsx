@@ -1,29 +1,44 @@
+import { createSignal } from "solid-js";
 import { addToast } from "./Toast";
-import { commands } from "./bindings";
+import type { UpdateStateEvent } from "./bindings";
 
-export function showUpdateToast(result: string) {
-  addToast({
-    message: <UpdateNotification result={result} />,
-    type: "info",
-    duration: -1,
-  });
+const [updateState, setUpdateState] = createSignal<UpdateStateEvent | null>();
+
+export function showUpdateToast(result: UpdateStateEvent) {
+  if (result.type === "CheckingForUpdate") {
+    addToast({
+      message: <UpdateNotification />,
+      type: "info",
+      duration: -1,
+    });
+  }
+  setUpdateState(result);
 }
 
-function UpdateNotification(props: { result: string }) {
+function UpdateNotification() {
+  const updateTextMap = () => {
+    const state = updateState();
+    if (!state) {
+      return "Checking for updates...";
+    }
+    switch (state.type) {
+      case "CheckingForUpdate":
+        return "Checking for updates...";
+      case "Downloading":
+        return <Downloading percent={state.percent} />;
+      case "NoUpdate":
+        return "No updates available.";
+      case "Error":
+        return <span>Update error: {state.message}</span>;
+    }
+  };
+  return <span>{updateTextMap()}</span>;
+}
+
+function Downloading(props: { percent: number }) {
   return (
     <span>
-      {props.result}{" "}
-      <button
-        class="text-blue-500"
-        type="button"
-        onClick={() =>
-          commands.openLinkInBrowser(
-            "https://github.com/blopker/alic/releases/",
-          )
-        }
-      >
-        See Releases.
-      </button>
+      Downloading update: {props.percent === 0 ? "?" : props.percent}%
     </span>
   );
 }

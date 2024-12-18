@@ -104,13 +104,13 @@ addFileEvent: AddFileEvent,
 clearFilesEvent: ClearFilesEvent,
 openAddFileDialogEvent: OpenAddFileDialogEvent,
 settingsChangedEvent: SettingsChangedEvent,
-updateResultsEvent: UpdateResultsEvent
+updateStateEvent: UpdateStateEvent
 }>({
 addFileEvent: "add-file-event",
 clearFilesEvent: "clear-files-event",
 openAddFileDialogEvent: "open-add-file-dialog-event",
 settingsChangedEvent: "settings-changed-event",
-updateResultsEvent: "update-results-event"
+updateStateEvent: "update-state-event"
 })
 
 /** user-defined constants **/
@@ -133,7 +133,7 @@ export type ProfileData = { name: string; id: number; active: boolean; should_re
 export type SettingsChangedEvent = null
 export type SettingsData = { version: number; theme: ThemeKind; threads?: number; profiles: ProfileData[] }
 export type ThemeKind = "Light" | "Dark" | "System"
-export type UpdateResultsEvent = string
+export type UpdateStateEvent = { type: "CheckingForUpdate"; message: string } | { type: "NoUpdate"; message: string } | { type: "Error"; message: string } | { type: "Downloading"; percent: number; bytes_downloaded: number; total_bytes: number } | { type: "Success"; version: string; release_notes: string | null }
 
 /** tauri-specta globals **/
 

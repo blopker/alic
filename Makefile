@@ -1,3 +1,6 @@
+.PHONY: *
+export RUST_BACKTRACE=1
+
 dev:
 	bun run tauri dev
 

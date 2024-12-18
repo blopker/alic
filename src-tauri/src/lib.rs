@@ -4,15 +4,14 @@ mod macos;
 mod settings;
 mod update;
 
-use std::hash::{DefaultHasher, Hash, Hasher};
-use tauri_plugin_opener::OpenerExt;
-
-use events::{AddFileEvent, ClearFilesEvent, OpenAddFileDialogEvent};
+use events::{AddFileEvent, ClearFilesEvent, OpenAddFileDialogEvent, UpdateStateEvent};
 use image;
+use std::hash::{DefaultHasher, Hash, Hasher};
 use tauri::{
     menu::{AboutMetadataBuilder, Menu, MenuItem, SubmenuBuilder},
     Manager,
 };
+use tauri_plugin_opener::OpenerExt;
 
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_store::StoreExt;
@@ -119,7 +118,7 @@ pub fn run() {
             events::ClearFilesEvent,
             events::SettingsChangedEvent,
             events::OpenAddFileDialogEvent,
-            events::UpdateResultsEvent
+            events::UpdateStateEvent
         ]);
 
     #[cfg(debug_assertions)] // <- Only export on non-release builds
@@ -130,6 +129,7 @@ pub fn run() {
         )
         .expect("Failed to export typescript bindings");
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_window_state::Builder::new().build())
@@ -226,13 +226,23 @@ pub fn run() {
                 }
                 "update_check" => {
                     println!("Checking for updates");
-                    let result = update::check_for_update(
-                        app.package_info().version.clone(),
-                        "blopker",
-                        "alic",
-                    );
-                    println!("{:?}", result);
-                    result.unwrap().emit(app).unwrap()
+                    let handle = app.clone();
+                    tauri::async_runtime::spawn(async move {
+                        UpdateStateEvent::CheckingForUpdate {
+                            message: "Checking for updates...".to_string(),
+                        }
+                        .emit(&handle)
+                        .unwrap();
+                        let res = update::update(handle.clone()).await;
+                        if res.is_err() {
+                            println!("Error checking for updates: {:?}", res);
+                            UpdateStateEvent::Error {
+                                message: format!("{}", res.unwrap_err()),
+                            }
+                            .emit(&handle)
+                            .unwrap();
+                        }
+                    });
                 }
                 _ => {}
             };

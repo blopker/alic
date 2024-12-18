@@ -1,4 +1,4 @@
-import { events } from "./bindings";
+import { events, type UpdateStateEvent } from "./bindings";
 
 function openFileDialogListener(cb: () => void) {
   return events.openAddFileDialogEvent.listen(() => {
@@ -24,8 +24,8 @@ function settingsChangedListener(cb: () => void) {
   });
 }
 
-function updateResultListener(cb: (result: string) => void) {
-  return events.updateResultsEvent.listen((event) => {
+function updateResultListener(cb: (result: UpdateStateEvent) => void) {
+  return events.updateStateEvent.listen((event) => {
     cb(event.payload);
   });
 }

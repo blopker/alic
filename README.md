@@ -3,7 +3,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/blopker/alic">
-    <img src="assets/alic-logo.png" alt="Logo" width="100" >
+    <img src="alic-logo.png" alt="Logo" width="100" >
   </a>
   <h3 align="center">Alic</h3>
   <p align="center">

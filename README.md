@@ -69,10 +69,10 @@ All compression is done locally on your machine. Alic also does not have any ana
 
 ## Roadmap
 
-- [ ] Get the app signed with an Apple Developer ID
-- [ ] Add a way to check for updates
+- [x] Get the app signed with an Apple Developer ID
+- [x] Add a way to check for updates
 - [x] Add support for different optimization levels
-- [ ] Add support for lossless compression
+- [x] Add support for lossless compression
 - [x] Add support for dropping directories
 - [x] Add context menu for opening images in Alic from Finder
 - [x] Add support for resizing images if they are over a certain size

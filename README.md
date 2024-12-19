@@ -79,7 +79,7 @@ All compression is done locally on your machine. Alic also does not have any ana
 
 ## Built With
 
-Alic a GUI for the [`libcaesium`][libcaesium-url] Rust library, with a UI written in Flutter.
+The Alic UI is built with SolidJS, with all processing done in Rust, using Tauri. Image compression is handled by [`libcaesium`][libcaesium-url].
 
 ### Requirements
 

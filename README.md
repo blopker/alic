@@ -66,6 +66,7 @@ All compression is done locally on your machine. Alic also does not have any ana
 - Alic's compressor is written in Rust, uses modern compression algorithms and is done all in process. This makes Alic noticeably faster, and produces smaller file sizes.
 - Alic does not overwrite the original images by default, it saves the compressed images in the same directory as the original images with a `.min.` suffix. Alic can be configured to overwrite the original images.
 - Alic can resize images if they are over a certain size. Images will not be resized by default, and images will not be upscaled.
+- Alic supports multiple profiles where you can save settings for any situation you might be in.
 
 ## Roadmap
 

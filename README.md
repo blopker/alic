@@ -7,7 +7,7 @@
   </a>
   <h3 align="center">Alic</h3>
   <p align="center">
-    Alic ('Alice') is A Little Image Compressor for MacOS.
+    Alic ('Al-ik') is A Little Image Compressor for MacOS.
     <br />
     <br />
     <a href="https://github.com/blopker/alic/releases/latest/">Download</a>
@@ -23,9 +23,9 @@
 
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](alic-sc.min.png)
+[![Product Name Screen Shot][product-screenshot]](alic2-sc.min.png)
 
-Alic is a image compressor for MacOS. It has simple drag and drop interface that allows you to lossy compress images. It's a great tool for quickly compressing images for the web.
+Alic makes it simple to compress images. It's a great tool for quickly compressing images for the web, or to share with clients.
 
 Why compress images?
 
@@ -34,7 +34,7 @@ Why compress images?
 - Better SEO
 - Better user experience
 
-Alic also removes metadata from images, which is a privacy concern. Many cameras and phones embed metadata in images, which can include location, camera model, and other sensitive information.
+And security: Many cameras and phones embed metadata in images, which can include location, camera model, and other sensitive information. Alic can remove this metadata from your images.
 
 Supported image formats:
 
@@ -42,6 +42,7 @@ Supported image formats:
 - PNG
 - WebP
 - GIF
+- TIFF
 
 Alic is heavily inspired by [ImageOptim][imageoptim-url], but with modern compression algorithms for smaller files and speed.
 
@@ -49,13 +50,11 @@ Alic is heavily inspired by [ImageOptim][imageoptim-url], but with modern compre
 
 Start by downloading the latest release from the [releases page][project-release-url]. Then, drag the app to your Applications folder and open it.
 
-**The first time you open Alic**, you will need to hold down the `option` key and right click the app in the Applications folder. Then click "Open" and then "Open" again. This is because Alic is not signed with an Apple Developer ID yet.
-
 ## Usage
 
 Drag and drop images into the window, images will automatically start compressing. The compressed images will be saved in the same directory as the original images.
 
-**Careful**, compressing already compressed images times will result in a loss of quality.
+**Careful**, compressing already compressed images times can result in a loss of quality.
 
 ## Privacy
 
@@ -122,7 +121,8 @@ This project would not be possible without the following open source projects:
 
 - For compression: [libcaesium][libcaesium-url]
 - Original inspiration: [ImageOptim][imageoptim-url]
-- UI: [Tauri][tauri-url]
+- UI: [SolidJS][solidjs-url]
+- Application framework: [Tauri][tauri-url]
 
 [license-url]: https://github.com/blopker/alic/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
@@ -133,3 +133,4 @@ This project would not be possible without the following open source projects:
 [imageoptim-url]: https://imageoptim.com/mac
 [project-url]: https://github.com/blopker/alic
 [project-release-url]: https://github.com/blopker/alic/releases
+[solidjs-url]: https://www.solidjs.com/

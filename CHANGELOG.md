@@ -1,4 +1,8 @@
 # Unreleased
+# 2.0.8
+
+- Fix white scroll bars when show scroll bars is set to always
+
 # 2.0.7
 
 - Try to get updater working

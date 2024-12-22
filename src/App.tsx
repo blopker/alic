@@ -29,7 +29,7 @@ function App() {
     <div class="flex h-screen select-none flex-col">
       <ToastContainer />
       <Dropper />
-      <main class="w-full grow overflow-scroll">
+      <main class="w-full grow overflow-hidden">
         <Table />
       </main>
       <BottomBar />

@@ -1,4 +1,8 @@
 # Unreleased
+# 2.0.9
+
+- Alic will now detect file formats by reading the file's signature. If the file's original extension is incorrect, Alic will output the right file extension.
+
 # 2.0.8
 
 - Fix white scroll bars when show scroll bars is set to always

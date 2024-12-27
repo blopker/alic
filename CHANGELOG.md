@@ -1,4 +1,9 @@
 # Unreleased
+
+# 2.0.10
+
+- Fix white flicker when windows are opening
+
 # 2.0.9
 
 - Alic will now detect file formats by reading the file's signature. If the file's original extension is incorrect, Alic will output the right file extension.

@@ -21,7 +21,7 @@
 
 <!-- ABOUT THE PROJECT -->
 
-## About The Project
+## About
 
 [![Product Name Screen Shot][product-screenshot]](alic2-sc.min.png)
 

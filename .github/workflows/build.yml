@@ -1,0 +1,37 @@
+name: "publish"
+
+on:
+  push:
+
+jobs:
+  build:
+    permissions:
+      contents: write
+
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: test cargo build
+        run: cd src-tauri && cargo test
+
+      - uses: tauri-apps/tauri-action@v0
+        with:
+          args: --target aarch64-apple-darwin

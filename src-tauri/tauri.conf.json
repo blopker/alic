@@ -14,7 +14,6 @@
     "windows": [
       {
         "acceptFirstMouse": true,
-        "backgroundColor": "#000",
         "fullscreen": false,
         "height": 370,
         "minHeight": 370,
@@ -25,7 +24,6 @@
       },
       {
         "acceptFirstMouse": true,
-        "backgroundColor": "#000",
         "create": false,
         "dragDropEnabled": false,
         "fullscreen": false,

@@ -127,7 +127,7 @@ This project would not be possible without the following open source projects:
 [license-url]: https://github.com/blopker/alic/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/blopker
-[product-screenshot]: alic-sc.min.png
+[product-screenshot]: alic2-sc.min.png
 [libcaesium-url]: https://github.com/Lymphatus/libcaesium
 [tauri-url]: https://tauri.app/
 [imageoptim-url]: https://imageoptim.com/mac

@@ -57,7 +57,13 @@ jobs:
         with:
           tagName: alic-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: "Alic v__VERSION__"
-          releaseBody: "See the assets to download this version and install.\n\n[Changelog](https://github.com/blopker/alic/blob/main/CHANGELOG.md)"
+          releaseBody: |
+            See the assets to download this version and install.
+
+            `*-aarch64.dmg`: for Macs with the newer M series processors.
+            `*-x64.dmg`: For Intel-based macs.
+
+            [Changelog](https://github.com/blopker/alic/blob/main/CHANGELOG.md)
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}

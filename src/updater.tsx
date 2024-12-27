@@ -38,7 +38,8 @@ function UpdateNotification() {
 function Downloading(props: { percent: number }) {
   return (
     <span>
-      Downloading update: {props.percent === 0 ? "?" : props.percent}%
+      Downloading update: {props.percent === 0 ? "?" : props.percent.toFixed(2)}
+      %
     </span>
   );
 }

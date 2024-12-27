@@ -6,10 +6,14 @@ mod update;
 
 use events::{AddFileEvent, ClearFilesEvent, OpenAddFileDialogEvent, UpdateStateEvent};
 use image;
-use std::hash::{DefaultHasher, Hash, Hasher};
+use std::{
+    hash::{DefaultHasher, Hash, Hasher},
+    path::Path,
+};
 use tauri::{
     menu::{AboutMetadataBuilder, Menu, MenuItem, SubmenuBuilder},
-    Manager,
+    utils::config::WindowConfig,
+    Manager, WebviewUrl,
 };
 use tauri_plugin_opener::OpenerExt;
 
@@ -38,23 +42,25 @@ fn _open_settings_window(app: &tauri::AppHandle, path: Option<String>) {
         .iter()
         .find(|w| w.label == window_label)
         .unwrap();
-    let mut window = if let Some(window) = app.get_webview_window(window_label) {
+    let path = path.unwrap_or("/settings".to_string());
+    if let Some(mut window) = app.get_webview_window(window_label) {
         // If the window already exists, bring it to the front
+        let mut url = window.url().unwrap();
+        url.set_fragment(Some(&path));
+        window.navigate(url).unwrap();
         window.show().unwrap();
-        window
-        // window.navigate(url)
     } else {
         // If the window does not exist, create it
-        tauri::WebviewWindowBuilder::from_config(app, config)
+        let url = format!("/index.html#{path}");
+        let newconf = WindowConfig {
+            url: WebviewUrl::App(Path::new(&url).to_path_buf()),
+            ..(*config).clone().to_owned()
+        };
+        tauri::WebviewWindowBuilder::from_config(app, &newconf)
             .unwrap()
             .build()
-            .unwrap()
+            .unwrap();
     };
-    if path.is_some() {
-        let mut url = window.url().unwrap();
-        url.set_fragment(Some(path.unwrap().as_str()));
-        window.navigate(url).unwrap();
-    }
 }
 
 fn save_clipboard_image(app: &tauri::AppHandle) {

@@ -7,7 +7,7 @@
   </a>
   <h3 align="center">Alic</h3>
   <p align="center">
-    Alic ('Al-ik') is A Little Image Compressor for MacOS.
+    Alic ('Al-ik') is a little image compressor for macOS.
     <br />
     <br />
     <a href="https://github.com/blopker/alic/releases/latest/">Download</a>
@@ -34,7 +34,7 @@ Why compress images?
 - Better SEO
 - Better user experience
 
-And security: Many cameras and phones embed metadata in images, which can include location, camera model, and other sensitive information. Alic can remove this metadata from your images.
+And security: Many cameras and phones embed metadata in images, which can include location, camera model, and other sensitive information. Alic can remove this metadata for you.
 
 Supported image formats:
 
@@ -44,7 +44,7 @@ Supported image formats:
 - GIF
 - TIFF
 
-Alic is heavily inspired by [ImageOptim][imageoptim-url], but with modern compression algorithms for smaller files and speed.
+Alic is heavily inspired by [ImageOptim][imageoptim-url], but with modern compression algorithms for smaller files and speed. See [Differences from ImageOptim](#differences).
 
 ## Installation
 
@@ -60,7 +60,7 @@ Drag and drop images into the window, images will automatically start compressin
 
 All compression is done locally on your machine. Alic also does not have any analytics or tracking, including error reporting. Alic does not passively send any data to the internet. Because of this, Alic will not automatically update. You will need to check the [releases page][project-release-url] for updates, or by clicking "Check for Updates" in the app menu bar.
 
-## Differences from ImageOptim
+## <a name="differences"></a>Differences from ImageOptim
 
 - Alic's compressor is written in Rust, uses modern compression algorithms and is done all in process. This makes Alic noticeably faster, and produces smaller file sizes.
 - Alic does not overwrite the original images by default, it saves the compressed images in the same directory as the original images with a `.min.` suffix. Alic can be configured to overwrite the original images.

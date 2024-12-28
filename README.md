@@ -52,9 +52,7 @@ Start by downloading the latest release from the [releases page][project-release
 
 ## Usage
 
-Drag and drop images into the window, images will automatically start compressing. The compressed images will be saved in the same directory as the original images.
-
-**Careful**, compressing already compressed images times can result in a loss of quality.
+Drag and drop images (or folders) into the window, images will automatically start compressing. The compressed images will be saved in the same directory as the original images.
 
 ## Privacy
 

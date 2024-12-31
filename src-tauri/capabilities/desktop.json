@@ -11,6 +11,9 @@
   ],
   "permissions": [
     "window-state:default",
-    "updater:default"
+    "updater:default",
+    "clipboard:read-all",
+    "clipboard:write-all",
+    "clipboard:monitor-all"
   ]
 }

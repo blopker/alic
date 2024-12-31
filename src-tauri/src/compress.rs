@@ -10,6 +10,7 @@ use serde;
 use specta::Type;
 use std::fs;
 use std::os::unix::fs::MetadataExt;
+use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_specta::Event;
 
 use std::path::{Path, PathBuf};
@@ -130,6 +131,7 @@ pub enum CompressErrorType {
 #[tauri::command]
 #[specta::specta]
 pub async fn process_img(
+    app: tauri::AppHandle,
     parameters: settings::ProfileData,
     file: FileEntry,
 ) -> Result<CompressResult, CompressError> {
@@ -146,10 +148,11 @@ pub async fn process_img(
     let (original_img, original_image_type) = match read_image(&file.path) {
         Ok(img) => img,
         Err(err) => {
+            println!("Error1: {}", err);
             return Err(CompressError {
                 error: err,
                 error_type: CompressErrorType::UnsupportedFileType,
-            })
+            });
         }
     };
 
@@ -164,6 +167,7 @@ pub async fn process_img(
     }
 
     let csparams = create_csparameters(&parameters, original_img.width(), original_img.height());
+    // let (o_width, o_height) = (original_img.width(), original_img.height());
     drop(original_img);
 
     let should_convert =
@@ -192,16 +196,18 @@ pub async fn process_img(
     let temp_size: f64 = match temp_metadata_result {
         Ok(result) => result.size() as f64,
         Err(e) => {
+            println!("Error2: {}", e);
             return Err(CompressError {
                 error: e.to_string(),
                 error_type: CompressErrorType::FileNotFound,
-            })
+            });
         }
     };
     let original_size = file.original_size.expect("Image size needs to be set") as f64;
 
     if !parameters.should_convert && temp_size > original_size * 0.95 {
         let _ = fs::remove_file(temp_path);
+        println!("Error3");
         return Err(CompressError {
             error: "Image cannot be compressed further.".to_string(),
             error_type: CompressErrorType::NotSmaller,
@@ -211,6 +217,7 @@ pub async fn process_img(
     if out_path == file.path {
         let res = macos::trash_file(&file.path);
         if res.is_err() {
+            println!("Error4: {}", res.clone().err().unwrap());
             return Err(CompressError {
                 error: res.err().unwrap().to_string(),
                 error_type: CompressErrorType::Unknown,
@@ -222,13 +229,60 @@ pub async fn process_img(
     match rename_result {
         Ok(_) => {}
         Err(e) => {
+            println!("Error5: {}", e);
             return Err(CompressError {
                 error: e.to_string(),
                 error_type: CompressErrorType::Unknown,
-            })
+            });
         }
     };
     let out_size = temp_size as u32;
+    // Read the compressed image for clipboard
+    match image::open(&out_path) {
+        Ok(img) => {
+            let rgba_img = img.into_rgba8();
+            let width = rgba_img.width();
+            let height = rgba_img.height();
+
+            // Ensure we have valid dimensions
+            if width == 0 || height == 0 {
+                return Err(CompressError {
+                    error: "Invalid image dimensions".to_string(),
+                    error_type: CompressErrorType::Unknown,
+                });
+            }
+
+            // Ensure proper byte alignment and create rgba data
+            let rgba_data = rgba_img.into_raw();
+
+            // Ensure we have the correct amount of data
+            if rgba_data.len() != (width * height * 4) as usize {
+                return Err(CompressError {
+                    error: "Invalid image data size".to_string(),
+                    error_type: CompressErrorType::Unknown,
+                });
+            }
+
+            // Create tauri image
+            let tauri_img = tauri::image::Image::new(&rgba_data, width, height);
+
+            // Try to write to clipboard with error handling
+            if let Err(e) = app.clipboard().write_image(&tauri_img) {
+                println!("Error6: {}", e);
+                return Err(CompressError {
+                    error: format!("Failed to copy to clipboard: {}", e),
+                    error_type: CompressErrorType::Unknown,
+                });
+            }
+        }
+        Err(e) => {
+            return Err(CompressError {
+                error: format!("Failed to read image for clipboard: {}", e),
+                error_type: CompressErrorType::Unknown,
+            })
+        }
+    }
+
     Ok(CompressResult {
         path: file.path,
         out_size,
@@ -466,7 +520,8 @@ pub async fn get_file_info(path: &str) -> Result<FileInfoResult, String> {
     })
 }
 
-fn is_image(path: &Path) -> bool {
+pub fn is_image<P: AsRef<Path>>(path: &P) -> bool {
+    let path = path.as_ref();
     if !path.is_file() {
         return false;
     }

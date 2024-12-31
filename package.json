@@ -28,7 +28,8 @@
     "@types/bun": "^1.1.14",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.9.3",
-    "solid-transition-group": "^0.2.3"
+    "solid-transition-group": "^0.2.3",
+    "tauri-plugin-clipboard-api": "^2.1.11"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.9",

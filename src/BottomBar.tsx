@@ -1,7 +1,7 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { FaSolidXmark } from "solid-icons/fa";
 import { VsAdd, VsSettings } from "solid-icons/vs";
-import { type JSXElement, Show } from "solid-js";
+import { createSignal, type JSXElement, onMount, Show } from "solid-js";
 import { type ProfileData, commands } from "./bindings";
 import { FILE_TYPES } from "./constants";
 import { openFileDialogListener } from "./listeners";
@@ -13,6 +13,16 @@ import {
 } from "./settings/settingsData";
 import { addFile, clearFiles, store } from "./store";
 import { toHumanReadableSize } from "./utils";
+import { emit } from "@tauri-apps/api/event";
+import {
+  onImageUpdate,
+  listenToMonitorStatusUpdate,
+  onImageBinaryUpdate,
+  onFilesUpdate,
+  isMonitorRunning,
+  startListening,
+  stopMonitor,
+} from "tauri-plugin-clipboard-api";
 
 openFileDialogListener(() => {
   openFile();
@@ -52,9 +62,45 @@ export default function BottomBar() {
     });
     return options;
   };
+  const [monitorRunning, setMonitorRunning] = createSignal(false);
+  onMount(async () => {
+    const unlisten = onImageUpdate((img) => {
+      emit("pasteImage");
+      // stop monitor and start again
+    });
+    const unlisten4 = onFilesUpdate((_) => {
+      console.log("file");
+    });
+
+    const unlisten2 = onImageBinaryUpdate((_) => {
+      console.log("binary");
+      emit("pastImage");
+    });
+    const unlisten3 = listenToMonitorStatusUpdate((running) => {
+      setMonitorRunning(running);
+    });
+
+    return [unlisten, unlisten2, unlisten3, unlisten4];
+  });
   return (
     <div class="right-0 left-0 flex h-10 items-center justify-between gap-2 border-accent border-t-[1px] bg-secondary px-2">
       <AddButton />
+      <Show
+        when={monitorRunning()}
+        fallback={
+          <Button
+            onClick={async () => {
+              await startListening({ image: true }).catch((e) =>
+                console.error(e)
+              );
+            }}
+          >
+            Start+
+          </Button>
+        }
+      >
+        Running
+      </Show>
       <StatusText />
       <span class="grow" />
       <SettingsSelect
@@ -103,7 +149,7 @@ function ClearButton() {
 
 async function settingsWindow() {
   await commands.openSettingsWindow(
-    `/settings/profile/${getProfileActive().id}`,
+    `/settings/profile/${getProfileActive().id}`
   );
 }
 

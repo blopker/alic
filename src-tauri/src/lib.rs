@@ -4,16 +4,22 @@ mod macos;
 mod settings;
 mod update;
 
+use compress::is_image;
 use events::{AddFileEvent, ClearFilesEvent, OpenAddFileDialogEvent, UpdateStateEvent};
 use image;
+use infer::text;
 use std::{
-    hash::{DefaultHasher, Hash, Hasher},
+    cell::OnceCell,
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
     path::Path,
+    sync::{Mutex, OnceLock},
+    time::Instant,
 };
 use tauri::{
     menu::{AboutMetadataBuilder, Menu, MenuItem, SubmenuBuilder},
     utils::config::WindowConfig,
-    Manager, WebviewUrl,
+    Listener, Manager, WebviewUrl,
 };
 use tauri_plugin_opener::OpenerExt;
 
@@ -63,42 +69,93 @@ fn _open_settings_window(app: &tauri::AppHandle, path: Option<String>) {
     };
 }
 
+// static LAST_IMAGE_HASH: OnceLock<Mutex<Option<u64>>> = OnceLock::new();
+static LAST_TIMESTAMP: OnceLock<Mutex<Option<Instant>>> = OnceLock::new();
+
 fn save_clipboard_image(app: &tauri::AppHandle) {
+    let clipboard = app.state::<tauri_plugin_clipboard::Clipboard>();
     // Try reading image
-    let image_result = app.clipboard().read_image();
+    let image_result = clipboard.read_image_binary();
+    // let image_result = app.clipboard().read_image();
     if image_result.is_err() {
         println!("clip: no image {:?}", image_result);
         return;
     }
-    let clip_image = image_result.unwrap();
+    let mut clip_image: Option<Vec<u8>>;
+    clip_image = image_result.ok();
+    let now = Instant::now();
+    if clip_image.is_none() {
+        let Ok(file_results) = clipboard.read_files() else {
+            println!("Read file failed");
+            return;
+        };
 
-    // Read filename
-    let text_result = app.clipboard().read_text();
-    if text_result.is_ok() {
-        println!(
-            "Not just image data, probably a file copy. Not supported: {:?}",
-            text_result
-        );
-        return;
+        match file_results.as_slice() {
+            [first, ..] => {
+                let path = Path::new(first);
+                if is_image(&path) {
+                    clip_image = std::fs::read(path)
+                        .map_err(|e| {
+                            println!("err: {e}");
+                            e
+                        })
+                        .ok();
+                }
+            }
+            _ => return,
+        }
     }
 
+    let Some(clip_image) = clip_image else {
+        return;
+    };
+
+    // // Read filename
+    // let Ok(file_name) = app.clipboard().read_text() else {
+    //     return;
+    // };
+    // if ["png", "jpeg", "jpg", "gif", "webp", "tiff"]
+
+    // println!(
+    //     "Not just image data, probably a file copy. Not supported: {:?}",
+    //     text_result
+    // );
+    // return;
+
     // get nicely printed current time to the second, with no external dependencies
-    let image = image::RgbaImage::from_raw(
-        clip_image.width(),
-        clip_image.height(),
-        clip_image.rgba().into(),
-    )
-    .unwrap();
+    // let image = image::RgbaImage::from_raw(
+    //     clip_image.width(),
+    //     clip_image.height(),
+    //     clip_image.rgba().into(),
+    // )
+    // .unwrap();
+    let image = image::load_from_memory(&clip_image).unwrap();
     let mut hasher = DefaultHasher::new();
-    clip_image.rgba().hash(&mut hasher);
+    image.to_rgb8().hash(&mut hasher);
     let h = hasher.finish();
+    let mut guard = LAST_TIMESTAMP
+        .get_or_init(|| Mutex::new(None))
+        .lock()
+        .expect("Mutex poisoned");
+    if let Some(prev_timestamp) = *guard {
+        if now.duration_since(prev_timestamp) < std::time::Duration::from_millis(5000) {
+            println!("Skipping repeated image");
+            return;
+        }
+        println!("now: {:?}", now);
+    }
+    // Update the stored hash
+    *guard = Some(now);
+    drop(guard);
+
     // put in $HOME/Documents/alic
-    let dir = format!("{}/Documents/alic", std::env::var("HOME").unwrap());
+    let dir = format!("{}/Downloads/alic", std::env::var("HOME").unwrap());
     // ensure dir exists
     std::fs::create_dir_all(&dir).unwrap();
     let path = format!("{dir}/{}.png", h);
     image.save(&path).unwrap();
-    AddFileEvent(path).emit(app).unwrap()
+    AddFileEvent(path).emit(app).unwrap();
+    // app.clipboard().write_image();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -142,6 +199,7 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_persisted_scope::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_clipboard::init())
         .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {
             println!("Second instance detected:");
             // println!("App: {:?}", app.cli().matches());
@@ -251,13 +309,28 @@ pub fn run() {
                         }
                     });
                 }
+
                 _ => {}
             };
         })
         .invoke_handler(builder.invoke_handler())
         .setup(move |app| {
+            let handle = app.handle().clone();
+            // let clipboard = handle.state::<tauri_plugin_clipboard::Clipboard>();
+            // match clipboard.start_monitor(handle.clone()) {
+            //     Ok(_) => {
+            //         println!("Clipboard monitor started");
+            //     }
+            //     Err(e) => {
+            //         println!("Error starting clipboard monitor: {:?}", e);
+            //     }
+            // }
             // This is also required for events
             builder.mount_events(app);
+            app.listen("pasteImage", move |_event| {
+                save_clipboard_image(&handle);
+            });
+
             // Store setup
             app.store("settings.json")?;
             Ok(())

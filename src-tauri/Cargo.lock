@@ -49,6 +49,7 @@ dependencies = [
  "specta-typescript",
  "tauri",
  "tauri-build",
+ "tauri-plugin-clipboard",
  "tauri-plugin-clipboard-manager",
  "tauri-plugin-deep-link",
  "tauri-plugin-dialog",
@@ -675,12 +676,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "clipboard-rs"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c525d1554fa31abe88c8aa853d3cf0170320f6553dbc322642d4fe0a5cb2cda1"
+dependencies = [
+ "clipboard-win",
+ "image",
+ "objc2",
+ "objc2-app-kit",
+ "objc2-foundation",
+ "x11rb",
+]
+
+[[package]]
 name = "clipboard-win"
 version = "5.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "15efe7a882b08f34e38556b14f2fb3daa98769d06c7f0c1b076dfd0d983bc892"
 dependencies = [
  "error-code",
+ "windows-win",
 ]
 
 [[package]]
@@ -4848,6 +4864,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-plugin-clipboard"
+version = "2.1.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f811a26526cad7291414c526be85b2d1317681c60949bbe8c10902898b7c48d7"
+dependencies = [
+ "base64 0.22.1",
+ "clipboard-rs",
+ "image",
+ "serde",
+ "tauri",
+ "tauri-plugin",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "tauri-plugin-clipboard-manager"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6248,6 +6279,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6998aa457c9ba8ff2fb9f13e9d2a930dabcea28f1d0ab94d687d8b3654844515"
 dependencies = [
  "windows-targets 0.52.6",
+]
+
+[[package]]
+name = "windows-win"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58e23e33622b3b52f948049acbec9bcc34bf6e26d74176b88941f213c75cf2dc"
+dependencies = [
+ "error-code",
 ]
 
 [[package]]

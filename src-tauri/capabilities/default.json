@@ -7,6 +7,9 @@
     "core:default",
     "core:event:default",
     "dialog:default",
-    "deep-link:default"
+    "deep-link:default",
+    "clipboard:read-all",
+		"clipboard:write-all",
+		"clipboard:monitor-all"
   ]
 }

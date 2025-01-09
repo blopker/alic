@@ -16,25 +16,25 @@
     "@solid-primitives/keyboard": "^1.2.8",
     "@solidjs/router": "^0.15.2",
     "@tailwindcss/vite": "^4.0.0-beta.8",
-    "@tauri-apps/api": "^2.1.1",
+    "@tauri-apps/api": "^2.2.0",
     "@tauri-apps/plugin-clipboard-manager": "^2.2.0",
     "@tauri-apps/plugin-deep-link": "~2.2.0",
     "@tauri-apps/plugin-dialog": "~2.2.0",
     "@tauri-apps/plugin-fs": "~2.2.0",
     "@tauri-apps/plugin-shell": "^2.2.0",
     "@tauri-apps/plugin-store": "~2.2.0",
-    "@tauri-apps/plugin-updater": "~2.3.0",
+    "@tauri-apps/plugin-updater": "~2.3.1",
     "@tauri-apps/plugin-window-state": "~2.2.0",
-    "@types/bun": "^1.1.14",
+    "@types/bun": "^1.1.16",
     "solid-icons": "^1.1.0",
-    "solid-js": "^1.9.3",
+    "solid-js": "^1.9.4",
     "solid-transition-group": "^0.2.3"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.9",
-    "@tauri-apps/cli": "^2.1.0",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tauri-apps/cli": "^2.2.2",
     "tailwindcss": "^4.0.0-beta.8",
-    "vite": "^6.0.6",
+    "vite": "^6.0.7",
     "vite-plugin-solid": "^2.11.0"
   }
 }

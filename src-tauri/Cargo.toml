@@ -28,9 +28,10 @@ tauri-plugin-dialog = "2"
 libcaesium = "0.17.0"
 image = "0.25.5"
 infer = "0.16.0"
-specta = "=2.0.0-rc.20"
-specta-typescript = "0.0.7"
-tauri-specta = { version = "=2.0.0-rc.20", features = ["derive", "typescript"] }
+specta = "=2.0.0-rc.22"
+specta-util = "0.0.9"
+specta-typescript = "0.0.9"
+tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
 tauri-plugin-store = "2"
 tauri-plugin-deep-link = "2"
 tokio = "1.42.0"
@@ -44,7 +45,6 @@ objc2-foundation = { version = "0.2.2", features = [
 tauri-plugin-persisted-scope = "2"
 tauri-plugin-fs = "2"
 tauri-plugin-opener = "2"
-specta-util = "0.0.7"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }

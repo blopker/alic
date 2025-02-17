@@ -1,0 +1,8 @@
+dictionaries = []
+words = [
+    "alic",
+    "tauri",
+]
+flag_words = []
+ignore_paths = []
+ignore_patterns = []

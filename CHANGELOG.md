@@ -1,5 +1,10 @@
 # Unreleased
 
+# 2.0.11
+
+- Update a few dependencies
+- Set strict CSP header
+
 # 2.0.10
 
 - Fix white flicker when windows are opening

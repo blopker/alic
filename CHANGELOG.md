@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.0.12
+
+- Fix #9: 'Open with...' on file now works when Alic is closed.
+
 # 2.0.11
 
 - Update a few dependencies

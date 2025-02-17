@@ -1,4 +1,4 @@
-import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
+import { getCurrent, onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import BottomBar from "./BottomBar";
 import Dropper from "./Dropper";
 import Table from "./Table";
@@ -16,13 +16,16 @@ badFileListener((path) => {
   });
 });
 
-onOpenUrl((urls) => {
-  console.log("deep link:", urls);
+// Initialize deep link handling
+handleDeepLink((await getCurrent()) ?? []);
+onOpenUrl(handleDeepLink);
+function handleDeepLink(urls: string[]) {
   // [Log] deep link: – ["file:///Users/myuser/Downloads/file.jpg"]
+  // console.log("deep link:", urls);
   for (const url of urls) {
     addFile(decodeURI(url.replace("file://", "")));
   }
-});
+}
 
 function App() {
   return (

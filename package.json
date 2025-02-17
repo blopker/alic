@@ -23,12 +23,12 @@
     "@tauri-apps/plugin-fs": "~2.2.0",
     "@tauri-apps/plugin-shell": "^2.2.0",
     "@tauri-apps/plugin-store": "~2.2.0",
-    "@tauri-apps/plugin-updater": "~2.3.1",
+    "@tauri-apps/plugin-updater": "~2.5.0",
     "@tauri-apps/plugin-window-state": "~2.2.0",
     "@types/bun": "^1.1.17",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.9.4",
-    "solid-transition-group": "^0.2.3"
+    "solid-transition-group": "^0.3.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.10",

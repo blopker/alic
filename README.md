@@ -54,6 +54,8 @@ Start by downloading the latest release from the [releases page][project-release
 
 Drag and drop images (or folders) into the window, images will automatically start compressing. The compressed images will be saved in the same directory as the original images.
 
+If something seems to have gone wrong, try hovering over the status icons. There may be additional context to the issue.
+
 ## Privacy
 
 All compression is done locally on your machine. Alic also does not have any analytics or tracking, including error reporting. Alic does not passively send any data to the internet. Because of this, Alic will not automatically update. You will need to check the [releases page][project-release-url] for updates, or by clicking "Check for Updates" in the app menu bar.

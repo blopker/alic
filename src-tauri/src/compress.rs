@@ -355,76 +355,110 @@ fn create_csparameters(
     cspars
 }
 
-fn compress_image(original_img_data: Vec<u8>, mut params: CSParameters) -> Result<Vec<u8>, String> {
-    let result = caesium::compress_in_memory(original_img_data, &mut params);
-    match result {
-        Ok(d) => Ok(d),
-        Err(err) => Err(format!("Error: {}", err)),
+enum ImageOperation {
+    Compress,
+    Convert(ImageType),
+}
+
+enum ImageSource {
+    Memory(Vec<u8>),
+    File(PathBuf),
+}
+
+fn process_image(
+    original_img: ImageSource,
+    mut params: CSParameters,
+    operation: ImageOperation,
+) -> Result<Vec<u8>, String> {
+    match original_img {
+        ImageSource::Memory(data) => match operation {
+            ImageOperation::Compress => caesium::compress_in_memory(data, &mut params)
+                .map_err(|e| format!("Error compressing image: {}", e)),
+            ImageOperation::Convert(image_type) => {
+                caesium::convert_in_memory(data, &mut params, image_type.to_casium_type())
+                    .map_err(|e| format!("Error converting image: {}", e))
+            }
+        },
+        ImageSource::File(path) => {
+            let temp_path = get_temp_path(&path);
+
+            // Perform the operation
+            let result = match operation {
+                ImageOperation::Compress => caesium::compress(
+                    path.to_string_lossy().to_string(),
+                    temp_path.clone(),
+                    &mut params,
+                ),
+                ImageOperation::Convert(image_type) => caesium::convert(
+                    path.to_string_lossy().to_string(),
+                    temp_path.clone(),
+                    &mut params,
+                    image_type.to_casium_type(),
+                ),
+            };
+
+            // Handle the result
+            if let Err(err) = result {
+                fs::remove_file(&temp_path)
+                    .map_err(|e| format!("Error removing temp file: {}", e))?;
+                return Err(format!("Error: {}", err));
+            }
+
+            // Read the temporary file
+            let temp_data = fs::read(&temp_path).map_err(|e| format!("Error: {}", e));
+
+            // Clean up temp file
+            fs::remove_file(&temp_path).map_err(|e| format!("Error removing temp file: {}", e))?;
+
+            temp_data
+        }
     }
+    .map_err(|e| format!("Error: {}", e))
+}
+
+// Simplified wrapper functions
+fn compress_image(original_img_data: Vec<u8>, params: CSParameters) -> Result<Vec<u8>, String> {
+    process_image(
+        ImageSource::Memory(original_img_data),
+        params,
+        ImageOperation::Compress,
+    )
 }
 
 fn convert_image(
     original_img_data: Vec<u8>,
-    mut params: CSParameters,
+    params: CSParameters,
     image_type: ImageType,
 ) -> Result<Vec<u8>, String> {
-    let result =
-        caesium::convert_in_memory(original_img_data, &mut params, image_type.to_casium_type());
-
-    match result {
-        Ok(d) => Ok(d),
-        Err(err) => Err(format!("Error: {}", err)),
-    }
+    process_image(
+        ImageSource::Memory(original_img_data),
+        params,
+        ImageOperation::Convert(image_type),
+    )
 }
 
 fn compress_image_from_file(
     original_img_path: &Path,
-    mut params: CSParameters,
+    params: CSParameters,
 ) -> Result<Vec<u8>, String> {
-    let temp_path = get_temp_path(original_img_path);
-    let result = caesium::compress(
-        original_img_path.to_string_lossy().to_string(),
-        temp_path.clone(),
-        &mut params,
-    );
-    if result.is_err() {
-        fs::remove_file(temp_path.clone())
-            .map_err(|err| format!("Error removing temp file: {}", err))?;
-        return Err(format!("Error: {}", result.err().unwrap()));
-    };
-    let temp_data = fs::read(temp_path.clone());
-    fs::remove_file(temp_path).map_err(|err| format!("Error removing temp file: {}", err))?;
-    match temp_data {
-        Ok(data) => Ok(data),
-        Err(err) => Err(format!("Error: {}", err)),
-    }
+    process_image(
+        ImageSource::File(original_img_path.to_path_buf()),
+        params,
+        ImageOperation::Compress,
+    )
 }
 
 fn convert_image_from_file(
     original_img_path: &Path,
-    mut params: CSParameters,
+    params: CSParameters,
     image_type: ImageType,
 ) -> Result<Vec<u8>, String> {
-    let temp_path = get_temp_path(original_img_path);
-    let result = caesium::convert(
-        original_img_path.to_string_lossy().to_string(),
-        temp_path.clone(),
-        &mut params,
-        image_type.to_casium_type(),
-    );
-    if result.is_err() {
-        fs::remove_file(temp_path.clone())
-            .map_err(|err| format!("Error removing temp file: {}", err))?;
-        return Err(format!("Error: {}", result.err().unwrap()));
-    };
-    let temp_data = fs::read(temp_path.clone());
-    fs::remove_file(temp_path).map_err(|err| format!("Error removing temp file: {}", err))?;
-    match temp_data {
-        Ok(data) => Ok(data),
-        Err(err) => Err(format!("Error: {}", err)),
-    }
+    process_image(
+        ImageSource::File(original_img_path.to_path_buf()),
+        params,
+        ImageOperation::Convert(image_type),
+    )
 }
-
 fn remove_extension(path: &Path) -> String {
     let result = match path.file_stem() {
         Some(stem) => {

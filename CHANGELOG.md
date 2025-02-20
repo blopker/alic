@@ -1,5 +1,10 @@
 # Unreleased
 
+# 2.1.0
+
+- Use the disk less when processing. This is a major speedup when compressing many images.
+- Update to Rust 2024.
+
 # 2.0.12
 
 - Fix #9: 'Open with...' on file now works when Alic is closed.

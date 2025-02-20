@@ -4,12 +4,11 @@ use crate::macos;
 use super::settings;
 use caesium;
 use caesium::parameters::CSParameters;
+use image::ImageFormat;
 use image::{self, ImageReader};
-use image::{DynamicImage, ImageFormat};
 use serde;
 use specta::Type;
 use std::fs;
-use std::os::unix::fs::MetadataExt;
 use tauri_specta::Event;
 
 use std::path::{Path, PathBuf};
@@ -143,15 +142,16 @@ pub async fn process_img(
     // if not savings, delete temp file, return
     // if out path is same as original, delete original
     // move temp file to out path
-    let (original_img, original_image_type) = match read_image(&file.path) {
-        Ok(img) => img,
-        Err(err) => {
-            return Err(CompressError {
-                error: err,
-                error_type: CompressErrorType::UnsupportedFileType,
-            })
-        }
-    };
+    let (original_img_width, original_img_height, original_image_type) =
+        match read_image_info(&file.path) {
+            Ok(img) => img,
+            Err(err) => {
+                return Err(CompressError {
+                    error: err,
+                    error_type: CompressErrorType::UnsupportedFileType,
+                })
+            }
+        };
 
     let out_path = get_out_path(&parameters, &file.path, &original_image_type);
 
@@ -163,22 +163,32 @@ pub async fn process_img(
         });
     }
 
-    let csparams = create_csparameters(&parameters, original_img.width(), original_img.height());
-    drop(original_img);
+    let cs_params = create_csparameters(&parameters, original_img_width, original_img_height);
 
     let should_convert =
         parameters.should_convert && parameters.convert_extension != original_image_type;
 
-    let temp_path = get_temp_path(&out_path);
-    let result = if should_convert {
-        convert_image(
-            &file.path,
-            &temp_path,
-            csparams,
-            parameters.convert_extension,
-        )
-    } else {
-        compress_image(&file.path, &temp_path, csparams)
+    let original_img_data = fs::read(&file.path).unwrap();
+    let original_img_size = original_img_data.len() as f64;
+    let result = match original_image_type {
+        ImageType::GIF => {
+            if should_convert {
+                convert_image_from_file(
+                    Path::new(&file.path),
+                    cs_params,
+                    parameters.convert_extension,
+                )
+            } else {
+                compress_image_from_file(Path::new(&file.path), cs_params)
+            }
+        }
+        _ => {
+            if should_convert {
+                convert_image(original_img_data, cs_params, parameters.convert_extension)
+            } else {
+                compress_image(original_img_data, cs_params)
+            }
+        }
     };
 
     if result.is_err() {
@@ -188,20 +198,9 @@ pub async fn process_img(
         });
     }
 
-    let temp_metadata_result = std::fs::metadata(&temp_path);
-    let temp_size: f64 = match temp_metadata_result {
-        Ok(result) => result.size() as f64,
-        Err(e) => {
-            return Err(CompressError {
-                error: e.to_string(),
-                error_type: CompressErrorType::FileNotFound,
-            })
-        }
-    };
-    let original_size = file.original_size.expect("Image size needs to be set") as f64;
-
-    if !parameters.should_convert && temp_size > original_size * 0.95 {
-        let _ = fs::remove_file(temp_path);
+    let compressed_data = result.unwrap();
+    let compressed_size = compressed_data.len() as f64;
+    if !parameters.should_convert && compressed_size > original_img_size * 0.95 {
         return Err(CompressError {
             error: "Image cannot be compressed further.".to_string(),
             error_type: CompressErrorType::NotSmaller,
@@ -218,8 +217,8 @@ pub async fn process_img(
         }
     }
 
-    let rename_result = fs::rename(temp_path, &out_path);
-    match rename_result {
+    let write_result = fs::write(&out_path, &compressed_data);
+    match write_result {
         Ok(_) => {}
         Err(e) => {
             return Err(CompressError {
@@ -228,7 +227,8 @@ pub async fn process_img(
             })
         }
     };
-    let out_size = temp_size as u32;
+
+    let out_size = compressed_data.len() as u32;
     Ok(CompressResult {
         path: file.path,
         out_size,
@@ -237,7 +237,7 @@ pub async fn process_img(
     })
 }
 
-fn get_temp_path(path: &str) -> String {
+fn get_temp_path(path: &Path) -> String {
     // /original/path/test.png -> /original/path/.test.png
     let path = Path::new(&path);
     let filename = path.file_name().unwrap().to_string_lossy().to_string();
@@ -248,36 +248,47 @@ fn get_temp_path(path: &str) -> String {
         .to_string()
 }
 
-fn read_image(path: &str) -> Result<(DynamicImage, ImageType), String> {
-    let image = ImageReader::open(&path)
+fn read_image_info(path: &str) -> Result<(u32, u32, ImageType), String> {
+    let image = match ImageReader::open(&path)
         .map_err(|e| e.to_string())?
-        .with_guessed_format();
+        .with_guessed_format()
+    {
+        Ok(image) => image,
+        Err(err) => {
+            return Err(format!("Read error: {}", err));
+        }
+    };
 
-    let format = match &image {
-        Ok(image) => match image.format() {
-            Some(ImageFormat::Jpeg) => Some(ImageType::JPEG),
-            Some(ImageFormat::Png) => Some(ImageType::PNG),
-            Some(ImageFormat::WebP) => Some(ImageType::WEBP),
-            Some(ImageFormat::Gif) => Some(ImageType::GIF),
-            Some(ImageFormat::Tiff) => Some(ImageType::TIFF),
-            f => {
-                return Err(format!(
-                    "Error: Unsupported image type: {}",
-                    f.unwrap().to_mime_type()
-                ))
-            }
-        },
-        Err(_) => None,
+    let format = match image.format() {
+        Some(ImageFormat::Jpeg) => Some(ImageType::JPEG),
+        Some(ImageFormat::Png) => Some(ImageType::PNG),
+        Some(ImageFormat::WebP) => Some(ImageType::WEBP),
+        Some(ImageFormat::Gif) => Some(ImageType::GIF),
+        Some(ImageFormat::Tiff) => Some(ImageType::TIFF),
+        f => {
+            return Err(format!(
+                "Error: Unsupported image type: {}",
+                f.unwrap().to_mime_type()
+            ))
+        }
     };
 
     if format.is_none() {
         return Err("Error: Unsupported image type.".to_string());
     }
 
-    match image {
-        Ok(image) => Ok((image.decode().map_err(|e| e.to_string())?, format.unwrap())),
-        Err(err) => Err(format!("Read error: {}", err)),
-    }
+    let decoded_image = match image.decode() {
+        Ok(image) => image,
+        Err(err) => {
+            return Err(format!("Decode error: {}", err));
+        }
+    };
+
+    Ok((
+        decoded_image.width(),
+        decoded_image.height(),
+        format.unwrap(),
+    ))
 }
 
 fn get_out_path(
@@ -344,29 +355,72 @@ fn create_csparameters(
     cspars
 }
 
-fn compress_image(path: &str, out_path: &str, mut params: CSParameters) -> Result<String, String> {
-    let result = caesium::compress(path.to_string(), out_path.to_string(), &mut params);
+fn compress_image(original_img_data: Vec<u8>, mut params: CSParameters) -> Result<Vec<u8>, String> {
+    let result = caesium::compress_in_memory(original_img_data, &mut params);
     match result {
-        Ok(_) => Ok("Success".to_string()),
+        Ok(d) => Ok(d),
         Err(err) => Err(format!("Error: {}", err)),
     }
 }
 
 fn convert_image(
-    path: &str,
-    out_path: &str,
+    original_img_data: Vec<u8>,
     mut params: CSParameters,
     image_type: ImageType,
-) -> Result<String, String> {
+) -> Result<Vec<u8>, String> {
+    let result =
+        caesium::convert_in_memory(original_img_data, &mut params, image_type.to_casium_type());
+
+    match result {
+        Ok(d) => Ok(d),
+        Err(err) => Err(format!("Error: {}", err)),
+    }
+}
+
+fn compress_image_from_file(
+    original_img_path: &Path,
+    mut params: CSParameters,
+) -> Result<Vec<u8>, String> {
+    let temp_path = get_temp_path(original_img_path);
+    let result = caesium::compress(
+        original_img_path.to_string_lossy().to_string(),
+        temp_path.clone(),
+        &mut params,
+    );
+    if result.is_err() {
+        fs::remove_file(temp_path.clone())
+            .map_err(|err| format!("Error removing temp file: {}", err))?;
+        return Err(format!("Error: {}", result.err().unwrap()));
+    };
+    let temp_data = fs::read(temp_path.clone());
+    fs::remove_file(temp_path).map_err(|err| format!("Error removing temp file: {}", err))?;
+    match temp_data {
+        Ok(data) => Ok(data),
+        Err(err) => Err(format!("Error: {}", err)),
+    }
+}
+
+fn convert_image_from_file(
+    original_img_path: &Path,
+    mut params: CSParameters,
+    image_type: ImageType,
+) -> Result<Vec<u8>, String> {
+    let temp_path = get_temp_path(original_img_path);
     let result = caesium::convert(
-        path.to_string(),
-        out_path.to_string(),
+        original_img_path.to_string_lossy().to_string(),
+        temp_path.clone(),
         &mut params,
         image_type.to_casium_type(),
     );
-
-    match result {
-        Ok(_) => Ok("Success".to_string()),
+    if result.is_err() {
+        fs::remove_file(temp_path.clone())
+            .map_err(|err| format!("Error removing temp file: {}", err))?;
+        return Err(format!("Error: {}", result.err().unwrap()));
+    };
+    let temp_data = fs::read(temp_path.clone());
+    fs::remove_file(temp_path).map_err(|err| format!("Error removing temp file: {}", err))?;
+    match temp_data {
+        Ok(data) => Ok(data),
         Err(err) => Err(format!("Error: {}", err)),
     }
 }
@@ -532,7 +586,7 @@ mod tests {
 
     #[test]
     fn test_get_temp_path() {
-        let result = get_temp_path(&"test/test.png".to_string());
+        let result = get_temp_path(Path::new("test/test.png"));
         assert_eq!(result, "test/.test.png".to_string());
     }
     // #[test]

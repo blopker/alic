@@ -10,29 +10,29 @@
     Alic ('Al-ik') is a little image compressor for macOS.
     <br />
     <br />
-    <a href="https://github.com/blopker/alic/releases/latest/">Download</a>
+    <a href="https://github.com/blopker/alic/releases/latest/">⬇️ Download</a>
     <br />
     <br />
-    <a href="https://github.com/blopker/alic/issues">Report Bug</a>
+    <a href="https://github.com/blopker/alic/issues">🐛 Report Bug</a>
     ·
-    <a href="https://github.com/blopker/alic/issues">Request Feature</a>
+    <a href="https://github.com/blopker/alic/issues">💡 Request Feature</a>
   </p>
 </div>
 
 <!-- ABOUT THE PROJECT -->
 
-## About
+## 📖 About
 
 [![Product Name Screen Shot][product-screenshot]](alic2-sc.min.png)
 
 Alic makes it simple to compress images. It's a great tool for quickly compressing images for the web, or to share with clients.
 
-Why compress images?
+Why compress images? 🤔
 
-- Faster load times
-- Less bandwidth usage
-- Better SEO
-- Better user experience
+- 🚀 Faster load times
+- 📉 Less bandwidth usage
+- 🔍 Better SEO
+- 😊 Better user experience
 
 And security: Many cameras and phones embed metadata in images, which can include location, camera model, and other sensitive information. Alic can remove this metadata for you.
 
@@ -46,60 +46,59 @@ Supported image formats:
 
 Alic is heavily inspired by [ImageOptim][imageoptim-url], but with modern compression algorithms for smaller files and speed. See [Differences from ImageOptim](#differences).
 
-## Installation
+## 🛠️ Installation
 
-Start by downloading the latest release from the [releases page][project-release-url]. Then, drag the app to your Applications folder and open it.
+1. 📥 Download the latest release from the [releases page][project-release-url]
+2. 🖱️ Drag to Applications folder
+3. 🚀 Launch and enjoy!
 
-## Usage
+## 🎮 Usage
 
 Drag and drop images (or folders) into the window, images will automatically start compressing. The compressed images will be saved in the same directory as the original images.
 
-If something seems to have gone wrong, try hovering over the status icons. There may be additional context to the issue.
+Having trouble? 🤔 Hover over the status icons for helpful hints!
 
-## Privacy
+## 🔒 Privacy
 
-All compression is done locally on your machine. Alic also does not have any analytics or tracking, including error reporting. Alic does not passively send any data to the internet. Because of this, Alic will not automatically update. You will need to check the [releases page][project-release-url] for updates, or by clicking "Check for Updates" in the app menu bar.
+Your data stays on your machine! 💪 No sneaky analytics or tracking here. Alic doesn't phone home, which means you'll need to manually check for updates through the [releases page][project-release-url] or by clicking "Check for Updates" in the app menu bar.
 
-## <a name="differences"></a>Differences from ImageOptim
+## <a name="differences"></a>🆚 Differences from ImageOptim
 
-- WebP support.
-- Faster: Written in Rust, with modern compression algorithms. This makes Alic noticeably faster, while producing smaller image sizes.
-- Lossy first: Alic does not overwrite the original images by default, it saves the compressed images in the same directory as the original images with a `.min.` (configurable) suffix. If needed, Alic can be configured to behave like ImageOptim.
-- Resize images: Alic can resize images if they are over a certain size. Images will not be resized by default, and images will not be upscaled.
-- Profiles: Alic supports multiple profiles where you can save settings for any situation you might be in.
+- 🌐 WebP support
+- ⚡️ Super fast: Built with Rust and modern compression magic
+- 💾 Safe defaults: Original files stay untouched
+- 📐 Resize option: Scale down those massive images
+- 👥 Multiple profiles: Save different settings for different needs
 
-## Roadmap
+## 🛣️ Roadmap
 
-- [x] Get the app signed with an Apple Developer ID
-- [x] Add a way to check for updates
-- [x] Add support for different optimization levels
-- [x] Add support for lossless compression
-- [x] Add support for dropping directories
-- [x] Add context menu for opening images in Alic from Finder
-- [x] Add support for resizing images if they are over a certain size
+- ✅ Apple Developer ID signing
+- ✅ Update checker
+- ✅ Different optimization levels
+- ✅ Lossless compression
+- ✅ Directory support
+- ✅ Finder context menu
+- ✅ Image resizing
 
-## Built With
+## 🛠️ Built With
 
-The Alic UI is built with SolidJS, with all processing done in Rust, using Tauri. Image compression is handled by [`libcaesium`][libcaesium-url].
+Built with love using SolidJS and Rust, powered by Tauri. Image compression magic by [`libcaesium`][libcaesium-url]! ✨
 
-### Requirements
+### 📋 Requirements
 
-Alic will only run on MacOS 12.0 or later.
+Runs on MacOS 12.0 or later 🍎
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+We love contributions! 💖 Want to make Alic better? Here's how:
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+1. 🍴 Fork it
+2. 🌱 Create your feature branch
+3. 💫 Make your changes
+4. 🚀 Push to the branch
+5. 🎉 Open a Pull Request
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## Release
+## 📦 Release
 
 To release a new version of Alic, follow these steps:
 
@@ -108,15 +107,15 @@ To release a new version of Alic, follow these steps:
 1. Commit the changes, but do not push.
 1. Run `make release`.
 
-## License
+## 📜 License
 
 Distributed under the GNU 3.0 License. See `LICENSE` for more information.
 
-## Contact
+## 📫 Contact
 
 Use the issue tracker at the [Project Link][project-url].
 
-## Acknowledgments ❤️
+## 💝 Acknowledgments
 
 This project would not be possible without the following open source projects:
 

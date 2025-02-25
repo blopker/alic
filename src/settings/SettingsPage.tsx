@@ -1,5 +1,6 @@
 import { useKeyDownEvent } from "@solid-primitives/keyboard";
 import { A, useNavigate } from "@solidjs/router";
+import { IoAdd } from "solid-icons/io";
 import {
   type Component,
   For,
@@ -49,6 +50,24 @@ function Settings(props: { children?: JSXElement }) {
   );
 }
 
+function SettingsLink(props: {
+  href: string;
+  children: JSXElement;
+  end?: boolean;
+}) {
+  return (
+    <A
+      activeClass="bg-indigo-600 text-white font-medium rounded-md"
+      inactiveClass="hover:bg-accent transition-colors"
+      class="mb-1 block rounded-md px-3 py-1.5 text-sm"
+      href={props.href}
+      end={props.end}
+    >
+      {props.children}
+    </A>
+  );
+}
+
 function SettingsSideBar() {
   const profilePages = createMemo<SettingsPageData[]>(() => {
     return settings.profiles.map((p) => ({
@@ -58,26 +77,36 @@ function SettingsSideBar() {
     }));
   });
   return (
-    <div class="flex flex-col items-start gap-2 p-4">
-      <For each={settingsPages()}>
-        {(p) => (
-          <A activeClass="font-bold" href="/settings" end>
-            {p.title}
-          </A>
-        )}
-      </For>
-      <div class="opacity-70">Profiles</div>
-      <div class="flex flex-col items-start gap-2 pl-2">
-        <For each={profilePages()}>
+    <div class="flex h-full flex-col bg-secondary py-4">
+      <div class="px-4 pb-6">
+        <For each={settingsPages()}>
           {(p) => (
-            <A activeClass="font-bold" href={`/settings/profile/${p.id}`}>
+            <SettingsLink href="/settings" end>
               {p.title}
-            </A>
+            </SettingsLink>
           )}
         </For>
-        <A activeClass="font-bold" href="/settings/newprofile">
-          New Profile...
-        </A>
+      </div>
+
+      <div class="px-4">
+        <div class="mb-2 px-3 font-medium text-xs uppercase tracking-wide opacity-70">
+          Profiles
+        </div>
+        <div class="flex flex-col">
+          <For each={profilePages()}>
+            {(p) => (
+              <SettingsLink href={`/settings/profile/${p.id}`}>
+                {p.title}
+              </SettingsLink>
+            )}
+          </For>
+          <SettingsLink href="/settings/newprofile">
+            <div class="flex items-center gap-1">
+              <IoAdd />
+              New Profile
+            </div>
+          </SettingsLink>
+        </div>
       </div>
     </div>
   );

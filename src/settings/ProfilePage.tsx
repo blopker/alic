@@ -149,10 +149,10 @@ function ProfilePage() {
         </SettingRow>
         <SettingRow title="Add Postfix">
           <SettingsToggle
-            value={data().add_posfix ?? false}
+            value={data().add_postfix ?? false}
             onChange={(value) => {
               updateProfile(data().id, {
-                add_posfix: value,
+                add_postfix: value,
               });
             }}
           />

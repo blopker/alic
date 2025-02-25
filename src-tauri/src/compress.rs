@@ -149,7 +149,7 @@ pub async fn process_img(
                 return Err(CompressError {
                     error: err,
                     error_type: CompressErrorType::UnsupportedFileType,
-                })
+                });
             }
         };
 
@@ -157,13 +157,14 @@ pub async fn process_img(
 
     if file.path == out_path && !parameters.should_overwrite {
         return Err(CompressError {
-            error: "Image would be overwritten. Enable Overwrite in settings to allow this."
-                .to_string(),
+            error:
+                "Image would be overwritten. Enable \"Allow Overwrite\" in settings to allow this."
+                    .to_string(),
             error_type: CompressErrorType::WontOverwrite,
         });
     }
 
-    let cs_params = create_csparameters(&parameters, original_img_width, original_img_height);
+    let cs_params = create_cs_parameters(&parameters, original_img_width, original_img_height);
 
     let should_convert =
         parameters.should_convert && parameters.convert_extension != original_image_type;
@@ -224,7 +225,7 @@ pub async fn process_img(
             return Err(CompressError {
                 error: e.to_string(),
                 error_type: CompressErrorType::Unknown,
-            })
+            });
         }
     };
 
@@ -269,7 +270,7 @@ fn read_image_info(path: &str) -> Result<(u32, u32, ImageType), String> {
             return Err(format!(
                 "Error: Unsupported image type: {}",
                 f.unwrap().to_mime_type()
-            ))
+            ));
         }
     };
 
@@ -316,14 +317,14 @@ fn get_out_path(
             .to_string(),
         false => original_extension,
     };
-    let posfix = match parameters.add_posfix {
+    let postfix = match parameters.add_postfix {
         true => parameters.postfix.clone(),
         false => "".to_string(),
     };
-    format!("{}{}.{}", remove_extension(&path), posfix, extension)
+    format!("{}{}.{}", remove_extension(&path), postfix, extension)
 }
 
-fn create_csparameters(
+fn create_cs_parameters(
     parameters: &settings::ProfileData,
     width: u32,
     height: u32,
@@ -608,7 +609,7 @@ mod tests {
         assert_eq!(result, "test/test.min.jpeg".to_string());
 
         parameters = settings::ProfileData::new();
-        parameters.add_posfix = false;
+        parameters.add_postfix = false;
         result = get_out_path(&parameters, &"test/test.jpeg".to_string(), &ImageType::PNG);
         assert_eq!(result, "test/test.png".to_string());
 

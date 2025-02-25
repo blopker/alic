@@ -151,7 +151,7 @@ function MyTable() {
                   class="cursor-default even:bg-secondary hover:bg-accent"
                 >
                   <Tooltip>
-                    <Tooltip.Trigger as={MyTD} class="w-12">
+                    <Tooltip.Trigger as={MyTD} class="w-12 cursor-help">
                       <StatusIcons status={file.status} />
                     </Tooltip.Trigger>
                     <Tooltip.Portal>

@@ -1,5 +1,10 @@
 # Unreleased
 
+# 2.1.1
+
+- Fix spelling error in config file
+- Refresh settings sidebar look
+
 # 2.1.0
 
 - Use the disk less when processing. This is a major speedup when compressing many images.

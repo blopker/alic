@@ -50,7 +50,7 @@ pub struct ProfileData {
     pub enable_lossy: bool,
     #[serde(default)]
     pub keep_metadata: bool,
-    #[serde(default)]
+    #[serde(default, alias = "add_posfix")]
     pub add_postfix: bool,
     pub convert_extension: ImageType,
     pub postfix: String,

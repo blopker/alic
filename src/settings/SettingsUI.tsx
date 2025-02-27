@@ -134,6 +134,7 @@ function SettingsInput(props: {
   class?: string;
   placeholder?: string;
   autoFocus?: boolean;
+  maxLength?: number;
   onChange: (value: string) => void;
 }) {
   let inputRef: HTMLInputElement | undefined;
@@ -142,6 +143,7 @@ function SettingsInput(props: {
       inputRef.focus();
     }
   });
+  const maxLength = () => props.maxLength ?? 100;
   return (
     <input
       ref={inputRef}
@@ -149,6 +151,7 @@ function SettingsInput(props: {
       autofocus={props.autoFocus}
       class={`${props.class} rounded-md border-0 bg-secondary py-1.5 shadow-sm sm:text-sm/6`}
       type="text"
+      maxLength={maxLength()}
       value={props.value}
       onInput={(e) => {
         props.onChange(e.target.value);

@@ -1,5 +1,10 @@
 # Unreleased
 
+# 2.1.2
+
+- Update deps
+- Clippy fixes
+
 # 2.1.1
 
 - Fix spelling error in config file

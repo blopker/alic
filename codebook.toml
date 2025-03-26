@@ -2,6 +2,7 @@ dictionaries = []
 words = [
     "alic",
     "casium",
+    "clippy",
     "lossy",
     "tauri",
 ]

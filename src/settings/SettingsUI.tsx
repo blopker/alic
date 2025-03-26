@@ -184,7 +184,7 @@ function SettingsNumberInput(props: {
 function SettingsPage(props: { title: string; children: JSXElement }) {
   return (
     <div class="relative flex flex-col">
-      <div class="h-[40px] pl-4 border-b border-b-accent flex items-center">
+      <div class="flex h-[40px] items-center border-b border-b-accent pl-4">
         <h1 class="text-left font-bold text-lg">{props.title}</h1>
       </div>
       <div class="max-h-[calc(100vh-50px)] grow overflow-y-auto p-4">

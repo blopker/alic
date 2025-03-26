@@ -5,21 +5,20 @@ mod settings;
 mod update;
 
 use events::{AddFileEvent, ClearFilesEvent, OpenAddFileDialogEvent, UpdateStateEvent};
-use image;
 use std::{
     hash::{DefaultHasher, Hash, Hasher},
     path::Path,
 };
 use tauri::{
+    Manager, WebviewUrl,
     menu::{AboutMetadataBuilder, Menu, MenuItem, SubmenuBuilder},
     utils::config::WindowConfig,
-    Manager, WebviewUrl,
 };
 use tauri_plugin_opener::OpenerExt;
 
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_store::StoreExt;
-use tauri_specta::{collect_commands, collect_events, Builder, Event};
+use tauri_specta::{Builder, Event, collect_commands, collect_events};
 
 #[tauri::command]
 #[specta::specta]
@@ -43,7 +42,7 @@ fn _open_settings_window(app: &tauri::AppHandle, path: Option<String>) {
         .find(|w| w.label == window_label)
         .unwrap();
     let path = path.unwrap_or("/settings".to_string());
-    if let Some(mut window) = app.get_webview_window(window_label) {
+    if let Some(window) = app.get_webview_window(window_label) {
         // If the window already exists, bring it to the front
         let mut url = window.url().unwrap();
         url.set_fragment(Some(&path));
@@ -218,41 +217,39 @@ pub fn run() {
             menu.append(&file_submenu)?;
             Ok(menu)
         })
-        .on_menu_event(|app, event| {
-            return match event.id().0.as_str() {
-                "settings" => {
-                    _open_settings_window(app, None);
-                }
-                "newprofile" => {
-                    _open_settings_window(app, Some("/settings/newprofile".to_string()));
-                }
-                "open" => OpenAddFileDialogEvent.emit(app).unwrap(),
-                "clear" => ClearFilesEvent.emit(app).unwrap(),
-                "paste" => {
-                    save_clipboard_image(app);
-                }
-                "update_check" => {
-                    println!("Checking for updates");
-                    let handle = app.clone();
-                    tauri::async_runtime::spawn(async move {
-                        UpdateStateEvent::CheckingForUpdate {
-                            message: "Checking for updates...".to_string(),
+        .on_menu_event(|app, event| match event.id().0.as_str() {
+            "settings" => {
+                _open_settings_window(app, None);
+            }
+            "newprofile" => {
+                _open_settings_window(app, Some("/settings/newprofile".to_string()));
+            }
+            "open" => OpenAddFileDialogEvent.emit(app).unwrap(),
+            "clear" => ClearFilesEvent.emit(app).unwrap(),
+            "paste" => {
+                save_clipboard_image(app);
+            }
+            "update_check" => {
+                println!("Checking for updates");
+                let handle = app.clone();
+                tauri::async_runtime::spawn(async move {
+                    UpdateStateEvent::CheckingForUpdate {
+                        message: "Checking for updates...".to_string(),
+                    }
+                    .emit(&handle)
+                    .unwrap();
+                    let res = update::update(handle.clone()).await;
+                    if res.is_err() {
+                        println!("Error checking for updates: {:?}", res);
+                        UpdateStateEvent::Error {
+                            message: format!("{}", res.unwrap_err()),
                         }
                         .emit(&handle)
                         .unwrap();
-                        let res = update::update(handle.clone()).await;
-                        if res.is_err() {
-                            println!("Error checking for updates: {:?}", res);
-                            UpdateStateEvent::Error {
-                                message: format!("{}", res.unwrap_err()),
-                            }
-                            .emit(&handle)
-                            .unwrap();
-                        }
-                    });
-                }
-                _ => {}
-            };
+                    }
+                });
+            }
+            _ => {}
         })
         .invoke_handler(builder.invoke_handler())
         .setup(move |app| {

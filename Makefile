@@ -21,7 +21,7 @@ build_dmg:
 	bun run tauri build
 
 open_app_folder:
-	open ~/Library/Application Support/io.kbl.alic
+	open ~/Library/Application\ Support/io.kbl.alic
 
 release:
 	bun run scripts/release.ts

@@ -140,7 +140,7 @@ pub async fn delete_profile(app: tauri::AppHandle, profile_id: u32) -> Result<()
         .profiles
         .iter()
         .position(|p| p.id == profile_id)
-        .and_then(|i| Some(settings.profiles.remove(i)));
+        .map(|i| settings.profiles.remove(i));
     set_settings_data(&app, settings);
     Ok(())
 }

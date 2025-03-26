@@ -2,11 +2,9 @@ use crate::events::{AddFileEvent, BadFileEvent};
 use crate::macos;
 
 use super::settings;
-use caesium;
 use caesium::parameters::CSParameters;
 use image::ImageFormat;
 use image::{self, ImageReader};
-use serde;
 use specta::Type;
 use std::fs;
 use tauri_specta::Event;
@@ -250,7 +248,7 @@ fn get_temp_path(path: &Path) -> String {
 }
 
 fn read_image_info(path: &str) -> Result<(u32, u32, ImageType), String> {
-    let image = match ImageReader::open(&path)
+    let image = match ImageReader::open(path)
         .map_err(|e| e.to_string())?
         .with_guessed_format()
     {
@@ -321,7 +319,7 @@ fn get_out_path(
         true => parameters.postfix.clone(),
         false => "".to_string(),
     };
-    format!("{}{}.{}", remove_extension(&path), postfix, extension)
+    format!("{}{}.{}", remove_extension(path), postfix, extension)
 }
 
 fn create_cs_parameters(
@@ -334,26 +332,26 @@ fn create_cs_parameters(
 
     // set the largest dimension to the resize value,
     // only if the image size is larger than the resize value
-    if parameters.should_resize {
-        if width > parameters.resize_width || height > parameters.resize_height {
-            if width > height {
-                new_width = parameters.resize_width;
-            } else {
-                new_height = parameters.resize_height;
-            }
+    if parameters.should_resize
+        && (width > parameters.resize_width || height > parameters.resize_height)
+    {
+        if width > height {
+            new_width = parameters.resize_width;
+        } else {
+            new_height = parameters.resize_height;
         }
     }
 
-    let mut cspars = CSParameters::new();
-    cspars.jpeg.quality = parameters.jpeg_quality;
-    cspars.png.quality = parameters.png_quality;
-    cspars.webp.quality = parameters.webp_quality;
-    cspars.gif.quality = parameters.gif_quality;
-    cspars.width = new_width;
-    cspars.height = new_height;
-    cspars.optimize = !parameters.enable_lossy;
-    cspars.keep_metadata = parameters.keep_metadata;
-    cspars
+    let mut cs = CSParameters::new();
+    cs.jpeg.quality = parameters.jpeg_quality;
+    cs.png.quality = parameters.png_quality;
+    cs.webp.quality = parameters.webp_quality;
+    cs.gif.quality = parameters.gif_quality;
+    cs.width = new_width;
+    cs.height = new_height;
+    cs.optimize = !parameters.enable_lossy;
+    cs.keep_metadata = parameters.keep_metadata;
+    cs
 }
 
 enum ImageOperation {
@@ -368,15 +366,15 @@ enum ImageSource {
 
 fn process_image(
     original_img: ImageSource,
-    mut params: CSParameters,
+    params: CSParameters,
     operation: ImageOperation,
 ) -> Result<Vec<u8>, String> {
     match original_img {
         ImageSource::Memory(data) => match operation {
-            ImageOperation::Compress => caesium::compress_in_memory(data, &mut params)
+            ImageOperation::Compress => caesium::compress_in_memory(data, &params)
                 .map_err(|e| format!("Error compressing image: {}", e)),
             ImageOperation::Convert(image_type) => {
-                caesium::convert_in_memory(data, &mut params, image_type.to_casium_type())
+                caesium::convert_in_memory(data, &params, image_type.to_casium_type())
                     .map_err(|e| format!("Error converting image: {}", e))
             }
         },
@@ -388,12 +386,12 @@ fn process_image(
                 ImageOperation::Compress => caesium::compress(
                     path.to_string_lossy().to_string(),
                     temp_path.clone(),
-                    &mut params,
+                    &params,
                 ),
                 ImageOperation::Convert(image_type) => caesium::convert(
                     path.to_string_lossy().to_string(),
                     temp_path.clone(),
-                    &mut params,
+                    &params,
                     image_type.to_casium_type(),
                 ),
             };
@@ -485,7 +483,7 @@ pub async fn get_all_images(app: tauri::AppHandle, path: String) -> Result<(), S
         return Ok(());
     }
     if file.is_file() {
-        if !is_image(&file) {
+        if !is_image(file) {
             BadFileEvent(path).emit(&app).unwrap();
             return Ok(());
         }
@@ -523,7 +521,7 @@ where
 #[tauri::command]
 #[specta::specta]
 pub async fn get_file_info(path: &str) -> Result<FileInfoResult, String> {
-    let metadata_result = std::fs::metadata(&path);
+    let metadata_result = std::fs::metadata(path);
     let size: u32;
     match metadata_result {
         Ok(metadata) => {
@@ -593,29 +591,29 @@ mod tests {
         assert_eq!(result, "test/test.min.jpeg".to_string());
 
         parameters = settings::ProfileData::new();
-        result = get_out_path(&parameters, &"test/test.jpg".to_string(), &ImageType::JPEG);
+        result = get_out_path(&parameters, "test/test.jpg", &ImageType::JPEG);
         assert_eq!(result, "test/test.min.jpg".to_string());
 
         parameters = settings::ProfileData::new();
         parameters.should_convert = true;
         parameters.convert_extension = ImageType::PNG;
-        result = get_out_path(&parameters, &"test/test.jpeg".to_string(), &ImageType::JPEG);
+        result = get_out_path(&parameters, "test/test.jpeg", &ImageType::JPEG);
         assert_eq!(result, "test/test.min.png".to_string());
 
         parameters = settings::ProfileData::new();
         parameters.should_convert = false;
         parameters.convert_extension = ImageType::PNG;
-        result = get_out_path(&parameters, &"test/test.jpeg".to_string(), &ImageType::JPEG);
+        result = get_out_path(&parameters, "test/test.jpeg", &ImageType::JPEG);
         assert_eq!(result, "test/test.min.jpeg".to_string());
 
         parameters = settings::ProfileData::new();
         parameters.add_postfix = false;
-        result = get_out_path(&parameters, &"test/test.jpeg".to_string(), &ImageType::PNG);
+        result = get_out_path(&parameters, "test/test.jpeg", &ImageType::PNG);
         assert_eq!(result, "test/test.png".to_string());
 
         parameters = settings::ProfileData::new();
         parameters.postfix = ".bong".to_string();
-        result = get_out_path(&parameters, &"test/test.jpeg".to_string(), &ImageType::PNG);
+        result = get_out_path(&parameters, "test/test.jpeg", &ImageType::PNG);
         assert_eq!(result, "test/test.bong.png".to_string());
     }
 

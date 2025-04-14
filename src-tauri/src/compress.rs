@@ -583,11 +583,11 @@ mod tests {
     #[test]
     fn test_get_out_path() {
         let mut parameters = settings::ProfileData::new();
-        let mut result = get_out_path(&parameters, &"test/test.png".to_string(), &ImageType::PNG);
+        let mut result = get_out_path(&parameters, "test/test.png", &ImageType::PNG);
         assert_eq!(result, "test/test.min.png".to_string());
 
         parameters = settings::ProfileData::new();
-        result = get_out_path(&parameters, &"test/test.jpeg".to_string(), &ImageType::JPEG);
+        result = get_out_path(&parameters, "test/test.jpeg", &ImageType::JPEG);
         assert_eq!(result, "test/test.min.jpeg".to_string());
 
         parameters = settings::ProfileData::new();

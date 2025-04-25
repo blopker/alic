@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.2.0
+
+- Fix #11: allow table row selection with keyboard shortcuts
+
 # 2.1.3
 
 - Update deps

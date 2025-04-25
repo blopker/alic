@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.1.3
+
+- Update deps
+
 # 2.1.2
 
 - Update deps

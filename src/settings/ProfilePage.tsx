@@ -259,10 +259,10 @@ function QualitySlider(props: {
         disabled={props.disabled ?? false}
         type="range"
         min="1"
-        max="10"
-        value={props.value / 10}
+        max="20"
+        value={props.value / 5}
         onInput={(e) => {
-          props.onChange(Number.parseInt(e.target.value) * 10);
+          props.onChange(Number.parseInt(e.target.value) * 5);
         }}
       />
       <div>{props.value}</div>

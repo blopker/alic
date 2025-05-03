@@ -25,3 +25,11 @@ open_app_folder:
 
 release:
 	bun run scripts/release.ts
+
+check_deps:
+	bun outdated
+	cd src-tauri && cargo update --dry-run --verbose
+
+update_deps:
+	bun update
+	cd src-tauri && cargo update

@@ -70,11 +70,14 @@ function SettingsLink(props: {
 
 function SettingsSideBar() {
   const profilePages = createMemo<SettingsPageData[]>(() => {
-    return settings.profiles.map((p) => ({
-      kind: `profile:${p.name}`,
-      title: p.name,
-      id: p.id,
-    }));
+    // map profiles, the sort by title
+    return settings.profiles
+      .map((p) => ({
+        kind: `profile:${p.name}`,
+        title: p.name,
+        id: p.id,
+      }))
+      .sort((a, b) => a.title.localeCompare(b.title));
   });
   return (
     <div class="flex h-full flex-col bg-secondary py-4">

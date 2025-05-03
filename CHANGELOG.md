@@ -1,9 +1,9 @@
 # Unreleased
 
-# 2.2.1
+# 2.2.2
 
 - Fix #14: Allow quality slider in increments of 5
-- Fix #15: Sort profiles by name
+- Fix #15: Sort profiles by name in settings and quick selector
 
 # 2.2.0
 

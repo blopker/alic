@@ -1,5 +1,10 @@
 # Unreleased
 
+# 2.2.1
+
+- Fix #14: Allow quality slider in increments of 5
+- Fix #15: Sort profiles by name
+
 # 2.2.0
 
 - Fix #11: allow table row selection with keyboard shortcuts

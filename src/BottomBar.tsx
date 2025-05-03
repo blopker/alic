@@ -40,12 +40,14 @@ async function openFile() {
 export default function BottomBar() {
   const options = () => {
     const options: Array<{ label: string; value: ProfileData | null }> =
-      settings.profiles.map((p) => {
-        return {
-          label: p.name,
-          value: p,
-        };
-      });
+      settings.profiles
+        .map((p) => {
+          return {
+            label: p.name,
+            value: p,
+          };
+        })
+        .sort((a, b) => a.label.localeCompare(b.label));
     options.push({
       label: "New Profile...",
       value: null,

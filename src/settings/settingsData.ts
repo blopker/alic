@@ -1,6 +1,6 @@
-import { settingsChangedListener } from "@/listeners";
 import { createStore } from "solid-js/store";
-import { type ProfileData, type SettingsData, commands } from "../bindings";
+import { settingsChangedListener } from "@/listeners";
+import { commands, type ProfileData, type SettingsData } from "../bindings";
 
 const [settings, setSettings] = createStore<SettingsData>(await getSettings());
 

@@ -1,7 +1,7 @@
 import Tooltip from "@corvu/tooltip";
 
 import { IoHelpCircleOutline } from "solid-icons/io";
-import { For, type JSXElement, Show, onMount } from "solid-js";
+import { For, type JSXElement, onMount, Show } from "solid-js";
 
 function SettingsButton(props: {
   disabled?: boolean;

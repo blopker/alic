@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
-import { addToast } from "./Toast";
 import type { UpdateStateEvent } from "./bindings";
+import { addToast } from "./Toast";
 
 const [updateState, setUpdateState] = createSignal<UpdateStateEvent | null>();
 

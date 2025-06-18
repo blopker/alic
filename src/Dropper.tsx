@@ -1,7 +1,7 @@
 import type { Event } from "@tauri-apps/api/event";
 import { type DragDropEvent, getCurrentWebview } from "@tauri-apps/api/webview";
 import { BsArrowDownSquare } from "solid-icons/bs";
-import { Show, createSignal, onCleanup } from "solid-js";
+import { createSignal, onCleanup, Show } from "solid-js";
 import { Transition } from "solid-transition-group";
 import { commands } from "./bindings";
 import { addFileListener } from "./listeners";

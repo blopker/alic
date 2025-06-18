@@ -3,11 +3,11 @@ import { A, useNavigate } from "@solidjs/router";
 import { IoAdd } from "solid-icons/io";
 import {
   type Component,
-  For,
-  type JSXElement,
   createEffect,
   createMemo,
   createSignal,
+  For,
+  type JSXElement,
 } from "solid-js";
 import { ConfirmModal, confirmModal } from "./ConfirmModal";
 import {

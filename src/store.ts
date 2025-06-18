@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { type FileEntry, commands } from "./bindings";
+import { commands, type FileEntry } from "./bindings";
 import { compressImage } from "./compress";
 import { clearFilesListener } from "./listeners";
 import { getProfileActive, settings } from "./settings/settingsData";

@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "@solidjs/router";
-import { type ImageType, commands } from "../bindings";
+import { commands, type ImageType } from "../bindings";
 import { confirmModal } from "./ConfirmModal";
 import {
   SettingBox,

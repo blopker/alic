@@ -1,18 +1,23 @@
 import Tooltip from "@corvu/tooltip";
 import { BsArrowDown, BsArrowDownSquare, BsArrowUp } from "solid-icons/bs";
-import { FaSolidCircleNotch, FaSolidMinus, FaSolidXmark } from "solid-icons/fa";
-import { FaSolidCheck } from "solid-icons/fa";
+import {
+  FaSolidCheck,
+  FaSolidCircleNotch,
+  FaSolidMinus,
+  FaSolidXmark,
+} from "solid-icons/fa";
 import { TbDots } from "solid-icons/tb";
 import {
+  createSignal,
   For,
   type JSXElement,
   Match,
-  Switch,
   onCleanup,
   onMount,
+  Show,
+  Switch,
   splitProps,
 } from "solid-js";
-import { Show, createSignal } from "solid-js";
 import type { FileEntry, FileEntryStatus } from "./bindings";
 import { commands } from "./bindings";
 import { removeFile, store } from "./store";
@@ -154,7 +159,6 @@ function MyTable() {
     children: JSXElement;
     class?: string;
   }) => (
-    //biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
     <th
       colspan={1}
       onClick={() => handleSort(props.field)}
@@ -228,6 +232,7 @@ function MyTable() {
       </table>
       <div
         class="grow overflow-y-auto"
+        role="menu"
         onKeyPress={() => {}}
         onClick={(e) => {
           // Clear selection when clicking on empty space

@@ -2,7 +2,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { FaSolidXmark } from "solid-icons/fa";
 import { VsAdd, VsSettings } from "solid-icons/vs";
 import { type JSXElement, Show } from "solid-js";
-import { type ProfileData, commands } from "./bindings";
+import { commands, type ProfileData } from "./bindings";
 import { FILE_TYPES } from "./constants";
 import { openFileDialogListener } from "./listeners";
 import { SettingsSelect } from "./settings/SettingsUI";

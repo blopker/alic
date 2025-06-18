@@ -21,8 +21,9 @@
         --color-theme-accent: #3d3d3d;
         --color-theme-text-primary: #f6f6f6;
     }
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-        "Helvetica Neue", Arial, sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, sans-serif;
     font-size: 14px;
     line-height: 24px;
     font-weight: 400;

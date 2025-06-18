@@ -1,11 +1,10 @@
 import { getCurrent, onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import BottomBar from "./BottomBar";
 import Dropper from "./Dropper";
-import Table from "./Table";
-import { ToastContainer } from "./Toast";
-import { addToast } from "./Toast";
 import { badFileListener, updateResultListener } from "./listeners";
 import { addFile } from "./store";
+import Table from "./Table";
+import { addToast, ToastContainer } from "./Toast";
 import { showUpdateToast } from "./updater";
 
 updateResultListener(showUpdateToast);

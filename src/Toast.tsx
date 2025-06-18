@@ -3,6 +3,7 @@ import { type Component, For, type JSXElement } from "solid-js";
 import { createStore } from "solid-js/store";
 import { TransitionGroup } from "solid-transition-group";
 export type ToastType = "success" | "error" | "info" | "warning";
+
 import { FaSolidXmark } from "solid-icons/fa";
 
 export interface Toast {

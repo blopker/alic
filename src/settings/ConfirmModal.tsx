@@ -1,7 +1,5 @@
 import { useKeyDownEvent } from "@solid-primitives/keyboard";
-
-import { untrack } from "solid-js";
-import { Show, createEffect, createSignal } from "solid-js";
+import { createEffect, createSignal, Show, untrack } from "solid-js";
 
 import { Portal } from "solid-js/web";
 import { SettingsButton } from "./SettingsUI";

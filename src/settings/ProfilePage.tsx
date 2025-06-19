@@ -147,6 +147,19 @@ function ProfilePage() {
             }}
           />
         </SettingRow>
+        <SettingRow
+          title="Preserve creation and modification dates"
+          helpText="Copy the creation and modification data from original files, or preserves this data if the file is overwritten."
+        >
+          <SettingsToggle
+            value={data().keep_timestamps ?? false}
+            onChange={(value) => {
+              updateProfile(data().id, {
+                keep_timestamps: value,
+              });
+            }}
+          />
+        </SettingRow>
         <SettingRow title="Add Postfix">
           <SettingsToggle
             value={data().add_postfix ?? false}

@@ -4,9 +4,13 @@ use crate::macos;
 use super::settings;
 use caesium::parameters::CSParameters;
 use image::ImageFormat;
-use image::{self, ImageReader};
+use image::{self};
 use specta::Type;
-use std::fs;
+use std::fs::{self};
+use std::io::Write;
+use std::os::macos::fs::FileTimesExt;
+use std::os::unix::fs::MetadataExt;
+use std::time::SystemTime;
 use tauri_specta::Event;
 
 use std::path::{Path, PathBuf};
@@ -124,6 +128,39 @@ pub enum CompressErrorType {
     NotSmaller,
 }
 
+#[derive(Debug)]
+struct ImageData {
+    width: u32,
+    height: u32,
+    data: Vec<u8>,
+    image_type: ImageType,
+    size: u64,
+    modified: SystemTime,
+    created: SystemTime,
+}
+
+impl ImageData {
+    pub fn new(
+        width: u32,
+        height: u32,
+        data: Vec<u8>,
+        image_type: ImageType,
+        size: u64,
+        modified: SystemTime,
+        created: SystemTime,
+    ) -> Self {
+        ImageData {
+            width,
+            height,
+            data,
+            image_type,
+            size,
+            modified,
+            created,
+        }
+    }
+}
+
 #[tauri::command]
 #[specta::specta]
 pub async fn process_img(
@@ -140,18 +177,17 @@ pub async fn process_img(
     // if not savings, delete temp file, return
     // if out path is same as original, delete original
     // move temp file to out path
-    let (original_img_width, original_img_height, original_image_type) =
-        match read_image_info(&file.path) {
-            Ok(img) => img,
-            Err(err) => {
-                return Err(CompressError {
-                    error: err,
-                    error_type: CompressErrorType::UnsupportedFileType,
-                });
-            }
-        };
+    let image_data = match read_image_info(&file.path) {
+        Ok(img) => img,
+        Err(err) => {
+            return Err(CompressError {
+                error: err,
+                error_type: CompressErrorType::UnsupportedFileType,
+            });
+        }
+    };
 
-    let out_path = get_out_path(&parameters, &file.path, &original_image_type);
+    let out_path = get_out_path(&parameters, &file.path, &image_data.image_type);
 
     if file.path == out_path && !parameters.should_overwrite {
         return Err(CompressError {
@@ -162,14 +198,12 @@ pub async fn process_img(
         });
     }
 
-    let cs_params = create_cs_parameters(&parameters, original_img_width, original_img_height);
+    let cs_params = create_cs_parameters(&parameters, image_data.width, image_data.height);
 
     let should_convert =
-        parameters.should_convert && parameters.convert_extension != original_image_type;
+        parameters.should_convert && parameters.convert_extension != image_data.image_type;
 
-    let original_img_data = fs::read(&file.path).unwrap();
-    let original_img_size = original_img_data.len() as f64;
-    let result = match original_image_type {
+    let result = match image_data.image_type {
         ImageType::GIF => {
             if should_convert {
                 convert_image_from_file(
@@ -183,9 +217,9 @@ pub async fn process_img(
         }
         _ => {
             if should_convert {
-                convert_image(original_img_data, cs_params, parameters.convert_extension)
+                convert_image(image_data.data, cs_params, parameters.convert_extension)
             } else {
-                compress_image(original_img_data, cs_params)
+                compress_image(image_data.data, cs_params)
             }
         }
     };
@@ -199,7 +233,7 @@ pub async fn process_img(
 
     let compressed_data = result.unwrap();
     let compressed_size = compressed_data.len() as f64;
-    if !parameters.should_convert && compressed_size > original_img_size * 0.95 {
+    if !parameters.should_convert && compressed_size > image_data.size as f64 * 0.95 {
         return Err(CompressError {
             error: "Image cannot be compressed further.".to_string(),
             error_type: CompressErrorType::NotSmaller,
@@ -215,8 +249,8 @@ pub async fn process_img(
             });
         }
     }
-
-    let write_result = fs::write(&out_path, &compressed_data);
+    let mut new_file = fs::File::create_new(&out_path).unwrap();
+    let write_result = new_file.write_all(&compressed_data);
     match write_result {
         Ok(_) => {}
         Err(e) => {
@@ -227,7 +261,22 @@ pub async fn process_img(
         }
     };
 
-    let out_size = compressed_data.len() as u32;
+    if parameters.keep_timestamps {
+        let times = fs::FileTimes::new()
+            .set_created(image_data.created)
+            .set_modified(image_data.modified);
+        match new_file.set_times(times) {
+            Ok(_) => {}
+            Err(e) => {
+                return Err(CompressError {
+                    error: e.to_string(),
+                    error_type: CompressErrorType::Unknown,
+                });
+            }
+        };
+    }
+
+    let out_size = compressed_size as u32;
     Ok(CompressResult {
         path: file.path,
         out_size,
@@ -247,46 +296,51 @@ fn get_temp_path(path: &Path) -> String {
         .to_string()
 }
 
-fn read_image_info(path: &str) -> Result<(u32, u32, ImageType), String> {
-    let image = match ImageReader::open(path)
-        .map_err(|e| e.to_string())?
-        .with_guessed_format()
-    {
+fn read_image_info(path: &str) -> Result<ImageData, String> {
+    let metadata_result = match std::fs::metadata(path) {
+        Ok(metadata) => metadata,
+        Err(err) => {
+            return Err(format!("Problem reading file metadata: {}", err));
+        }
+    };
+    let image_bytes = match fs::read(path) {
+        Ok(image_bytes) => image_bytes,
+        Err(err) => {
+            return Err(format!("Problem reading file data: {}", err));
+        }
+    };
+    let format = match image::guess_format(&image_bytes) {
+        Ok(format) => format,
+        Err(err) => {
+            return Err(format!("Unknown format: {}", err));
+        }
+    };
+    let image = match image::load_from_memory_with_format(&image_bytes, format) {
         Ok(image) => image,
         Err(err) => {
-            return Err(format!("Read error: {}", err));
+            return Err(format!("Issue decoding file: {}", err));
         }
     };
 
-    let format = match image.format() {
-        Some(ImageFormat::Jpeg) => Some(ImageType::JPEG),
-        Some(ImageFormat::Png) => Some(ImageType::PNG),
-        Some(ImageFormat::WebP) => Some(ImageType::WEBP),
-        Some(ImageFormat::Gif) => Some(ImageType::GIF),
-        Some(ImageFormat::Tiff) => Some(ImageType::TIFF),
+    let image_type = match format {
+        ImageFormat::Jpeg => ImageType::JPEG,
+        ImageFormat::Png => ImageType::PNG,
+        ImageFormat::WebP => ImageType::WEBP,
+        ImageFormat::Gif => ImageType::GIF,
+        ImageFormat::Tiff => ImageType::TIFF,
         f => {
-            return Err(format!(
-                "Error: Unsupported image type: {}",
-                f.unwrap().to_mime_type()
-            ));
+            return Err(format!("Unsupported image type: {}", f.to_mime_type()));
         }
     };
 
-    if format.is_none() {
-        return Err("Error: Unsupported image type.".to_string());
-    }
-
-    let decoded_image = match image.decode() {
-        Ok(image) => image,
-        Err(err) => {
-            return Err(format!("Decode error: {}", err));
-        }
-    };
-
-    Ok((
-        decoded_image.width(),
-        decoded_image.height(),
-        format.unwrap(),
+    Ok(ImageData::new(
+        image.width(),
+        image.height(),
+        image_bytes,
+        image_type,
+        metadata_result.size(),
+        metadata_result.modified().unwrap_or(SystemTime::now()),
+        metadata_result.created().unwrap_or(SystemTime::now()),
     ))
 }
 
@@ -622,38 +676,4 @@ mod tests {
         let result = get_temp_path(Path::new("test/test.png"));
         assert_eq!(result, "test/.test.png".to_string());
     }
-    // #[test]
-    // fn test_process_image() {
-    //     let parameters = Parameters {
-    //         path: "test/test.png".to_string(),
-    //         postfix: ".min".to_string(),
-    //         resize: true,
-    //         resize_width: 1000,
-    //         resize_height: 1000,
-    //         jpeg_quality: 80,
-    //         png_quality: 80,
-    //         webp_quality: 80,
-    //         gif_quality: 80,
-    //         convert_extension: None,
-    //     };
-    //     let result = process_img(parameters).await;
-    //     assert_eq!(result.result, "Success".to_string());
-    //     assert_eq!(result.out_path, "test/test.min.png".to_string());
-    // }
-    // #[test]
-    // fn test_garbage() {
-    //     unsafe {
-    //         let mut num_cores = 0;
-    //         let mut len = mem::size_of::<libc::size_t>() as libc::size_t;
-    //         libc::sysctlbyname(
-    //             "hw.ncpu\0".as_ptr() as *const i8,
-    //             &mut num_cores as *mut _ as *mut libc::c_void,
-    //             &mut len,
-    //             core::ptr::null_mut(),
-    //             0,
-    //         );
-    //         println!("Number of cores: {}", num_cores);
-    //     }
-    //     assert!(false);
-    // }
 }

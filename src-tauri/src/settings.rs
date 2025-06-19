@@ -49,6 +49,8 @@ pub struct ProfileData {
     #[serde(default)]
     pub enable_lossy: bool,
     #[serde(default)]
+    pub keep_timestamps: bool,
+    #[serde(default)]
     pub keep_metadata: bool,
     #[serde(default, alias = "add_posfix")]
     pub add_postfix: bool,
@@ -72,6 +74,7 @@ impl ProfileData {
             should_convert: false,
             should_overwrite: false,
             enable_lossy: true,
+            keep_timestamps: false,
             keep_metadata: true,
             add_postfix: true,
             convert_extension: ImageType::WEBP,

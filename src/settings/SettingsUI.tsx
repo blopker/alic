@@ -184,10 +184,11 @@ function SettingsNumberInput(props: {
 function SettingsPage(props: { title: string; children: JSXElement }) {
   return (
     <div class="relative flex flex-col">
+      {/* If the height changes here, change the max-h below too */}
       <div class="flex h-[40px] items-center border-b border-b-accent pl-4">
         <h1 class="text-left font-bold text-lg">{props.title}</h1>
       </div>
-      <div class="max-h-[calc(100vh-50px)] grow overflow-y-auto p-4">
+      <div class="max-h-[calc(100vh-40px)] grow overflow-y-auto p-4">
         {props.children}
       </div>
     </div>

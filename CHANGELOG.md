@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.3.2
+
+- Another attempt to fix CI
+
 # 2.3.1
 
 - Fix CI builds

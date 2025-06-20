@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.3.1
+
+- Fix CI builds
+
 # 2.3.0
 
 - Fix #13: Add option to preserve file creation and modification times

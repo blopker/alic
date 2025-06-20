@@ -1,5 +1,11 @@
 # Unreleased
 
+# 2.3.0
+
+- Fix #13: Add option to preserve file creation and modification times
+- Fix small gap UI issue on settings page
+- Reduce filesystem reads to improve performance
+
 # 2.2.2
 
 - Fix #14: Allow quality slider in increments of 5

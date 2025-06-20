@@ -21,7 +21,7 @@ async function main() {
     const tag = `v${newVersion}`;
 
     // Check that the tag doesn't already exist
-    const tags = await $`git tag --list`;
+    const tags = await $`git tag --list`.quiet();
     if (tags.text().includes(tag)) {
       throw `Tag ${tag} already exists`;
     }

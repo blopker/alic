@@ -79,8 +79,7 @@ jobs:
           releaseBody: |
             See the assets to download this version and install.
 
-            `*-aarch64.dmg`: for Macs with the newer M series processors.
-            `*-x64.dmg`: For Intel-based macs.
+            Use `Alic.Image.Compressor___VERSION___universal.dmg` for both Apple Silicon and Intel Macs.
 
             [Changelog](https://github.com/blopker/alic/blob/main/CHANGELOG.md)
           releaseDraft: true

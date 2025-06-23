@@ -16,21 +16,26 @@ async function main() {
     await $`git checkout main`;
     await $`git pull origin main`;
 
-    // Update version
-    const newVersion = getVersion();
-    const tag = `v${newVersion}`;
+    // Get version
+    const version = getVersion();
 
-    // Check that the tag doesn't already exist
-    const tags = await $`git tag --list`.quiet();
-    if (tags.text().includes(tag)) {
-      throw `Tag ${tag} already exists`;
+    // Delete existing release branch if it exists
+    try {
+      await $`git branch -D release`.quiet();
+    } catch {
+      // Branch doesn't exist, that's fine
     }
 
-    await $`git tag -a v${newVersion} -m "Release v${newVersion}"`;
-    await $`git push origin --all`;
-    await $`git push origin --tags`;
+    // Create new release branch from main
+    await $`git checkout -b release`;
 
-    console.log(`\nReleasing version ${newVersion}!`);
+    // Push to release branch (force push to overwrite any existing remote branch)
+    await $`git push origin release --force`;
+
+    // Switch back to main
+    await $`git checkout main`;
+
+    console.log(`\nReleased version ${version} to release branch!`);
     console.log("1. Wait for GitHub Actions to finish");
     console.log(
       "2. Go to https://github.com/blopker/alic/releases to review and publish",

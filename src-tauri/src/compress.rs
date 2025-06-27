@@ -1,13 +1,13 @@
+use super::settings;
 use crate::events::{AddFileEvent, BadFileEvent};
 use crate::macos;
-
-use super::settings;
+use crate::resize;
 use caesium::parameters::CSParameters;
-use image::ImageFormat;
-use image::{self};
+use image::{self, ImageReader};
+use image::{ImageFormat, ImageResult};
 use specta::Type;
 use std::fs::{self};
-use std::io::Write;
+use std::io::{self, Write};
 use std::os::macos::fs::FileTimesExt;
 use std::os::unix::fs::MetadataExt;
 use std::time::SystemTime;
@@ -198,28 +198,48 @@ pub async fn process_img(
         });
     }
 
-    let cs_params = create_cs_parameters(&parameters, image_data.width, image_data.height);
-
     let should_convert =
         parameters.should_convert && parameters.convert_extension != image_data.image_type;
 
     let result = match image_data.image_type {
         ImageType::GIF => {
+            let cs_param = create_cs_parameters(&parameters, image_data.width, image_data.height);
             if should_convert {
                 convert_image_from_file(
                     Path::new(&file.path),
-                    cs_params,
+                    cs_param,
                     parameters.convert_extension,
                 )
             } else {
-                compress_image_from_file(Path::new(&file.path), cs_params)
+                compress_image_from_file(Path::new(&file.path), cs_param)
             }
         }
         _ => {
+            // Handle resize ourselves to get around memory limit issues
+            let mut cs_params = create_cs_parameters(&parameters, 0, 0);
+            cs_params.height = 0;
+            cs_params.width = 0;
+            let data = match parameters.should_resize {
+                true => {
+                    let result = resize::resize(
+                        image_data.data,
+                        parameters.resize_width,
+                        parameters.resize_height,
+                    );
+                    if result.is_err() {
+                        return Err(CompressError {
+                            error: result.err().unwrap().to_string(),
+                            error_type: CompressErrorType::Unknown,
+                        });
+                    }
+                    result.unwrap()
+                }
+                false => image_data.data,
+            };
             if should_convert {
-                convert_image(image_data.data, cs_params, parameters.convert_extension)
+                convert_image(data, cs_params, parameters.convert_extension)
             } else {
-                compress_image(image_data.data, cs_params)
+                compress_image(data, cs_params)
             }
         }
     };
@@ -249,7 +269,16 @@ pub async fn process_img(
             });
         }
     }
-    let mut new_file = fs::File::create_new(&out_path).unwrap();
+    let _ = fs::remove_file(&out_path);
+    let mut new_file = match fs::File::create_new(&out_path) {
+        Ok(file) => file,
+        Err(e) => {
+            return Err(CompressError {
+                error: e.to_string(),
+                error_type: CompressErrorType::Unknown,
+            });
+        }
+    };
     let write_result = new_file.write_all(&compressed_data);
     match write_result {
         Ok(_) => {}
@@ -315,8 +344,8 @@ fn read_image_info(path: &str) -> Result<ImageData, String> {
             return Err(format!("Unknown format: {}", err));
         }
     };
-    let image = match image::load_from_memory_with_format(&image_bytes, format) {
-        Ok(image) => image,
+    let (width, height) = match get_dimensions(&image_bytes, format) {
+        Ok(dimensions) => dimensions,
         Err(err) => {
             return Err(format!("Issue decoding file: {}", err));
         }
@@ -334,8 +363,8 @@ fn read_image_info(path: &str) -> Result<ImageData, String> {
     };
 
     Ok(ImageData::new(
-        image.width(),
-        image.height(),
+        width,
+        height,
         image_bytes,
         image_type,
         metadata_result.size(),
@@ -413,69 +442,45 @@ enum ImageOperation {
     Convert(ImageType),
 }
 
-enum ImageSource {
-    Memory(Vec<u8>),
-    File(PathBuf),
-}
-
-fn process_image(
-    original_img: ImageSource,
+fn process_image_file(
+    path: PathBuf,
     params: CSParameters,
     operation: ImageOperation,
 ) -> Result<Vec<u8>, String> {
-    match original_img {
-        ImageSource::Memory(data) => match operation {
-            ImageOperation::Compress => caesium::compress_in_memory(data, &params)
-                .map_err(|e| format!("Error compressing image: {}", e)),
-            ImageOperation::Convert(image_type) => {
-                caesium::convert_in_memory(data, &params, image_type.to_casium_type())
-                    .map_err(|e| format!("Error converting image: {}", e))
-            }
-        },
-        ImageSource::File(path) => {
-            let temp_path = get_temp_path(&path);
+    let temp_path = get_temp_path(&path);
+    let result = match operation {
+        ImageOperation::Compress => caesium::compress(
+            path.to_string_lossy().to_string(),
+            temp_path.clone(),
+            &params,
+        ),
+        ImageOperation::Convert(image_type) => caesium::convert(
+            path.to_string_lossy().to_string(),
+            temp_path.clone(),
+            &params,
+            image_type.to_casium_type(),
+        ),
+    };
 
-            // Perform the operation
-            let result = match operation {
-                ImageOperation::Compress => caesium::compress(
-                    path.to_string_lossy().to_string(),
-                    temp_path.clone(),
-                    &params,
-                ),
-                ImageOperation::Convert(image_type) => caesium::convert(
-                    path.to_string_lossy().to_string(),
-                    temp_path.clone(),
-                    &params,
-                    image_type.to_casium_type(),
-                ),
-            };
-
-            // Handle the result
-            if let Err(err) = result {
-                fs::remove_file(&temp_path)
-                    .map_err(|e| format!("Error removing temp file: {}", e))?;
-                return Err(format!("Error: {}", err));
-            }
-
-            // Read the temporary file
-            let temp_data = fs::read(&temp_path).map_err(|e| format!("Error: {}", e));
-
-            // Clean up temp file
-            fs::remove_file(&temp_path).map_err(|e| format!("Error removing temp file: {}", e))?;
-
-            temp_data
-        }
+    // Handle the result
+    if let Err(err) = result {
+        fs::remove_file(&temp_path).map_err(|e| format!("Error removing temp file: {}", e))?;
+        return Err(format!("Error: {}", err));
     }
-    .map_err(|e| format!("Error: {}", e))
+
+    // Read the temporary file
+    let temp_data = fs::read(&temp_path).map_err(|e| format!("Error: {}", e));
+
+    // Clean up temp file
+    fs::remove_file(&temp_path).map_err(|e| format!("Error removing temp file: {}", e))?;
+
+    temp_data.map_err(|e| format!("Error: {}", e))
 }
 
 // Simplified wrapper functions
 fn compress_image(original_img_data: Vec<u8>, params: CSParameters) -> Result<Vec<u8>, String> {
-    process_image(
-        ImageSource::Memory(original_img_data),
-        params,
-        ImageOperation::Compress,
-    )
+    caesium::compress_in_memory(original_img_data, &params)
+        .map_err(|e| format!("Error compressing image: {}", e))
 }
 
 fn convert_image(
@@ -483,19 +488,16 @@ fn convert_image(
     params: CSParameters,
     image_type: ImageType,
 ) -> Result<Vec<u8>, String> {
-    process_image(
-        ImageSource::Memory(original_img_data),
-        params,
-        ImageOperation::Convert(image_type),
-    )
+    caesium::convert_in_memory(original_img_data, &params, image_type.to_casium_type())
+        .map_err(|e| format!("Error converting image: {}", e))
 }
 
 fn compress_image_from_file(
     original_img_path: &Path,
     params: CSParameters,
 ) -> Result<Vec<u8>, String> {
-    process_image(
-        ImageSource::File(original_img_path.to_path_buf()),
+    process_image_file(
+        original_img_path.to_path_buf(),
         params,
         ImageOperation::Compress,
     )
@@ -506,8 +508,8 @@ fn convert_image_from_file(
     params: CSParameters,
     image_type: ImageType,
 ) -> Result<Vec<u8>, String> {
-    process_image(
-        ImageSource::File(original_img_path.to_path_buf()),
+    process_image_file(
+        original_img_path.to_path_buf(),
         params,
         ImageOperation::Convert(image_type),
     )
@@ -622,6 +624,14 @@ fn is_image(path: &Path) -> bool {
         return false;
     }
     true
+}
+
+fn get_dimensions(buf: &[u8], format: ImageFormat) -> ImageResult<(u32, u32)> {
+    // returns width and height of image
+    let b = io::Cursor::new(buf);
+    let mut reader = ImageReader::new(b);
+    reader.set_format(format);
+    reader.into_dimensions()
 }
 
 #[cfg(test)]

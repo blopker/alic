@@ -1,6 +1,7 @@
 mod compress;
 mod events;
 mod macos;
+mod resize;
 mod settings;
 mod update;
 

@@ -38,6 +38,7 @@ version = "2.0.0"
 dependencies = [
  "image",
  "infer",
+ "kamadak-exif",
  "libc",
  "libcaesium",
  "muda",

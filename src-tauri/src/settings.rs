@@ -3,7 +3,7 @@ use serde::{self};
 use serde_json::json;
 use specta::Type;
 use std::sync::Arc;
-use tauri::Wry;
+use tauri::{Manager, Wry};
 use tauri_plugin_store::{Store, StoreExt};
 use tauri_specta::Event;
 
@@ -161,6 +161,37 @@ pub async fn add_profile(app: tauri::AppHandle, mut name: String) -> Result<(), 
         .profiles
         .push(ProfileData::new_with_params(highest_id + 1, name));
     set_settings_data(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn open_settings_folder(_app: tauri::AppHandle) -> Result<(), String> {
+    let parent_dir = _app.path().app_data_dir().unwrap();
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("explorer")
+            .arg(parent_dir)
+            .spawn()
+            .map_err(|e| format!("Failed to open folder: {}", e))?;
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg(parent_dir)
+            .spawn()
+            .map_err(|e| format!("Failed to open folder: {}", e))?;
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        std::process::Command::new("xdg-open")
+            .arg(parent_dir)
+            .spawn()
+            .map_err(|e| format!("Failed to open folder: {}", e))?;
+    }
+
     Ok(())
 }
 

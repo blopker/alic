@@ -9,6 +9,7 @@ import {
   For,
   type JSXElement,
 } from "solid-js";
+import { commands } from "../bindings";
 import { ConfirmModal, confirmModal } from "./ConfirmModal";
 import {
   SettingBox,
@@ -129,6 +130,23 @@ function GeneralPage() {
               setThreads(value);
             }}
           />
+        </SettingRow>
+        <SettingRow
+          title="Open Settings Folder"
+          helpText="Open the folder containing the settings file for debugging purposes."
+        >
+          <SettingsButton
+            style="secondary"
+            onClick={async () => {
+              try {
+                await commands.openSettingsFolder();
+              } catch (err) {
+                console.error("Failed to open settings folder:", err);
+              }
+            }}
+          >
+            Open Folder
+          </SettingsButton>
         </SettingRow>
         <SettingRow title="Reset All Settings">
           <SettingsButton

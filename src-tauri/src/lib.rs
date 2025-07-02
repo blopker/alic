@@ -116,6 +116,7 @@ pub fn run() {
             settings::reset_profile,
             settings::delete_profile,
             settings::add_profile,
+            settings::open_settings_folder,
             macos::open_finder_at_path,
             macos::get_cpu_count,
         ])

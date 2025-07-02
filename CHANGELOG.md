@@ -1,5 +1,12 @@
 # Unreleased
 
+# 2.3.3
+
+- Increase memory limits to accommodate larger image files
+- Add a button in the General settings to open the folder where settings are located for backup and debugging
+- Switch to universal binaries
+
+
 # 2.3.2
 
 - Another attempt to fix CI

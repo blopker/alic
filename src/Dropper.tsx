@@ -23,6 +23,8 @@ export default function Dropper() {
         setShowDropper(false);
       } else if (e.payload.type === "drop") {
         setShowDropper(false);
+        // small delay to let the close animation run.
+        await new Promise((resolve) => setTimeout(resolve, 50));
         for (const path of e.payload.paths) {
           commands.getAllImages(path);
         }

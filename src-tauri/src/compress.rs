@@ -320,7 +320,7 @@ fn get_temp_path(path: &Path) -> String {
     let filename = path.file_name().unwrap().to_string_lossy().to_string();
     let directory = path.parent().unwrap().to_string_lossy().to_string();
     Path::new(&directory)
-        .join(format!(".{}", filename))
+        .join(format!(".{filename}"))
         .to_string_lossy()
         .to_string()
 }
@@ -329,25 +329,25 @@ fn read_image_info(path: &str) -> Result<ImageData, String> {
     let metadata_result = match std::fs::metadata(path) {
         Ok(metadata) => metadata,
         Err(err) => {
-            return Err(format!("Problem reading file metadata: {}", err));
+            return Err(format!("Problem reading file metadata: {err}"));
         }
     };
     let image_bytes = match fs::read(path) {
         Ok(image_bytes) => image_bytes,
         Err(err) => {
-            return Err(format!("Problem reading file data: {}", err));
+            return Err(format!("Problem reading file data: {err}"));
         }
     };
     let format = match image::guess_format(&image_bytes) {
         Ok(format) => format,
         Err(err) => {
-            return Err(format!("Unknown format: {}", err));
+            return Err(format!("Unknown format: {err}"));
         }
     };
     let (width, height) = match get_dimensions(&image_bytes, format) {
         Ok(dimensions) => dimensions,
         Err(err) => {
-            return Err(format!("Issue decoding file: {}", err));
+            return Err(format!("Issue decoding file: {err}"));
         }
     };
 
@@ -358,7 +358,8 @@ fn read_image_info(path: &str) -> Result<ImageData, String> {
         ImageFormat::Gif => ImageType::GIF,
         ImageFormat::Tiff => ImageType::TIFF,
         f => {
-            return Err(format!("Unsupported image type: {}", f.to_mime_type()));
+            let mime_type = f.to_mime_type();
+            return Err(format!("Unsupported image type: {mime_type}"));
         }
     };
 
@@ -402,7 +403,7 @@ fn get_out_path(
         true => parameters.postfix.clone(),
         false => "".to_string(),
     };
-    format!("{}{}.{}", remove_extension(path), postfix, extension)
+    format!("{}{postfix}.{extension}", remove_extension(path))
 }
 
 fn create_cs_parameters(
@@ -464,23 +465,23 @@ fn process_image_file(
 
     // Handle the result
     if let Err(err) = result {
-        fs::remove_file(&temp_path).map_err(|e| format!("Error removing temp file: {}", e))?;
-        return Err(format!("Error: {}", err));
+        fs::remove_file(&temp_path).map_err(|e| format!("Error removing temp file: {e}"))?;
+        return Err(format!("Error: {err}"));
     }
 
     // Read the temporary file
-    let temp_data = fs::read(&temp_path).map_err(|e| format!("Error: {}", e));
+    let temp_data = fs::read(&temp_path).map_err(|e| format!("Error: {e}"));
 
     // Clean up temp file
-    fs::remove_file(&temp_path).map_err(|e| format!("Error removing temp file: {}", e))?;
+    fs::remove_file(&temp_path).map_err(|e| format!("Error removing temp file: {e}"))?;
 
-    temp_data.map_err(|e| format!("Error: {}", e))
+    temp_data.map_err(|e| format!("Error: {e}"))
 }
 
 // Simplified wrapper functions
 fn compress_image(original_img_data: Vec<u8>, params: CSParameters) -> Result<Vec<u8>, String> {
     caesium::compress_in_memory(original_img_data, &params)
-        .map_err(|e| format!("Error compressing image: {}", e))
+        .map_err(|e| format!("Error compressing image: {e}"))
 }
 
 fn convert_image(
@@ -489,7 +490,7 @@ fn convert_image(
     image_type: ImageType,
 ) -> Result<Vec<u8>, String> {
     caesium::convert_in_memory(original_img_data, &params, image_type.to_casium_type())
-        .map_err(|e| format!("Error converting image: {}", e))
+        .map_err(|e| format!("Error converting image: {e}"))
 }
 
 fn compress_image_from_file(
@@ -588,7 +589,7 @@ pub async fn get_file_info(path: &str) -> Result<FileInfoResult, String> {
             }
         }
         Err(err) => {
-            return Err(format!("Error getting file size: {}", err));
+            return Err(format!("Error getting file size: {err}"));
         }
     }
 

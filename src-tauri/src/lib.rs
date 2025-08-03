@@ -67,7 +67,7 @@ fn save_clipboard_image(app: &tauri::AppHandle) {
     // Try reading image
     let image_result = app.clipboard().read_image();
     if image_result.is_err() {
-        println!("clip: no image {:?}", image_result);
+        println!("clip: no image {image_result:?}");
         return;
     }
     let clip_image = image_result.unwrap();
@@ -75,10 +75,7 @@ fn save_clipboard_image(app: &tauri::AppHandle) {
     // Read filename
     let text_result = app.clipboard().read_text();
     if text_result.is_ok() {
-        println!(
-            "Not just image data, probably a file copy. Not supported: {:?}",
-            text_result
-        );
+        println!("Not just image data, probably a file copy. Not supported: {text_result:?}");
         return;
     }
 
@@ -93,10 +90,11 @@ fn save_clipboard_image(app: &tauri::AppHandle) {
     clip_image.rgba().hash(&mut hasher);
     let h = hasher.finish();
     // put in $HOME/Documents/alic
-    let dir = format!("{}/Documents/alic", std::env::var("HOME").unwrap());
+    let home = std::env::var("HOME").unwrap();
+    let dir = format!("{home}/Documents/alic");
     // ensure dir exists
     std::fs::create_dir_all(&dir).unwrap();
-    let path = format!("{dir}/{}.png", h);
+    let path = format!("{dir}/{h}.png");
     image.save(&path).unwrap();
     AddFileEvent(path).emit(app).unwrap()
 }
@@ -242,9 +240,10 @@ pub fn run() {
                     .unwrap();
                     let res = update::update(handle.clone()).await;
                     if res.is_err() {
-                        println!("Error checking for updates: {:?}", res);
+                        println!("Error checking for updates: {res:?}");
+                        let err = res.unwrap_err();
                         UpdateStateEvent::Error {
-                            message: format!("{}", res.unwrap_err()),
+                            message: format!("{err}"),
                         }
                         .emit(&handle)
                         .unwrap();

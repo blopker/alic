@@ -14,9 +14,11 @@ pub async fn open_finder_at_path(path: String, app_handle: tauri::AppHandle) -> 
         .await
         .unwrap();
     if output.status.success() {
-        println!("Result: {:?}", String::from_utf8(output.stdout));
+        let result = String::from_utf8(output.stdout);
+        println!("Result: {result:?}");
     } else {
-        println!("Exit with code: {}", output.status.code().unwrap());
+        let code = output.status.code().unwrap();
+        println!("Exit with code: {code}");
     }
     Ok(())
 }

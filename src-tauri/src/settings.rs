@@ -173,7 +173,7 @@ pub async fn open_settings_folder(_app: tauri::AppHandle) -> Result<(), String> 
         std::process::Command::new("explorer")
             .arg(parent_dir)
             .spawn()
-            .map_err(|e| format!("Failed to open folder: {}", e))?;
+            .map_err(|e| format!("Failed to open folder: {e}"))?;
     }
 
     #[cfg(target_os = "macos")]
@@ -181,7 +181,7 @@ pub async fn open_settings_folder(_app: tauri::AppHandle) -> Result<(), String> 
         std::process::Command::new("open")
             .arg(parent_dir)
             .spawn()
-            .map_err(|e| format!("Failed to open folder: {}", e))?;
+            .map_err(|e| format!("Failed to open folder: {e}"))?;
     }
 
     #[cfg(target_os = "linux")]
@@ -189,7 +189,7 @@ pub async fn open_settings_folder(_app: tauri::AppHandle) -> Result<(), String> 
         std::process::Command::new("xdg-open")
             .arg(parent_dir)
             .spawn()
-            .map_err(|e| format!("Failed to open folder: {}", e))?;
+            .map_err(|e| format!("Failed to open folder: {e}"))?;
     }
 
     Ok(())

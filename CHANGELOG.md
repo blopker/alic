@@ -1,5 +1,10 @@
 # Unreleased
 
+# 2.3.4
+
+- Update deps
+- Add small delay to allow dropper animation to run before scanning large folders
+
 # 2.3.3
 
 - Increase memory limits to accommodate larger image files

@@ -11,7 +11,7 @@ async openSettingsWindow(path: string | null) : Promise<void> {
 async openLinkInBrowser(url: string) : Promise<void> {
     await TAURI_INVOKE("open_link_in_browser", { url });
 },
-async processImg(parameters: ProfileData, file: FileEntry) : Promise<Result<CompressResult, CompressError>> {
+async processImg(parameters: ProfileData, file: FileEntry) : Promise<Result<CompressResult, AlicError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("process_img", { parameters, file }) };
 } catch (e) {
@@ -130,17 +130,17 @@ updateStateEvent: "update-state-event"
 /** user-defined types **/
 
 export type AddFileEvent = string
+export type AlicError = { error: string; errorType: AlicErrorType }
+export type AlicErrorType = "Unknown" | "FileTooLarge" | "FileNotFound" | "UnsupportedFileType" | "WontOverwrite" | "NotSmaller" | "ImageResizeError" | "InvalidHexColor"
 export type BadFileEvent = string
 export type ClearFilesEvent = null
-export type CompressError = { error: string; errorType: CompressErrorType }
-export type CompressErrorType = "Unknown" | "FileTooLarge" | "FileNotFound" | "UnsupportedFileType" | "WontOverwrite" | "NotSmaller"
 export type CompressResult = { path: string; outSize: number; outPath: string; result: string }
 export type FileEntry = { path: string; file: string | null; status: FileEntryStatus; size: number | null; originalSize: number | null; ext: string | null; savings: number | null; error: string | null }
 export type FileEntryStatus = "Processing" | "Compressing" | "Complete" | "AlreadySmaller" | "Error"
 export type FileInfoResult = { size: number; extension: string; filename: string }
 export type ImageType = "JPEG" | "PNG" | "WEBP" | "GIF" | "TIFF"
 export type OpenAddFileDialogEvent = null
-export type ProfileData = { name: string; id: number; active: boolean; should_resize: boolean; should_convert: boolean; should_overwrite: boolean; enable_lossy?: boolean; keep_timestamps?: boolean; keep_metadata?: boolean; add_postfix?: boolean; convert_extension: ImageType; postfix: string; resize_width: number; resize_height: number; jpeg_quality: number; png_quality: number; webp_quality: number; gif_quality: number }
+export type ProfileData = { name: string; id: number; active: boolean; should_resize: boolean; should_convert: boolean; should_overwrite: boolean; enable_lossy?: boolean; keep_timestamps?: boolean; keep_metadata?: boolean; add_postfix?: boolean; should_background_fill?: boolean; background_fill?: string; convert_extension: ImageType; postfix: string; resize_width: number; resize_height: number; jpeg_quality: number; png_quality: number; webp_quality: number; gif_quality: number }
 export type SettingsChangedEvent = null
 export type SettingsData = { version: number; theme: ThemeKind; threads?: number; profiles: ProfileData[] }
 export type ThemeKind = "Light" | "Dark" | "System"

@@ -1,94 +1,137 @@
 use std::io::Cursor;
 
+use image::GenericImage;
+use image::GenericImageView;
 use image::ImageReader;
 use image::Limits;
 use image::imageops::FilterType;
+use image::{DynamicImage, ImageFormat};
 
-use caesium::error::CaesiumError;
+use crate::errors::AlicError;
+use crate::errors::AlicErrorType;
 
-pub fn resize(image_buffer: Vec<u8>, width: u32, height: u32) -> Result<Vec<u8>, CaesiumError> {
-    let (mut desired_width, mut desired_height) = (width, height);
-    let mut reader = ImageReader::new(Cursor::new(&image_buffer));
-    let mut limits = Limits::default();
-    // 2gb limit
-    limits.max_alloc = Some(2 * 1024 * 1024 * 1024);
-    reader.limits(limits);
-    let reader_format = reader.with_guessed_format().map_err(|e| CaesiumError {
-        message: e.to_string(),
-        code: 10300,
-    })?;
-    let format = match reader_format.format() {
-        Some(format) => format,
-        None => {
-            return Err(CaesiumError {
-                message: "Unsupported image format".to_string(),
-                code: 1030099,
+struct Color {
+    r: u8,
+    g: u8,
+    b: u8,
+}
+
+impl Color {
+    fn from_hex(s: &str) -> Result<Color, AlicError> {
+        let hex = s.trim_start_matches('#');
+        if hex.len() != 6 {
+            return Err(AlicError {
+                error: "Invalid hex color".to_string(),
+                error_type: AlicErrorType::InvalidHexColor,
             });
         }
-    };
-    if format == image::ImageFormat::Jpeg {
+        let r = u8::from_str_radix(&hex[0..2], 16).map_err(|_| AlicError {
+            error: "Invalid hex color".to_string(),
+            error_type: AlicErrorType::InvalidHexColor,
+        })?;
+        let g = u8::from_str_radix(&hex[2..4], 16).map_err(|_| AlicError {
+            error: "Invalid hex color".to_string(),
+            error_type: AlicErrorType::InvalidHexColor,
+        })?;
+        let b = u8::from_str_radix(&hex[4..6], 16).map_err(|_| AlicError {
+            error: "Invalid hex color".to_string(),
+            error_type: AlicErrorType::InvalidHexColor,
+        })?;
+        Ok(Color { r, g, b })
+    }
+}
+
+pub fn resize(
+    image_buffer: Vec<u8>,
+    width: u32,
+    height: u32,
+    should_background_fill: bool,
+    background_fill: &str,
+) -> Result<Vec<u8>, AlicError> {
+    let (mut desired_width, mut desired_height) = (width, height);
+    let (mut image, format) = read_image(&image_buffer)?;
+    if format == ImageFormat::Jpeg {
         let orientation = get_jpeg_orientation(&image_buffer);
         (desired_width, desired_height) = match orientation {
             5..=8 => (height, width),
             _ => (width, height),
         };
     }
-    let mut image = reader_format.decode().map_err(|e| CaesiumError {
-        message: e.to_string(),
-        code: 1030199,
-    })?;
-
-    let dimensions =
-        match compute_dimensions(image.width(), image.height(), desired_width, desired_height) {
-            Some(dimensions) => dimensions,
-            None => return Ok(image_buffer),
-        };
-    image = image.resize_exact(dimensions.0, dimensions.1, FilterType::Lanczos3);
-
-    let mut resized_file: Vec<u8> = vec![];
-    image
-        .write_to(&mut Cursor::new(&mut resized_file), format)
-        .map_err(|e| CaesiumError {
-            message: e.to_string(),
-            code: 1030299,
-        })?;
-
-    Ok(resized_file)
-}
-
-fn compute_dimensions(
-    original_width: u32,
-    original_height: u32,
-    max_desired_width: u32,
-    max_desired_height: u32,
-) -> Option<(u32, u32)> {
-    // Check if image already fits within max dimensions
-    if original_width <= max_desired_width && original_height <= max_desired_height {
-        return None;
+    if image.width() <= desired_width && image.height() <= desired_height {
+        return Err(AlicError {
+            error: format!(
+                "Cannot resize. Image is already smaller than {desired_width} px by {desired_height} px."
+            ),
+            error_type: AlicErrorType::ImageResizeError,
+        });
     }
 
-    // Determine which dimension is the limiting factor by comparing ratios
-    // Instead of original_width/max_desired_width vs original_height/max_desired_height,
-    // we cross multiply to avoid floating point:
-    // original_width * max_desired_height vs original_height * max_desired_width
-    let width_limiting = (original_width as u64 * max_desired_height as u64)
-        > (original_height as u64 * max_desired_width as u64);
+    image = image.resize(desired_width, desired_height, FilterType::Lanczos3);
 
-    let (new_width, new_height) = if width_limiting {
-        // Width is the limiting factor
-        let new_width = max_desired_width;
-        let new_height =
-            (original_height as u64 * max_desired_width as u64 / original_width as u64) as u32;
-        (new_width, new_height)
-    } else {
-        // Height is the limiting factor
-        let new_height = max_desired_height;
-        let new_width =
-            (original_width as u64 * max_desired_height as u64 / original_height as u64) as u32;
-        (new_width, new_height)
+    if should_background_fill {
+        image = add_background(&image, desired_width, desired_height, background_fill)?;
+    }
+
+    let mut resized_file_buffer: Vec<u8> = vec![];
+    image
+        .write_to(&mut Cursor::new(&mut resized_file_buffer), format)
+        .map_err(|e| AlicError {
+            error: e.to_string(),
+            error_type: AlicErrorType::ImageResizeError,
+        })?;
+
+    Ok(resized_file_buffer)
+}
+
+fn add_background(
+    image: &DynamicImage,
+    width: u32,
+    height: u32,
+    background_fill: &str,
+) -> Result<DynamicImage, AlicError> {
+    let color = Color::from_hex(background_fill)?;
+    let mut bg_image = DynamicImage::new_rgb8(width, height);
+    let x_offset = (width - image.width()) / 2;
+    let y_offset = (height - image.height()) / 2;
+    // Iterate over the coordinates and pixels of the image
+    for (x, y, _) in bg_image.clone().pixels() {
+        if x >= x_offset
+            && x < image.width() + x_offset
+            && y >= y_offset
+            && y < image.height() + y_offset
+        {
+            bg_image.put_pixel(x, y, image.get_pixel(x - x_offset, y - y_offset));
+        } else {
+            bg_image.put_pixel(x, y, image::Rgba([color.r, color.g, color.b, 1]));
+        }
+    }
+    Ok(bg_image)
+}
+
+fn read_image(image_buffer: &Vec<u8>) -> Result<(DynamicImage, ImageFormat), AlicError> {
+    let mut reader = ImageReader::new(Cursor::new(&image_buffer));
+    let mut limits = Limits::default();
+    // 2gb limit
+    limits.max_alloc = Some(2 * 1024 * 1024 * 1024);
+    reader.limits(limits);
+    let reader_format = reader.with_guessed_format().map_err(|e| AlicError {
+        error: e.to_string(),
+        error_type: AlicErrorType::ImageResizeError,
+    })?;
+    let format = match reader_format.format() {
+        Some(format) => format,
+        None => {
+            return Err(AlicError {
+                error: "Unsupported image format".to_string(),
+                error_type: AlicErrorType::ImageResizeError,
+            });
+        }
     };
-
-    Some((new_width, new_height))
+    let image = reader_format.decode().map_err(|e| AlicError {
+        error: e.to_string(),
+        error_type: AlicErrorType::ImageResizeError,
+    })?;
+    Ok((image, format))
 }
 
 fn get_jpeg_orientation(data: &[u8]) -> u32 {

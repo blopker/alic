@@ -5,6 +5,7 @@ import {
   SettingBox,
   SettingRow,
   SettingsButton,
+  SettingsColorSelect,
   SettingsInput,
   SettingsNumberInput,
   SettingsPage,
@@ -117,6 +118,32 @@ function ProfilePage() {
             }}
           />
           <span class="pl-2">px</span>
+        </SettingRow>
+        <SettingRow
+          title="Background Fill"
+          helpText="Output an image with the dimensions defined here, filling in the background with a solid color as needed."
+        >
+          <SettingsToggle
+            value={data().should_background_fill ?? false}
+            onChange={(value) => {
+              updateProfile(data().id, {
+                should_background_fill: value,
+              });
+            }}
+          />
+        </SettingRow>
+        <SettingRow
+          title="Background Fill Color"
+          helpText="Color to use for the background fill, if enabled."
+        >
+          <SettingsColorSelect
+            value={data().background_fill ?? "#000"}
+            onChange={(value) => {
+              updateProfile(data().id, {
+                background_fill: value,
+              });
+            }}
+          />
         </SettingRow>
       </SettingBox>
       <div class="pt-8" />

@@ -1,4 +1,5 @@
 mod compress;
+mod errors;
 mod events;
 mod macos;
 mod resize;
@@ -52,11 +53,11 @@ fn _open_settings_window(app: &tauri::AppHandle, path: Option<String>) {
     } else {
         // If the window does not exist, create it
         let url = format!("/index.html#{path}");
-        let newconf = WindowConfig {
+        let new_conf = WindowConfig {
             url: WebviewUrl::App(Path::new(&url).to_path_buf()),
             ..(*config).clone().to_owned()
         };
-        tauri::WebviewWindowBuilder::from_config(app, &newconf)
+        tauri::WebviewWindowBuilder::from_config(app, &new_conf)
             .unwrap()
             .build()
             .unwrap();
@@ -239,9 +240,8 @@ pub fn run() {
                     .emit(&handle)
                     .unwrap();
                     let res = update::update(handle.clone()).await;
-                    if res.is_err() {
-                        println!("Error checking for updates: {res:?}");
-                        let err = res.unwrap_err();
+                    if let Err(err) = res {
+                        println!("Error checking for updates: {err:?}");
                         UpdateStateEvent::Error {
                             message: format!("{err}"),
                         }

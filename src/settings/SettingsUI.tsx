@@ -82,7 +82,7 @@ function SettingsToggle(props: {
       aria-checked={props.value}
       classList={{
         "bg-indigo-600": props.value === true,
-        "bg-gray-200": props.value === false,
+        "bg-gray-200": props.value !== true,
       }}
       onClick={() => {
         props.onChange(!props.value);
@@ -94,6 +94,36 @@ function SettingsToggle(props: {
         classList={{
           "translate-x-5": props.value === true,
         }}
+      />
+    </button>
+  );
+}
+
+function SettingsColorSelect(props: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  let inputRef!: HTMLInputElement;
+  const onClick = () => {
+    inputRef.click();
+  };
+  const color = () => {
+    return props.value ?? "black";
+  };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onKeyUp={onClick}
+      class="relative h-6 w-6 rounded-full border-2 border-secondary"
+      style={{ "background-color": color() }}
+    >
+      <input
+        ref={inputRef}
+        class="invisible absolute top-0 left-0 w-6"
+        type="color"
+        value={props.value}
+        onChange={(e) => props.onChange(e.target.value)}
       />
     </button>
   );
@@ -171,7 +201,7 @@ function SettingsNumberInput(props: {
       min="1"
       value={props.value}
       onInput={(e) => {
-        const value = Number.parseInt(e.target.value);
+        const value = Number.parseInt(e.target.value, 10);
         if (Number.isNaN(value)) {
           return;
         }
@@ -203,5 +233,6 @@ export {
   SettingsInput,
   SettingsNumberInput,
   SettingsButton,
+  SettingsColorSelect,
   SettingsPage,
 };

@@ -13,9 +13,9 @@ pub async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
                         println!("downloaded {downloaded} from {content_length:?}");
                         let mut percent = 0.0;
                         let mut total_bytes = 0.0;
-                        if content_length.is_some() {
-                            percent = (downloaded as f32 / content_length.unwrap() as f32) * 100.0;
-                            total_bytes = content_length.unwrap() as f32;
+                        if let Some(length) = content_length {
+                            percent = (downloaded as f32 / length as f32) * 100.0;
+                            total_bytes = length as f32;
                         }
                         UpdateStateEvent::Downloading {
                             percent,

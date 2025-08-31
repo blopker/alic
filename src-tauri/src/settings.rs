@@ -54,6 +54,10 @@ pub struct ProfileData {
     pub keep_metadata: bool,
     #[serde(default, alias = "add_posfix")]
     pub add_postfix: bool,
+    #[serde(default)]
+    pub should_background_fill: bool,
+    #[serde(default = "default_color")]
+    pub background_fill: String,
     pub convert_extension: ImageType,
     pub postfix: String,
     pub resize_width: u32,
@@ -64,6 +68,10 @@ pub struct ProfileData {
     pub gif_quality: u32,
 }
 
+fn default_color() -> String {
+    "#000".to_string()
+}
+
 impl ProfileData {
     pub fn new() -> Self {
         Self {
@@ -71,6 +79,8 @@ impl ProfileData {
             id: 0,
             active: true,
             should_resize: false,
+            should_background_fill: false,
+            background_fill: default_color(),
             should_convert: false,
             should_overwrite: false,
             enable_lossy: true,

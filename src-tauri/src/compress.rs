@@ -1,4 +1,5 @@
 use super::settings;
+use crate::errors::{AlicError, AlicErrorType};
 use crate::events::{AddFileEvent, BadFileEvent};
 use crate::macos;
 use crate::resize;
@@ -111,23 +112,6 @@ pub struct CompressResult {
     pub result: String,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Type)]
-#[serde(rename_all = "camelCase")]
-pub struct CompressError {
-    pub error: String,
-    pub error_type: CompressErrorType,
-}
-
-#[derive(serde::Serialize, serde::Deserialize, Type)]
-pub enum CompressErrorType {
-    Unknown,
-    FileTooLarge,
-    FileNotFound,
-    UnsupportedFileType,
-    WontOverwrite,
-    NotSmaller,
-}
-
 #[derive(Debug)]
 struct ImageData {
     width: u32,
@@ -166,7 +150,7 @@ impl ImageData {
 pub async fn process_img(
     parameters: settings::ProfileData,
     file: FileEntry,
-) -> Result<CompressResult, CompressError> {
+) -> Result<CompressResult, AlicError> {
     // check file exists,
     // get type,
     // need conversion?,
@@ -180,9 +164,9 @@ pub async fn process_img(
     let image_data = match read_image_info(&file.path) {
         Ok(img) => img,
         Err(err) => {
-            return Err(CompressError {
+            return Err(AlicError {
                 error: err,
-                error_type: CompressErrorType::UnsupportedFileType,
+                error_type: AlicErrorType::UnsupportedFileType,
             });
         }
     };
@@ -190,11 +174,11 @@ pub async fn process_img(
     let out_path = get_out_path(&parameters, &file.path, &image_data.image_type);
 
     if file.path == out_path && !parameters.should_overwrite {
-        return Err(CompressError {
+        return Err(AlicError {
             error:
                 "Image would be overwritten. Enable \"Allow Overwrite\" in settings to allow this."
                     .to_string(),
-            error_type: CompressErrorType::WontOverwrite,
+            error_type: AlicErrorType::WontOverwrite,
         });
     }
 
@@ -220,20 +204,13 @@ pub async fn process_img(
             cs_params.height = 0;
             cs_params.width = 0;
             let data = match parameters.should_resize {
-                true => {
-                    let result = resize::resize(
-                        image_data.data,
-                        parameters.resize_width,
-                        parameters.resize_height,
-                    );
-                    if result.is_err() {
-                        return Err(CompressError {
-                            error: result.err().unwrap().to_string(),
-                            error_type: CompressErrorType::Unknown,
-                        });
-                    }
-                    result.unwrap()
-                }
+                true => resize::resize(
+                    image_data.data,
+                    parameters.resize_width,
+                    parameters.resize_height,
+                    parameters.should_background_fill,
+                    &parameters.background_fill,
+                )?,
                 false => image_data.data,
             };
             if should_convert {
@@ -245,27 +222,27 @@ pub async fn process_img(
     };
 
     if result.is_err() {
-        return Err(CompressError {
+        return Err(AlicError {
             error: result.err().unwrap().to_string(),
-            error_type: CompressErrorType::Unknown,
+            error_type: AlicErrorType::Unknown,
         });
     }
 
     let compressed_data = result.unwrap();
     let compressed_size = compressed_data.len() as f64;
     if !parameters.should_convert && compressed_size > image_data.size as f64 * 0.95 {
-        return Err(CompressError {
+        return Err(AlicError {
             error: "Image cannot be compressed further.".to_string(),
-            error_type: CompressErrorType::NotSmaller,
+            error_type: AlicErrorType::NotSmaller,
         });
     }
 
     if out_path == file.path {
         let res = macos::trash_file(&file.path);
         if res.is_err() {
-            return Err(CompressError {
+            return Err(AlicError {
                 error: res.err().unwrap().to_string(),
-                error_type: CompressErrorType::Unknown,
+                error_type: AlicErrorType::Unknown,
             });
         }
     }
@@ -273,9 +250,9 @@ pub async fn process_img(
     let mut new_file = match fs::File::create_new(&out_path) {
         Ok(file) => file,
         Err(e) => {
-            return Err(CompressError {
+            return Err(AlicError {
                 error: e.to_string(),
-                error_type: CompressErrorType::Unknown,
+                error_type: AlicErrorType::Unknown,
             });
         }
     };
@@ -283,9 +260,9 @@ pub async fn process_img(
     match write_result {
         Ok(_) => {}
         Err(e) => {
-            return Err(CompressError {
+            return Err(AlicError {
                 error: e.to_string(),
-                error_type: CompressErrorType::Unknown,
+                error_type: AlicErrorType::Unknown,
             });
         }
     };
@@ -297,9 +274,9 @@ pub async fn process_img(
         match new_file.set_times(times) {
             Ok(_) => {}
             Err(e) => {
-                return Err(CompressError {
+                return Err(AlicError {
                     error: e.to_string(),
-                    error_type: CompressErrorType::Unknown,
+                    error_type: AlicErrorType::Unknown,
                 });
             }
         };

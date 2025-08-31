@@ -258,7 +258,7 @@ function ProfilePage() {
                 onConfirm: () => {
                   commands.resetProfile(data().id);
                 },
-                text: "Are you sure you want to reset this profile?",
+                text: "Are you sure you want to reset this profile to the default values?",
               });
             }}
             style="danger"

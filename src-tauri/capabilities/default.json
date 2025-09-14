@@ -7,6 +7,7 @@
     "core:default",
     "core:event:default",
     "dialog:default",
-    "deep-link:default"
+    "deep-link:default",
+    "log:default"
   ]
 }

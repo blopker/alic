@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.4.0
+
+- Add ability to set a background fill in order to specify exact resize dimensions
+
 # 2.3.4
 
 - Update deps

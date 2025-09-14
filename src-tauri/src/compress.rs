@@ -410,7 +410,9 @@ fn create_cs_parameters(
     cs.gif.quality = parameters.gif_quality;
     cs.width = new_width;
     cs.height = new_height;
-    cs.optimize = !parameters.enable_lossy;
+    cs.png.optimize = !parameters.enable_lossy;
+    cs.jpeg.optimize = !parameters.enable_lossy;
+    cs.webp.lossless = !parameters.enable_lossy;
     cs.keep_metadata = parameters.keep_metadata;
     cs
 }

@@ -6,6 +6,7 @@ use image::ImageReader;
 use image::Limits;
 use image::imageops::FilterType;
 use image::{DynamicImage, ImageFormat};
+use log::debug;
 
 use crate::errors::AlicError;
 use crate::errors::AlicErrorType;
@@ -18,23 +19,37 @@ struct Color {
 
 impl Color {
     fn from_hex(s: &str) -> Result<Color, AlicError> {
+        debug!("Parsing hex color: {}", s);
         let hex = s.trim_start_matches('#');
-        if hex.len() != 6 {
-            return Err(AlicError {
-                error: "Invalid hex color".to_string(),
-                error_type: AlicErrorType::InvalidHexColor,
-            });
-        }
+
+        // Expand 3-character hex to 6-character hex
+        let hex = match hex.len() {
+            3 => {
+                let chars: Vec<char> = hex.chars().collect();
+                format!(
+                    "{}{}{}{}{}{}",
+                    chars[0], chars[0], chars[1], chars[1], chars[2], chars[2]
+                )
+            }
+            6 => hex.to_string(),
+            _ => {
+                return Err(AlicError {
+                    error: format!("Invalid hex color: {s}"),
+                    error_type: AlicErrorType::InvalidHexColor,
+                });
+            }
+        };
+
         let r = u8::from_str_radix(&hex[0..2], 16).map_err(|_| AlicError {
-            error: "Invalid hex color".to_string(),
+            error: format!("Invalid hex color: {s}"),
             error_type: AlicErrorType::InvalidHexColor,
         })?;
         let g = u8::from_str_radix(&hex[2..4], 16).map_err(|_| AlicError {
-            error: "Invalid hex color".to_string(),
+            error: format!("Invalid hex color: {s}"),
             error_type: AlicErrorType::InvalidHexColor,
         })?;
         let b = u8::from_str_radix(&hex[4..6], 16).map_err(|_| AlicError {
-            error: "Invalid hex color".to_string(),
+            error: format!("Invalid hex color: {s}"),
             error_type: AlicErrorType::InvalidHexColor,
         })?;
         Ok(Color { r, g, b })

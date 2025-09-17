@@ -302,7 +302,7 @@ function QualitySlider(props: {
         max="20"
         value={props.value / 5}
         onInput={(e) => {
-          props.onChange(Number.parseInt(e.target.value) * 5);
+          props.onChange(Number.parseInt(e.target.value, 10) * 5);
         }}
       />
       <div>{props.value}</div>

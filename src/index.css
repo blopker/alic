@@ -27,7 +27,7 @@
     font-size: 14px;
     line-height: 24px;
     font-weight: 400;
-
+    accent-color: var(--color-indigo-600);
     color: var(--color-text-primary);
     background-color: var(--color-primary);
 

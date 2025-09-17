@@ -17,13 +17,13 @@ function SettingsButton(props: {
       onClick={props.onClick}
       type="button"
       classList={{
-        "bg-indigo-600 text-white": [undefined, "primary"].includes(
+        "bg-(--input-accent-color) text-white": [undefined, "primary"].includes(
           props.style,
         ),
         "bg-accent": props.style === "secondary",
         "bg-red-500 hover:bg-red-700": props.style === "danger",
       }}
-      class="col-start-2 inline-flex w-full justify-center rounded-md px-3 py-2 font-semibold text-sm shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-indigo-600 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      class="col-start-2 inline-flex w-full justify-center rounded-md px-3 py-2 font-semibold text-sm shadow-sm hover:bg-(--input-accent-color) focus-visible:outline focus-visible:outline-(--input-accent-color) focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     >
       {props.children}
     </button>
@@ -81,7 +81,7 @@ function SettingsToggle(props: {
       role="switch"
       aria-checked={props.value}
       classList={{
-        "bg-indigo-600": props.value === true,
+        "bg-(--input-accent-color)": props.value === true,
         "bg-gray-200": props.value !== true,
       }}
       onClick={() => {

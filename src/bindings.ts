@@ -101,6 +101,14 @@ async openFinderAtPath(path: string) : Promise<Result<null, string>> {
 },
 async getCpuCount() : Promise<number> {
     return await TAURI_INVOKE("get_cpu_count");
+},
+async getAccentColor() : Promise<Result<[number, number, number, number], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_accent_color") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 

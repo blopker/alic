@@ -1,5 +1,6 @@
 use std::mem;
 extern crate libc;
+use objc2_app_kit::{NSColor, NSColorSpace};
 use objc2_foundation::{NSFileManager, NSString, NSURL};
 use tauri_plugin_shell::ShellExt;
 
@@ -53,6 +54,31 @@ pub fn trash_file(file_path: &str) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_accent_color() -> Result<[u8; 4], String> {
+    let rgba;
+    unsafe {
+        let accent = NSColor::controlAccentColor();
+        let color_space = NSColorSpace::genericRGBColorSpace();
+        let accent = accent.colorUsingColorSpace(&color_space);
+        rgba = accent.map(|accent| {
+            let (mut r, mut g, mut b, mut a) = (0.0, 0.0, 0.0, 0.0);
+            accent.getRed_green_blue_alpha(&mut r, &mut g, &mut b, &mut a);
+            [
+                (r * 255.0) as u8,
+                (g * 255.0) as u8,
+                (b * 255.0) as u8,
+                (a * 255.0) as u8,
+            ]
+        });
+    }
+    match rgba {
+        Some(color) => Ok(color),
+        None => Err("Failed to get color".to_string()),
+    }
 }
 
 #[cfg(test)]

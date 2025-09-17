@@ -118,6 +118,7 @@ pub fn run() {
             settings::open_settings_folder,
             macos::open_finder_at_path,
             macos::get_cpu_count,
+            macos::get_accent_color,
         ])
         .events(collect_events![
             events::AddFileEvent,

@@ -58,7 +58,7 @@ function SettingsLink(props: {
 }) {
   return (
     <A
-      activeClass="bg-indigo-600 text-white font-medium rounded-md"
+      activeClass="bg-(--input-accent-color) text-white font-medium"
       inactiveClass="hover:bg-accent transition-colors"
       class="mb-1 block overflow-hidden rounded-md px-3 py-1.5 text-sm"
       href={props.href}

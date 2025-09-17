@@ -13,6 +13,7 @@
     --color-theme-secondary: #e9e9e9;
     --color-theme-accent: #dedede;
     --color-theme-text-primary: #0f0f0f;
+    --input-accent-color: var(--color-indigo-600);
     color-scheme: light;
     @media (prefers-color-scheme: dark) {
         color-scheme: dark;
@@ -27,7 +28,7 @@
     font-size: 14px;
     line-height: 24px;
     font-weight: 400;
-    accent-color: var(--color-indigo-600);
+    accent-color: var(--input-accent-color);
     color: var(--color-text-primary);
     background-color: var(--color-primary);
 

@@ -254,7 +254,7 @@ function MyTable() {
                   }}
                   class={`cursor-default even:bg-secondary hover:bg-accent ${
                     selectedFiles().has(file)
-                      ? "!text-white !bg-indigo-600"
+                      ? "!text-white !bg-(--input-accent-color)"
                       : ""
                   }`}
                 >

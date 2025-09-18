@@ -4,3 +4,4 @@ dist
 
 src-tauri/icons/**
 !src-tauri/icons/icon.icns
+!src-tauri/icons/icon.png

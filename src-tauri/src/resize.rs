@@ -72,16 +72,10 @@ pub fn resize(
             _ => (width, height),
         };
     }
-    if image.width() <= desired_width && image.height() <= desired_height {
-        return Err(AlicError {
-            error: format!(
-                "Cannot resize. Image is already smaller than {desired_width} px by {desired_height} px."
-            ),
-            error_type: AlicErrorType::ImageResizeError,
-        });
-    }
 
-    image = image.resize(desired_width, desired_height, FilterType::Lanczos3);
+    if image.width() >= desired_width || image.height() >= desired_height {
+        image = image.resize(desired_width, desired_height, FilterType::Lanczos3);
+    }
 
     if should_background_fill {
         image = add_background(&image, desired_width, desired_height, background_fill)?;

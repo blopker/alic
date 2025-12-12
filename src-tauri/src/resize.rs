@@ -1,11 +1,11 @@
 use std::io::Cursor;
 
-use image::GenericImage;
-use image::GenericImageView;
-use image::ImageReader;
-use image::Limits;
+use image::codecs::gif::{GifDecoder, GifEncoder};
 use image::imageops::FilterType;
-use image::{DynamicImage, ImageFormat};
+use image::{
+    AnimationDecoder, DynamicImage, Frame, GenericImage, GenericImageView, ImageDecoder,
+    ImageFormat, ImageReader, Limits,
+};
 use log::debug;
 
 use crate::errors::AlicError;
@@ -62,7 +62,12 @@ pub fn resize(
     height: u32,
     should_background_fill: bool,
     background_fill: &str,
+    is_gif: bool,
 ) -> Result<Vec<u8>, AlicError> {
+    if is_gif {
+        return resize_gif(&image_buffer, width, height);
+    }
+
     let (mut desired_width, mut desired_height) = (width, height);
     let (mut image, format) = read_image(&image_buffer)?;
     if format == ImageFormat::Jpeg {
@@ -90,6 +95,79 @@ pub fn resize(
         })?;
 
     Ok(resized_file_buffer)
+}
+
+fn resize_gif(image_buffer: &[u8], width: u32, height: u32) -> Result<Vec<u8>, AlicError> {
+    let decoder = GifDecoder::new(Cursor::new(image_buffer)).map_err(|e| AlicError {
+        error: e.to_string(),
+        error_type: AlicErrorType::ImageResizeError,
+    })?;
+
+    let (src_width, src_height) = decoder.dimensions();
+    let frames = decoder
+        .into_frames()
+        .collect_frames()
+        .map_err(|e| AlicError {
+            error: e.to_string(),
+            error_type: AlicErrorType::ImageResizeError,
+        })?;
+
+    // Check if resize is needed
+    if src_width <= width && src_height <= height {
+        return Ok(image_buffer.to_vec());
+    }
+
+    // Calculate new dimensions preserving aspect ratio
+    let ratio_w = width as f64 / src_width as f64;
+    let ratio_h = height as f64 / src_height as f64;
+    let ratio = ratio_w.min(ratio_h);
+
+    let mut new_frames = Vec::new();
+
+    for frame in frames {
+        let frame_buffer = frame.buffer();
+        let frame_width = frame_buffer.width();
+        let frame_height = frame_buffer.height();
+
+        // Calculate new frame dimensions
+        let new_frame_width = (frame_width as f64 * ratio).round() as u32;
+        let new_frame_height = (frame_height as f64 * ratio).round() as u32;
+
+        // Skip empty frames if any (though unlikely to have 0 dims)
+        if new_frame_width == 0 || new_frame_height == 0 {
+            continue;
+        }
+
+        let dynamic_image = DynamicImage::ImageRgba8(frame_buffer.clone());
+        let resized_dynamic =
+            dynamic_image.resize(new_frame_width, new_frame_height, FilterType::Lanczos3);
+        let resized_buffer = resized_dynamic.into_rgba8();
+
+        let left = (frame.left() as f64 * ratio).round() as u32;
+        let top = (frame.top() as f64 * ratio).round() as u32;
+
+        let new_frame = Frame::from_parts(resized_buffer, left, top, frame.delay());
+        new_frames.push(new_frame);
+    }
+
+    let mut out_buffer = Vec::new();
+    {
+        let mut encoder = GifEncoder::new(&mut out_buffer);
+        encoder
+            .set_repeat(image::codecs::gif::Repeat::Infinite)
+            .map_err(|e| AlicError {
+                error: e.to_string(),
+                error_type: AlicErrorType::ImageResizeError,
+            })?;
+        encoder
+            .encode_frames(new_frames.into_iter())
+            .map_err(|e| AlicError {
+                error: e.to_string(),
+                error_type: AlicErrorType::ImageResizeError,
+            })?;
+    }
+
+    Ok(out_buffer)
 }
 
 fn add_background(

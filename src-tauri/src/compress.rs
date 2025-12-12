@@ -56,15 +56,6 @@ pub enum ImageType {
 }
 
 impl ImageType {
-    // pub fn to_mime_type(&self) -> String {
-    //     match self {
-    //         ImageType::JPEG => "image/jpeg".to_string(),
-    //         ImageType::PNG => "image/png".to_string(),
-    //         ImageType::WEBP => "image/webp".to_string(),
-    //         ImageType::GIF => "image/gif".to_string(),
-    //         ImageType::TIFF => "image/tiff".to_string(),
-    //     }
-    // }
     pub fn extensions(&self) -> &[&str] {
         match self {
             ImageType::JPEG => ImageFormat::Jpeg.extensions_str(),
@@ -74,16 +65,6 @@ impl ImageType {
             ImageType::TIFF => ImageFormat::Tiff.extensions_str(),
         }
     }
-    // pub fn from_extension(ext: &str) -> Option<Self> {
-    //     match ext {
-    //         "jpg" | "jpeg" => Some(ImageType::JPEG),
-    //         "png" => Some(ImageType::PNG),
-    //         "webp" => Some(ImageType::WEBP),
-    //         "gif" => Some(ImageType::GIF),
-    //         "tiff" => Some(ImageType::TIFF),
-    //         _ => None,
-    //     }
-    // }
     pub fn to_casium_type(&self) -> caesium::SupportedFileTypes {
         match self {
             ImageType::JPEG => caesium::SupportedFileTypes::Jpeg,

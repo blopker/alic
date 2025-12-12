@@ -163,8 +163,8 @@ pub async fn delete_profile(app: tauri::AppHandle, profile_id: u32) -> Result<()
 pub async fn add_profile(app: tauri::AppHandle, mut name: String) -> Result<(), String> {
     let mut settings = get_settings_data(&app);
     let profile_idx = settings.profiles.iter().position(|p| p.name == name);
-    if profile_idx.is_some() {
-        name = format!("{} ({})", name, profile_idx.unwrap() + 1);
+    if let Some(id) = profile_idx {
+        name = format!("{} ({})", name, id + 1);
     }
     let highest_id = settings.profiles.iter().max_by_key(|p| p.id).unwrap().id;
     settings

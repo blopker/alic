@@ -45,6 +45,7 @@ pub enum FileEntryStatus {
     Error,
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize, Type)]
 pub enum ImageType {
     JPEG,

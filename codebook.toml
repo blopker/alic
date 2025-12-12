@@ -1,9 +1,10 @@
 words = [
     "alic",
+    "autorelease",
     "casium",
     "clippy",
     "exif",
     "lossy",
     "tauri",
-    "autorelease"
+    "xdg",
 ]

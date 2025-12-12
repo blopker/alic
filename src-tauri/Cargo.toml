@@ -22,7 +22,7 @@ tauri-build = { version = "2", features = [] }
 image = "0.25.5"
 infer = "0.19.0"
 libc = "0.2.168"
-libcaesium = "0.18.0"
+libcaesium = "0.20.0"
 muda = "<0.18"
 objc2 = "0.6.0"
 serde = { version = "1", features = ["derive"] }

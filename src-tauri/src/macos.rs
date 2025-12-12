@@ -42,16 +42,13 @@ pub async fn get_cpu_count() -> i32 {
 }
 
 pub fn trash_file(file_path: &str) -> Result<(), String> {
-    unsafe {
-        let url = NSURL::fileURLWithPath(&NSString::from_str(file_path));
-        let result =
-            NSFileManager::defaultManager().trashItemAtURL_resultingItemURL_error(&url, None);
+    let url = NSURL::fileURLWithPath(&NSString::from_str(file_path));
+    let result = NSFileManager::defaultManager().trashItemAtURL_resultingItemURL_error(&url, None);
 
-        if result.is_err() {
-            let err = result.err().unwrap();
-            // println!("Failed to move file to Trash: {:?}", err);
-            return Err(err.to_string());
-        }
+    if result.is_err() {
+        let err = result.err().unwrap();
+        // println!("Failed to move file to Trash: {:?}", err);
+        return Err(err.to_string());
     }
     Ok(())
 }

@@ -1,5 +1,10 @@
 # Unreleased
 
+# 2.4.3
+
+- Optimize GIF compression
+- Enable resizing animated GIFs
+
 # 2.4.2
 
 - Update icon for Tahoe

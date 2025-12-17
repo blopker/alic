@@ -162,9 +162,8 @@ pub async fn process_img(
         parameters.should_convert && parameters.convert_extension != image_data.image_type;
 
     // Handle resize ourselves to get around memory limit issues
-    let mut cs_params = create_cs_parameters(&parameters, 0, 0);
-    cs_params.height = 0;
-    cs_params.width = 0;
+    let cs_params = create_cs_parameters(&parameters);
+
     let data = match parameters.should_resize {
         true => resize::resize(
             image_data.data,
@@ -326,37 +325,17 @@ fn get_out_path(
     format!("{}{postfix}.{extension}", remove_extension(path))
 }
 
-fn create_cs_parameters(
-    parameters: &settings::ProfileData,
-    width: u32,
-    height: u32,
-) -> CSParameters {
-    let mut new_height = 0;
-    let mut new_width = 0;
-
-    // set the largest dimension to the resize value,
-    // only if the image size is larger than the resize value
-    if parameters.should_resize
-        && (width > parameters.resize_width || height > parameters.resize_height)
-    {
-        if width > height {
-            new_width = parameters.resize_width;
-        } else {
-            new_height = parameters.resize_height;
-        }
-    }
-
+fn create_cs_parameters(parameters: &settings::ProfileData) -> CSParameters {
     let mut cs = CSParameters::new();
     cs.jpeg.quality = parameters.jpeg_quality;
     cs.png.quality = parameters.png_quality;
     cs.webp.quality = parameters.webp_quality;
     cs.gif.quality = parameters.gif_quality;
-    cs.width = new_width;
-    cs.height = new_height;
     cs.png.optimize = !parameters.enable_lossy;
     cs.jpeg.optimize = !parameters.enable_lossy;
     cs.webp.lossless = !parameters.enable_lossy;
     cs.keep_metadata = parameters.keep_metadata;
+    cs.jpeg.preserve_icc = true;
     cs
 }
 

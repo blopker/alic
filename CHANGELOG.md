@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.4.4
+
+- Update dependencies causing jpeg corruption
+
 # 2.4.3
 
 - Optimize GIF compression

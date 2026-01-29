@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.4.5
+
+- Refresh dependencies 
+
 # 2.4.4
 
 - Update dependencies causing jpeg corruption

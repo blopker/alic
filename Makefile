@@ -4,6 +4,9 @@ export RUST_BACKTRACE=1
 dev:
 	bun run tauri dev
 
+dev-release:
+	bun run tauri dev --release
+
 test:
 	cd src-tauri && cargo test
 

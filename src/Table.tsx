@@ -6,7 +6,7 @@ import {
   FaSolidMinus,
   FaSolidXmark,
 } from "solid-icons/fa";
-import { TbDots } from "solid-icons/tb";
+import { TbOutlineDots } from "solid-icons/tb";
 import {
   createSignal,
   For,
@@ -39,7 +39,7 @@ function StatusIcons(props: { status: FileEntryStatus }) {
   return (
     <Switch>
       <Match when={props.status === "Processing"}>
-        <TbDots />
+        <TbOutlineDots />
       </Match>
       <Match when={props.status === "Compressing"}>
         <FaSolidCircleNotch class="animate-spin" />

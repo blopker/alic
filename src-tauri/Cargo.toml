@@ -19,7 +19,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 # tauri = { version = "2", features = ["devtools"] }
-image = "0.25.5"
+image = { version = "0.25.5", features = ["avif"] }
 infer = "0.19.0"
 libc = "0.2.168"
 libcaesium = "0.20.0"

@@ -6,6 +6,7 @@ use crate::resize;
 use caesium::parameters::CSParameters;
 use image::ImageFormat;
 use image::{self};
+use log::debug;
 use specta::Type;
 use std::fs::{self};
 use std::io::Write;
@@ -53,6 +54,7 @@ pub enum ImageType {
     WEBP,
     GIF,
     TIFF,
+    AVIF,
 }
 
 impl ImageType {
@@ -63,15 +65,17 @@ impl ImageType {
             ImageType::WEBP => ImageFormat::WebP.extensions_str(),
             ImageType::GIF => ImageFormat::Gif.extensions_str(),
             ImageType::TIFF => ImageFormat::Tiff.extensions_str(),
+            ImageType::AVIF => ImageFormat::Avif.extensions_str(),
         }
     }
-    pub fn to_casium_type(&self) -> caesium::SupportedFileTypes {
+    pub fn to_casium_type(&self) -> Option<caesium::SupportedFileTypes> {
         match self {
-            ImageType::JPEG => caesium::SupportedFileTypes::Jpeg,
-            ImageType::PNG => caesium::SupportedFileTypes::Png,
-            ImageType::WEBP => caesium::SupportedFileTypes::WebP,
-            ImageType::GIF => caesium::SupportedFileTypes::Gif,
-            ImageType::TIFF => caesium::SupportedFileTypes::Tiff,
+            ImageType::JPEG => Some(caesium::SupportedFileTypes::Jpeg),
+            ImageType::PNG => Some(caesium::SupportedFileTypes::Png),
+            ImageType::WEBP => Some(caesium::SupportedFileTypes::WebP),
+            ImageType::GIF => Some(caesium::SupportedFileTypes::Gif),
+            ImageType::TIFF => Some(caesium::SupportedFileTypes::Tiff),
+            ImageType::AVIF => None, // AVIF uses ravif, not libcaesium
         }
     }
     pub fn preferred_extension(&self) -> &str {
@@ -81,6 +85,7 @@ impl ImageType {
             ImageType::WEBP => "webp",
             ImageType::GIF => "gif",
             ImageType::TIFF => "tiff",
+            ImageType::AVIF => "avif",
         }
     }
 }
@@ -126,6 +131,7 @@ impl ImageData {
 pub async fn process_img(
     parameters: settings::ProfileData,
     file: FileEntry,
+    parallel_images: i32,
 ) -> Result<CompressResult, AlicError> {
     // check file exists,
     // get type,
@@ -161,6 +167,13 @@ pub async fn process_img(
     let should_convert =
         parameters.should_convert && parameters.convert_extension != image_data.image_type;
 
+    // Determine target format for AVIF handling
+    let target_format = if should_convert {
+        &parameters.convert_extension
+    } else {
+        &image_data.image_type
+    };
+
     // Handle resize ourselves to get around memory limit issues
     let cs_params = create_cs_parameters(&parameters);
 
@@ -176,10 +189,13 @@ pub async fn process_img(
         false => image_data.data,
     };
 
-    let result = if should_convert {
-        convert_image(data, cs_params, parameters.convert_extension)
+    // AVIF uses ravif directly instead of libcaesium
+    let result = if *target_format == ImageType::AVIF {
+        compress_avif(&data, &parameters, parallel_images)
+    } else if should_convert {
+        convert_image(data, cs_params, parameters.convert_extension.clone())
     } else {
-        compress_image(data, cs_params)
+        compress_image(data, cs_params, image_data.image_type)
     };
 
     if result.is_err() {
@@ -278,6 +294,7 @@ fn read_image_info(path: &str) -> Result<ImageData, String> {
         ImageFormat::WebP => ImageType::WEBP,
         ImageFormat::Gif => ImageType::GIF,
         ImageFormat::Tiff => ImageType::TIFF,
+        ImageFormat::Avif => ImageType::AVIF,
         f => {
             let mime_type = f.to_mime_type();
             return Err(format!("Unsupported image type: {mime_type}"));
@@ -340,7 +357,15 @@ fn create_cs_parameters(parameters: &settings::ProfileData) -> CSParameters {
 }
 
 // Simplified wrapper functions
-fn compress_image(original_img_data: Vec<u8>, params: CSParameters) -> Result<Vec<u8>, String> {
+fn compress_image(
+    original_img_data: Vec<u8>,
+    params: CSParameters,
+    image_type: ImageType,
+) -> Result<Vec<u8>, String> {
+    // AVIF should be handled by compress_avif, not here
+    if image_type == ImageType::AVIF {
+        return Err("AVIF compression should use compress_avif".to_string());
+    }
     caesium::compress_in_memory(original_img_data, &params)
         .map_err(|e| format!("Error compressing image: {e}"))
 }
@@ -350,8 +375,71 @@ fn convert_image(
     params: CSParameters,
     image_type: ImageType,
 ) -> Result<Vec<u8>, String> {
-    caesium::convert_in_memory(original_img_data, &params, image_type.to_casium_type())
-        .map_err(|e| format!("Error converting image: {e}"))
+    // AVIF should be handled by compress_avif, not here
+    match image_type.to_casium_type() {
+        Some(caesium_type) => caesium::convert_in_memory(original_img_data, &params, caesium_type)
+            .map_err(|e| format!("Error converting image: {e}")),
+        None => Err(format!(
+            "Cannot convert to {:?} using libcaesium",
+            image_type
+        )),
+    }
+}
+
+fn compress_avif(
+    original_img_data: &[u8],
+    parameters: &settings::ProfileData,
+    parallel_images: i32,
+) -> Result<Vec<u8>, String> {
+    use image::ImageEncoder;
+    use image::ImageReader;
+    use image::codecs::avif::AvifEncoder;
+    use std::io::Cursor;
+
+    // Decode the input image
+    let img = ImageReader::new(Cursor::new(original_img_data))
+        .with_guessed_format()
+        .map_err(|e| format!("Error reading image: {e}"))?
+        .decode()
+        .map_err(|e| format!("Error decoding image: {e}"))?;
+
+    let rgba = img.to_rgba8();
+    let width = rgba.width();
+    let height = rgba.height();
+
+    // Calculate thread count for AVIF encoding
+    let cpu_count = num_cpus();
+    let avif_threads = if parallel_images <= 1 {
+        // Single image, use all available threads
+        cpu_count
+    } else {
+        // Multiple images in parallel, divide threads
+        std::cmp::max(1, cpu_count / parallel_images as usize)
+    };
+
+    // Quality: 1-100 (1 worst, 100 best)
+    let quality = parameters.avif_quality.clamp(1, 100) as u8;
+    // Speed: 1-10 (1 slowest/best quality, 10 fastest/worst quality)
+    let speed = 4_u8;
+
+    // Create output buffer
+    let mut output = Vec::new();
+    debug!(
+        "Using {avif_threads} AVIF threads with {cpu_count} total threads for {parallel_images} images."
+    );
+
+    let encoder = AvifEncoder::new_with_speed_quality(&mut output, speed, quality)
+        .with_num_threads(Some(avif_threads));
+    encoder
+        .write_image(&rgba, width, height, image::ExtendedColorType::Rgba8)
+        .map_err(|e| format!("Error encoding AVIF: {e}"))?;
+    Ok(output)
+}
+
+fn num_cpus() -> usize {
+    std::thread::available_parallelism()
+        .map(|p| p.get())
+        .unwrap_or(1)
 }
 
 fn remove_extension(path: &Path) -> String {
@@ -453,7 +541,7 @@ fn is_image(path: &Path) -> bool {
     if !path.is_file() {
         return false;
     }
-    let supported_exts = ["png", "jpeg", "jpg", "gif", "webp", "tiff"];
+    let supported_exts = ["png", "jpeg", "jpg", "gif", "webp", "tiff", "avif"];
     let ext = path
         .extension()
         .unwrap_or_default()

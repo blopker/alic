@@ -66,6 +66,12 @@ pub struct ProfileData {
     pub png_quality: u32,
     pub webp_quality: u32,
     pub gif_quality: u32,
+    #[serde(default = "default_avif_quality")]
+    pub avif_quality: u32,
+}
+
+fn default_avif_quality() -> u32 {
+    80
 }
 
 fn default_color() -> String {
@@ -95,6 +101,7 @@ impl ProfileData {
             png_quality: 80,
             webp_quality: 80,
             gif_quality: 80,
+            avif_quality: 80,
         }
     }
 

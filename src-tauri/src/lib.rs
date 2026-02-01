@@ -137,9 +137,12 @@ pub fn run() {
         )
         .expect("Failed to export typescript bindings");
 
-    let log_level = log::LevelFilter::Info;
-    #[cfg(debug_assertions)]
-    let log_level = log::LevelFilter::Debug;
+    let log_level = if cfg!(debug_assertions) {
+        log::LevelFilter::Debug
+    } else {
+        log::LevelFilter::Info
+    };
+
     tauri::Builder::default()
         .plugin(
             tauri_plugin_log::Builder::new()

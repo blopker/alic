@@ -411,10 +411,10 @@ fn compress_avif(
     let cpu_count = num_cpus();
     let avif_threads = if parallel_images <= 1 {
         // Single image, use all available threads
-        cpu_count
+        None
     } else {
         // Multiple images in parallel, divide threads
-        std::cmp::max(1, cpu_count / parallel_images as usize)
+        Some(std::cmp::max(1, cpu_count / parallel_images as usize))
     };
 
     // Quality: 1-100 (1 worst, 100 best)
@@ -425,11 +425,11 @@ fn compress_avif(
     // Create output buffer
     let mut output = Vec::new();
     debug!(
-        "Using {avif_threads} AVIF threads with {cpu_count} total threads for {parallel_images} images."
+        "Using {avif_threads:?} AVIF threads with {cpu_count} total threads for {parallel_images} images."
     );
 
     let encoder = AvifEncoder::new_with_speed_quality(&mut output, speed, quality)
-        .with_num_threads(Some(avif_threads));
+        .with_num_threads(avif_threads);
     encoder
         .write_image(&rgba, width, height, image::ExtendedColorType::Rgba8)
         .map_err(|e| format!("Error encoding AVIF: {e}"))?;

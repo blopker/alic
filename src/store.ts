@@ -73,7 +73,7 @@ async function addFile(path: string) {
 
 async function compressFile(_file: FileEntry) {
   let file = updateFile(_file, { status: "Compressing" });
-  const parallelImages = semaphore.maxConcurrent;
+  const parallelImages = semaphore.currentRunning;
   const compressResult = await compressImage(getProfileActive(), file, parallelImages);
   if (compressResult.status === "error") {
     if (compressResult.error.errorType === "NotSmaller") {

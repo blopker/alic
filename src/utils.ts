@@ -15,6 +15,10 @@ class Semaphore {
 
   constructor(public maxConcurrent: number) {}
 
+  get currentRunning(): number {
+    return this.running;
+  }
+
   async acquire(): Promise<void> {
     if (this.running >= this.maxConcurrent) {
       return new Promise<void>((resolve) => {

@@ -14,7 +14,7 @@ import {
 } from "./SettingsUI";
 import { deleteProfile, settings, updateProfile } from "./settingsData";
 
-const imageTypes: ImageType[] = ["JPEG", "PNG", "WEBP", "GIF", "TIFF"];
+const imageTypes: ImageType[] = ["JPEG", "PNG", "WEBP", "GIF", "TIFF", "AVIF"];
 
 function ProfilePage() {
   const navigate = useNavigate();
@@ -78,6 +78,15 @@ function ProfilePage() {
             value={data().gif_quality}
             onChange={(value) => {
               updateProfile(data().id, { gif_quality: value });
+            }}
+          />
+        </SettingRow>
+        <SettingRow title="AVIF Quality">
+          <QualitySlider
+            disabled={!lossy()}
+            value={data().avif_quality || 80}
+            onChange={(value) => {
+              updateProfile(data().id, { avif_quality: value });
             }}
           />
         </SettingRow>

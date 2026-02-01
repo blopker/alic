@@ -2,6 +2,7 @@ import { getCurrent, onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import BottomBar from "./BottomBar";
 import Dropper from "./Dropper";
 import { badFileListener, updateResultListener } from "./listeners";
+import ProgressBar from "./ProgressBar";
 import { addFile } from "./store";
 import Table from "./Table";
 import { addToast, ToastContainer } from "./Toast";
@@ -34,6 +35,7 @@ function App() {
       <main class="w-full grow overflow-hidden">
         <Table />
       </main>
+      <ProgressBar />
       <BottomBar />
     </div>
   );

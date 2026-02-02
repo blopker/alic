@@ -1,7 +1,8 @@
 use std::mem;
 extern crate libc;
-use objc2_app_kit::{NSColor, NSColorSpace};
-use objc2_foundation::{NSFileManager, NSString, NSURL};
+use log::warn;
+use objc2_app_kit::{NSApp, NSColor, NSColorSpace, NSRequestUserAttentionType};
+use objc2_foundation::{MainThreadMarker, NSFileManager, NSString, NSURL};
 use tauri_plugin_shell::ShellExt;
 
 #[tauri::command]
@@ -75,6 +76,37 @@ pub fn get_accent_color() -> Result<[u8; 4], String> {
     match rgba {
         Some(color) => Ok(color),
         None => Err("Failed to get color".to_string()),
+    }
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn set_dock_badge(count: i32) {
+    let label = if count > 0 {
+        Some(NSString::from_str(&format!("{}", count)))
+    } else {
+        None
+    };
+
+    if let Some(mtm) = MainThreadMarker::new() {
+        let app = NSApp(mtm);
+        let dock_tile = app.dockTile();
+        dock_tile.setBadgeLabel(label.as_deref());
+        dock_tile.display();
+    } else {
+        warn!("Failed to get main thread marker for dock badge");
+    }
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn bounce_dock_icon() {
+    if let Some(mtm) = MainThreadMarker::new() {
+        let app = NSApp(mtm);
+        // NSInformationalRequest bounces once, NSCriticalRequest bounces until user responds
+        app.requestUserAttention(NSRequestUserAttentionType::InformationalRequest);
+    } else {
+        warn!("Failed to get main thread marker for dock bounce");
     }
 }
 

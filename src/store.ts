@@ -62,12 +62,14 @@ async function addFile(path: string) {
     originalSize: fileResult.data.size,
   };
   file = updateFile(file, update);
+  updateDockBadge();
   await semaphore.acquire();
   syncSemaphore();
   try {
     await compressFile(file);
   } finally {
     semaphore.release();
+    updateDockBadge();
   }
 }
 
@@ -108,9 +110,28 @@ function updateFile(
   return newFile;
 }
 
+function isFileDone(file: ReadonlyFileEntry): boolean {
+  return (
+    file.status === "Complete" ||
+    file.status === "AlreadySmaller" ||
+    file.status === "Error"
+  );
+}
+
+function updateDockBadge() {
+  const remaining = store.files.filter((f) => !isFileDone(f)).length;
+  commands.setDockBadge(remaining);
+
+  // Bounce dock icon when all files are done
+  if (remaining === 0 && store.files.length > 0) {
+    commands.bounceDockIcon();
+  }
+}
+
 function clearFiles() {
   semaphore.cancel();
   setStore("files", []);
+  commands.setDockBadge(0);
 }
 
 function removeFile(file: FileEntry) {

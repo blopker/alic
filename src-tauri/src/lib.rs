@@ -119,6 +119,8 @@ pub fn run() {
             macos::open_finder_at_path,
             macos::get_cpu_count,
             macos::get_accent_color,
+            macos::set_dock_badge,
+            macos::bounce_dock_icon,
         ])
         .events(collect_events![
             events::AddFileEvent,

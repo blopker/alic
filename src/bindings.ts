@@ -109,6 +109,12 @@ async getAccentColor() : Promise<Result<[number, number, number, number], string
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async setDockBadge(count: number) : Promise<void> {
+    await TAURI_INVOKE("set_dock_badge", { count });
+},
+async bounceDockIcon() : Promise<void> {
+    await TAURI_INVOKE("bounce_dock_icon");
 }
 }
 

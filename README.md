@@ -100,12 +100,13 @@ We love contributions! Want to make Alic better? Here's how:
 
 ## Release
 
-To release a new version of Alic, follow these steps:
+To release a new version of Alic:
 
-1. Update the version in `tauri.conf.json`.
-1. Update `CHANGELOG.md`.
-1. Commit the changes, but do not push.
-1. Run `make release`.
+1. Update `CHANGELOG.md` and commit.
+2. Run `make release`.
+3. When prompted, press Enter to accept the suggested patch version bump, or enter a custom version (e.g., `2.5.0` for minor, `3.0.0` for major).
+
+The release script automatically updates the version in `tauri.conf.json` and `Cargo.toml`, commits the change, and pushes to the release branch.
 
 ## License
 

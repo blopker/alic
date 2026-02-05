@@ -5,6 +5,7 @@ import * as readline from "node:readline";
 
 const tauriConfPath = "src-tauri/tauri.conf.json";
 const cargoTomlPath = "src-tauri/Cargo.toml";
+const cargoLockPath = "src-tauri/Cargo.lock";
 
 function getVersion() {
   // Read current version from tauri.conf.json
@@ -66,8 +67,11 @@ async function main() {
     setVersion(version);
     console.log(`Version: ${currentVersion} -> ${version}`);
 
+    // Update Cargo.lock by running cargo check
+    await $`cargo check --manifest-path ${cargoTomlPath}`.quiet();
+
     // Commit the version bump
-    await $`git add ${tauriConfPath} ${cargoTomlPath}`;
+    await $`git add ${tauriConfPath} ${cargoTomlPath} ${cargoLockPath}`;
     await $`git commit -m "v${version}"`;
 
     // Push version bump to main

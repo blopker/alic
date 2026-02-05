@@ -1,12 +1,46 @@
 // scripts/release.ts
 import fs from "node:fs";
 import { $ } from "bun";
+import * as readline from "node:readline";
+
+const tauriConfPath = "src-tauri/tauri.conf.json";
+const cargoTomlPath = "src-tauri/Cargo.toml";
 
 function getVersion() {
   // Read current version from tauri.conf.json
-  const tauriConfPath = "src-tauri/tauri.conf.json";
   const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, "utf8"));
   return tauriConf.version;
+}
+
+function bumpPatchVersion(version: string): string {
+  const parts = version.split(".");
+  const patch = parseInt(parts[2], 10) + 1;
+  return `${parts[0]}.${parts[1]}.${patch}`;
+}
+
+function setVersion(version: string) {
+  // Update tauri.conf.json
+  const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, "utf8"));
+  tauriConf.version = version;
+  fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2) + "\n");
+
+  // Update Cargo.toml
+  let cargoToml = fs.readFileSync(cargoTomlPath, "utf8");
+  cargoToml = cargoToml.replace(/^version = ".*"$/m, `version = "${version}"`);
+  fs.writeFileSync(cargoTomlPath, cargoToml);
+}
+
+async function prompt(question: string): Promise<string> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
 }
 
 async function main() {
@@ -16,8 +50,28 @@ async function main() {
     await $`git checkout main`;
     await $`git pull origin main`;
 
-    // Get version
-    const version = getVersion();
+    // Bump patch version with user confirmation
+    const currentVersion = getVersion();
+    const suggestedVersion = bumpPatchVersion(currentVersion);
+    const input = await prompt(
+      `Current version: ${currentVersion}\nEnter new version (press Enter for ${suggestedVersion}): `,
+    );
+    const version = input || suggestedVersion;
+
+    if (!/^\d+\.\d+\.\d+$/.test(version)) {
+      console.error("Invalid version format. Expected x.y.z");
+      process.exit(1);
+    }
+
+    setVersion(version);
+    console.log(`Version: ${currentVersion} -> ${version}`);
+
+    // Commit the version bump
+    await $`git add ${tauriConfPath} ${cargoTomlPath}`;
+    await $`git commit -m "v${version}"`;
+
+    // Push version bump to main
+    await $`git push origin main`;
 
     // Delete existing release branch if it exists
     try {

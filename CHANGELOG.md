@@ -1,5 +1,10 @@
 # Unreleased
 
+# 2.4.6
+
+- Add AVIF export support
+- Add dock badge to show progress, and add progress bar
+
 # 2.4.5
 
 - Refresh dependencies 

@@ -1,5 +1,9 @@
 # Unreleased
 
+# 2.4.7
+
+- Fix release
+
 # 2.4.6
 
 - Add AVIF export support

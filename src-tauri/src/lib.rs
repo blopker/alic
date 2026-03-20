@@ -1,9 +1,10 @@
-mod compress;
-mod errors;
+pub mod cli;
+pub mod compress;
+pub mod errors;
 mod events;
 mod macos;
 mod resize;
-mod settings;
+pub mod settings;
 mod update;
 
 use events::{AddFileEvent, ClearFilesEvent, OpenAddFileDialogEvent, UpdateStateEvent};

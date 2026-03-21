@@ -4,7 +4,10 @@
       "Bash(cargo check:*)",
       "Bash(cargo test:*)",
       "Bash(cargo clippy:*)",
-      "Bash(gh issue:*)"
+      "Bash(gh issue:*)",
+      "WebFetch(domain:v2.tauri.app)",
+      "WebSearch",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

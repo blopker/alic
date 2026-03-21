@@ -1,4 +1,4 @@
-pub mod cli;
+pub(crate) mod cli;
 pub mod compress;
 pub(crate) mod errors;
 mod events;
@@ -17,6 +17,7 @@ use tauri::{
     menu::{AboutMetadataBuilder, Menu, MenuItem, SubmenuBuilder},
     utils::config::WindowConfig,
 };
+use tauri_plugin_cli::CliExt;
 use tauri_plugin_opener::OpenerExt;
 
 use tauri_plugin_clipboard_manager::ClipboardExt;
@@ -103,6 +104,18 @@ fn save_clipboard_image(app: &tauri::AppHandle) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Handle --help and --version before launching the Tauri runtime,
+    // since the CLI plugin suppresses clap's default exit behavior.
+    let args: Vec<String> = std::env::args().collect();
+    if args.iter().any(|a| a == "--help" || a == "-h") {
+        cli::print_help();
+        return;
+    }
+    if args.iter().any(|a| a == "--version" || a == "-V") {
+        println!("{}", env!("CARGO_PKG_VERSION"));
+        return;
+    }
+
     let builder = Builder::<tauri::Wry>::new()
         .commands(collect_commands![
             open_settings_window,
@@ -169,6 +182,7 @@ pub fn run() {
             // println!("Args: {:?}", args);
         }))
         .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_cli::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_store::Builder::default().build())
@@ -278,6 +292,12 @@ pub fn run() {
             builder.mount_events(app);
             // Store setup
             app.store("settings.json")?;
+
+            // Handle CLI args — if --input was provided, process and exit
+            if let Ok(matches) = app.cli().matches() {
+                cli::handle_matches(&app.handle(), matches);
+            }
+
             Ok(())
         })
         .run(tauri::generate_context!())

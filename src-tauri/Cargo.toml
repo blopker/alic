@@ -4,7 +4,6 @@ version = "2.4.8"
 description = "Alic Image Compressor"
 authors = ["blopker"]
 edition = "2024"
-default-run = "alic"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -51,6 +50,7 @@ objc2-app-kit = { version = "0.3.1", features = [
   "NSDockTile",
   "NSRunningApplication",
 ] }
+tauri-plugin-cli = "2.4.1"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }

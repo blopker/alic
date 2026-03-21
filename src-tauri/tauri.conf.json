@@ -94,6 +94,124 @@
         ]
       }
     },
+    "cli": {
+      "description": "Alic Image Compressor",
+      "args": [
+        {
+          "name": "input",
+          "description": "Input file or directory path",
+          "takesValue": true,
+          "multiple": true
+        },
+        {
+          "name": "profile",
+          "description": "Profile name or ID to use",
+          "takesValue": true
+        },
+        {
+          "name": "threads",
+          "description": "Number of images to process concurrently",
+          "takesValue": true
+        },
+        {
+          "name": "recursive",
+          "description": "Recurse into directories (default: true)"
+        },
+        {
+          "name": "no-recursive",
+          "description": "Do not recurse into directories"
+        },
+        {
+          "name": "resize",
+          "description": "Resize images (WIDTHxHEIGHT)",
+          "takesValue": true
+        },
+        {
+          "name": "reformat",
+          "description": "Convert to format (jpeg|png|webp|gif|tiff|avif)",
+          "takesValue": true
+        },
+        {
+          "name": "overwrite",
+          "description": "Allow overwriting original files"
+        },
+        {
+          "name": "no-overwrite",
+          "description": "Do not overwrite original files"
+        },
+        {
+          "name": "postfix",
+          "description": "Postfix text for output filenames",
+          "takesValue": true
+        },
+        {
+          "name": "add-postfix",
+          "description": "Add postfix to output filenames"
+        },
+        {
+          "name": "no-postfix",
+          "description": "Do not add postfix to output filenames"
+        },
+        {
+          "name": "lossy",
+          "description": "Enable lossy compression"
+        },
+        {
+          "name": "no-lossy",
+          "description": "Disable lossy compression"
+        },
+        {
+          "name": "keep-metadata",
+          "description": "Preserve image metadata"
+        },
+        {
+          "name": "no-keep-metadata",
+          "description": "Strip image metadata"
+        },
+        {
+          "name": "keep-timestamps",
+          "description": "Preserve file timestamps"
+        },
+        {
+          "name": "no-keep-timestamps",
+          "description": "Do not preserve file timestamps"
+        },
+        {
+          "name": "background-fill",
+          "description": "Enable background fill with color (#RRGGBB)",
+          "takesValue": true
+        },
+        {
+          "name": "no-background-fill",
+          "description": "Disable background fill"
+        },
+        {
+          "name": "jpeg-quality",
+          "description": "JPEG quality (1-100)",
+          "takesValue": true
+        },
+        {
+          "name": "png-quality",
+          "description": "PNG quality (1-100)",
+          "takesValue": true
+        },
+        {
+          "name": "webp-quality",
+          "description": "WebP quality (1-100)",
+          "takesValue": true
+        },
+        {
+          "name": "gif-quality",
+          "description": "GIF quality (1-100)",
+          "takesValue": true
+        },
+        {
+          "name": "avif-quality",
+          "description": "AVIF quality (1-100)",
+          "takesValue": true
+        }
+      ]
+    },
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQ5RjA0MDEwNTA2OUIxQ0YKUldUUHNXbFFFRUR3U1R5SDJLYThCdUp3N1JyZCsvV09SSE9Ca1NleCtNUzJRUWNRRkNHT3VFRlkK",
       "endpoints": [

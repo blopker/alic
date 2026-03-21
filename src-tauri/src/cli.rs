@@ -2,75 +2,57 @@ use crate::compress::{ImageType, gather_image_paths, process_path};
 use crate::errors::AlicErrorType;
 use crate::settings::{self, ProfileData, SettingsData};
 use std::collections::HashSet;
-use std::env;
-use std::fs;
-use std::path::{Path, PathBuf};
 use std::sync::mpsc;
 use std::thread;
+use tauri_plugin_cli::Matches;
 
-// Must match "identifier" in tauri.conf.json
-const APP_IDENTIFIER: &str = "io.kbl.alic";
+/// Check whether the CLI plugin received any `--input` arguments.
+/// Returns `true` if CLI processing was triggered (caller should exit).
+pub fn handle_matches(app: &tauri::AppHandle, matches: Matches) -> bool {
+    // If no --input was provided, this is a normal GUI launch.
+    let inputs = match get_strings(&matches, "input") {
+        Some(v) if !v.is_empty() => v,
+        _ => return false,
+    };
 
-#[derive(Clone, Debug)]
-pub struct CliConfig {
-    pub inputs: Vec<String>,
-    pub recursive: bool,
-    pub threads: usize,
-    pub profile: Option<String>,
-    pub overrides: CliOverrides,
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct CliOverrides {
-    pub should_overwrite: Option<bool>,
-    pub should_convert: Option<bool>,
-    pub convert_extension: Option<ImageType>,
-    pub should_resize: Option<bool>,
-    pub resize_width: Option<u32>,
-    pub resize_height: Option<u32>,
-    pub add_postfix: Option<bool>,
-    pub postfix: Option<String>,
-    pub enable_lossy: Option<bool>,
-    pub keep_timestamps: Option<bool>,
-    pub keep_metadata: Option<bool>,
-    pub should_background_fill: Option<bool>,
-    pub background_fill: Option<String>,
-    pub jpeg_quality: Option<u32>,
-    pub png_quality: Option<u32>,
-    pub webp_quality: Option<u32>,
-    pub gif_quality: Option<u32>,
-    pub avif_quality: Option<u32>,
-}
-
-pub fn run() -> i32 {
-    let args: Vec<String> = env::args().skip(1).collect();
-    match run_with_args(&args) {
+    let exit_code = match run_cli(app, &matches, inputs) {
         Ok(()) => 0,
         Err(err) => {
             eprintln!("{err}");
             1
         }
-    }
+    };
+    std::process::exit(exit_code);
 }
 
-pub fn run_with_args(args: &[String]) -> Result<(), String> {
-    if args.is_empty() || args.iter().any(|arg| arg == "--help") {
-        print_help();
-        return Ok(());
-    }
-    if args.iter().any(|arg| arg == "--version") {
-        println!("{}", env!("CARGO_PKG_VERSION"));
-        return Ok(());
-    }
+fn run_cli(
+    app: &tauri::AppHandle,
+    matches: &Matches,
+    inputs: Vec<String>,
+) -> Result<(), String> {
+    let settings = settings::get_settings_data(app)?.0;
+    let profile_selector = get_string(matches, "profile");
+    let base_profile = resolve_profile(&settings, profile_selector.as_deref())?;
+    let profile = apply_overrides(base_profile, matches)?;
 
-    let config = parse_args(args)?;
-    let settings = load_settings_data()?;
-    let base_profile = resolve_profile(&settings, config.profile.as_deref())?;
-    let profile = apply_overrides(base_profile, &config.overrides);
+    let thread_count = match get_string(matches, "threads") {
+        Some(v) => {
+            let parsed = v
+                .parse::<usize>()
+                .map_err(|_| "Invalid --threads value".to_string())?;
+            if parsed == 0 {
+                return Err("--threads must be greater than 0".to_string());
+            }
+            parsed
+        }
+        None => 1,
+    };
+
+    let recursive = get_flag_pair(matches, "recursive", "no-recursive").unwrap_or(true);
 
     let mut paths = Vec::new();
-    for input in &config.inputs {
-        let discovered = gather_image_paths(input, config.recursive);
+    for input in &inputs {
+        let discovered = gather_image_paths(input, recursive);
         paths.extend(discovered);
     }
     dedupe_paths(&mut paths);
@@ -78,10 +60,8 @@ pub fn run_with_args(args: &[String]) -> Result<(), String> {
         return Err("No supported image files found in --input paths".to_string());
     }
 
-    let thread_count = config.threads;
     let (tx, rx) = mpsc::channel();
 
-    // Process images in chunks of `thread_count` for concurrency
     for chunk in paths.chunks(thread_count) {
         let handles: Vec<_> = chunk
             .iter()
@@ -136,111 +116,71 @@ fn dedupe_paths(paths: &mut Vec<String>) {
     paths.retain(|p| seen.insert(p.clone()));
 }
 
-pub fn parse_args(args: &[String]) -> Result<CliConfig, String> {
-    let mut cfg = CliConfig {
-        inputs: Vec::new(),
-        recursive: true,
-        threads: 1,
-        profile: None,
-        overrides: CliOverrides::default(),
-    };
+// --- Arg helpers ---
 
-    let mut index = 0_usize;
-    while index < args.len() {
-        let arg = &args[index];
-        if !arg.starts_with("--") {
-            return Err(format!(
-                "Unexpected argument `{arg}`. Only long-form flags are supported."
-            ));
-        }
-        let trimmed = &arg[2..];
-        let (key, value, consumed_next) = split_flag(trimmed, args, index)?;
-        index += if consumed_next { 2 } else { 1 };
-
-        match key.as_str() {
-            "input" => cfg.inputs.push(value),
-            "recursive" => cfg.recursive = parse_bool(&value, &key)?,
-            "profile" => cfg.profile = Some(value),
-            "threads" => {
-                let parsed = value
-                    .parse::<usize>()
-                    .map_err(|_| "Invalid --threads value".to_string())?;
-                if parsed == 0 {
-                    return Err("--threads must be greater than 0".to_string());
-                }
-                cfg.threads = parsed;
-            }
-            "resize" => {
-                let (w, h) = parse_resize(&value)?;
-                cfg.overrides.should_resize = Some(true);
-                cfg.overrides.resize_width = Some(w);
-                cfg.overrides.resize_height = Some(h);
-            }
-            "reformat" => {
-                cfg.overrides.should_convert = Some(true);
-                cfg.overrides.convert_extension = Some(parse_image_type(&value)?);
-            }
-            "overwrite" => cfg.overrides.should_overwrite = Some(parse_bool(&value, &key)?),
-            "postfix" => cfg.overrides.postfix = Some(value),
-            "add-postfix" => cfg.overrides.add_postfix = Some(parse_bool(&value, &key)?),
-            "lossy" => cfg.overrides.enable_lossy = Some(parse_bool(&value, &key)?),
-            "keep-timestamps" => cfg.overrides.keep_timestamps = Some(parse_bool(&value, &key)?),
-            "keep-metadata" => cfg.overrides.keep_metadata = Some(parse_bool(&value, &key)?),
-            "enable-background-fill" => {
-                cfg.overrides.should_background_fill = Some(parse_bool(&value, &key)?)
-            }
-            "background-fill" => {
-                validate_hex_color(&value)?;
-                cfg.overrides.background_fill = Some(value);
-                if cfg.overrides.should_background_fill.is_none() {
-                    cfg.overrides.should_background_fill = Some(true);
-                }
-            }
-            "jpeg-quality" => cfg.overrides.jpeg_quality = Some(parse_quality(&value, &key)?),
-            "png-quality" => cfg.overrides.png_quality = Some(parse_quality(&value, &key)?),
-            "webp-quality" => cfg.overrides.webp_quality = Some(parse_quality(&value, &key)?),
-            "gif-quality" => cfg.overrides.gif_quality = Some(parse_quality(&value, &key)?),
-            "avif-quality" => cfg.overrides.avif_quality = Some(parse_quality(&value, &key)?),
-            unknown => return Err(format!("Unknown flag --{unknown}")),
-        }
-    }
-
-    if cfg.inputs.is_empty() {
-        return Err("At least one --input=<path> is required".to_string());
-    }
-    Ok(cfg)
+fn get_string(matches: &Matches, name: &str) -> Option<String> {
+    matches
+        .args
+        .get(name)
+        .and_then(|arg| arg.value.as_str().map(|s| s.to_string()))
 }
 
-fn split_flag(
-    trimmed: &str,
-    args: &[String],
-    index: usize,
-) -> Result<(String, String, bool), String> {
-    if let Some((key, value)) = trimmed.split_once('=') {
-        if key.is_empty() || value.is_empty() {
-            return Err(format!("Invalid flag format: --{trimmed}"));
+fn get_strings(matches: &Matches, name: &str) -> Option<Vec<String>> {
+    let arg = matches.args.get(name)?;
+    if let Some(arr) = arg.value.as_array() {
+        let strings: Vec<String> = arr.iter().filter_map(|v| v.as_str().map(String::from)).collect();
+        if strings.is_empty() {
+            None
+        } else {
+            Some(strings)
         }
-        return Ok((key.to_string(), value.to_string(), false));
+    } else if let Some(s) = arg.value.as_str() {
+        if s.is_empty() {
+            None
+        } else {
+            Some(vec![s.to_string()])
+        }
+    } else {
+        None
     }
-    let key = trimmed;
-    if key.is_empty() {
-        return Err("Invalid empty flag".to_string());
-    }
-    let next = args
-        .get(index + 1)
-        .ok_or_else(|| format!("Missing value for --{key}"))?;
-    if next.starts_with("--") {
-        return Err(format!("Missing value for --{key}"));
-    }
-    Ok((key.to_string(), next.clone(), true))
 }
 
-fn parse_bool(value: &str, key: &str) -> Result<bool, String> {
-    match value {
-        "true" => Ok(true),
-        "false" => Ok(false),
-        _ => Err(format!("--{key} expects true or false")),
+fn has_flag(matches: &Matches, name: &str) -> bool {
+    matches
+        .args
+        .get(name)
+        .map(|a| a.occurrences > 0)
+        .unwrap_or(false)
+}
+
+/// Check a --flag / --no-flag pair. Returns Some(true) if the positive flag
+/// was passed, Some(false) if the negative flag was passed, None if neither.
+fn get_flag_pair(matches: &Matches, name: &str, no_name: &str) -> Option<bool> {
+    let pos = matches
+        .args
+        .get(name)
+        .map(|a| a.occurrences > 0)
+        .unwrap_or(false);
+    let neg = matches
+        .args
+        .get(no_name)
+        .map(|a| a.occurrences > 0)
+        .unwrap_or(false);
+    match (pos, neg) {
+        (true, _) => Some(true),
+        (_, true) => Some(false),
+        _ => None,
     }
+}
+
+fn parse_quality(value: &str, key: &str) -> Result<u32, String> {
+    let parsed = value
+        .parse::<u32>()
+        .map_err(|_| format!("--{key} expects a number between 1 and 100"))?;
+    if !(1..=100).contains(&parsed) {
+        return Err(format!("--{key} expects a number between 1 and 100"));
+    }
+    Ok(parsed)
 }
 
 fn parse_resize(value: &str) -> Result<(u32, u32), String> {
@@ -271,16 +211,6 @@ fn parse_image_type(value: &str) -> Result<ImageType, String> {
     }
 }
 
-fn parse_quality(value: &str, key: &str) -> Result<u32, String> {
-    let parsed = value
-        .parse::<u32>()
-        .map_err(|_| format!("--{key} expects a number between 1 and 100"))?;
-    if !(1..=100).contains(&parsed) {
-        return Err(format!("--{key} expects a number between 1 and 100"));
-    }
-    Ok(parsed)
-}
-
 fn validate_hex_color(value: &str) -> Result<(), String> {
     if value.len() != 7 || !value.starts_with('#') {
         return Err("--background-fill expects #RRGGBB".to_string());
@@ -290,6 +220,8 @@ fn validate_hex_color(value: &str) -> Result<(), String> {
     }
     Ok(())
 }
+
+// --- Profile resolution ---
 
 fn resolve_profile(settings: &SettingsData, selector: Option<&str>) -> Result<ProfileData, String> {
     let selected = match selector {
@@ -307,147 +239,89 @@ fn resolve_profile(settings: &SettingsData, selector: Option<&str>) -> Result<Pr
         .ok_or_else(|| "No profiles available in settings".to_string())
 }
 
-fn apply_overrides(mut profile: ProfileData, overrides: &CliOverrides) -> ProfileData {
-    if let Some(value) = overrides.should_overwrite {
-        profile.should_overwrite = value;
+fn apply_overrides(mut profile: ProfileData, matches: &Matches) -> Result<ProfileData, String> {
+    if let Some(v) = get_flag_pair(matches, "overwrite", "no-overwrite") {
+        profile.should_overwrite = v;
     }
-    if let Some(value) = overrides.should_convert {
-        profile.should_convert = value;
+    if let Some(v) = get_string(matches, "reformat") {
+        profile.should_convert = true;
+        profile.convert_extension = parse_image_type(&v)?;
     }
-    if let Some(value) = overrides.convert_extension.clone() {
-        profile.convert_extension = value;
+    if let Some(v) = get_string(matches, "resize") {
+        let (w, h) = parse_resize(&v)?;
+        profile.should_resize = true;
+        profile.resize_width = w;
+        profile.resize_height = h;
     }
-    if let Some(value) = overrides.should_resize {
-        profile.should_resize = value;
+    if let Some(v) = get_flag_pair(matches, "add-postfix", "no-postfix") {
+        profile.add_postfix = v;
     }
-    if let Some(value) = overrides.resize_width {
-        profile.resize_width = value;
+    if let Some(v) = get_string(matches, "postfix") {
+        profile.postfix = v;
     }
-    if let Some(value) = overrides.resize_height {
-        profile.resize_height = value;
+    if let Some(v) = get_flag_pair(matches, "lossy", "no-lossy") {
+        profile.enable_lossy = v;
     }
-    if let Some(value) = overrides.add_postfix {
-        profile.add_postfix = value;
+    if let Some(v) = get_flag_pair(matches, "keep-timestamps", "no-keep-timestamps") {
+        profile.keep_timestamps = v;
     }
-    if let Some(value) = overrides.postfix.clone() {
-        profile.postfix = value;
+    if let Some(v) = get_flag_pair(matches, "keep-metadata", "no-keep-metadata") {
+        profile.keep_metadata = v;
     }
-    if let Some(value) = overrides.enable_lossy {
-        profile.enable_lossy = value;
+    if let Some(v) = get_string(matches, "background-fill") {
+        validate_hex_color(&v)?;
+        profile.background_fill = v;
+        profile.should_background_fill = true;
+    } else if has_flag(matches, "no-background-fill") {
+        profile.should_background_fill = false;
     }
-    if let Some(value) = overrides.keep_timestamps {
-        profile.keep_timestamps = value;
+    if let Some(v) = get_string(matches, "jpeg-quality") {
+        profile.jpeg_quality = parse_quality(&v, "jpeg-quality")?;
     }
-    if let Some(value) = overrides.keep_metadata {
-        profile.keep_metadata = value;
+    if let Some(v) = get_string(matches, "png-quality") {
+        profile.png_quality = parse_quality(&v, "png-quality")?;
     }
-    if let Some(value) = overrides.should_background_fill {
-        profile.should_background_fill = value;
+    if let Some(v) = get_string(matches, "webp-quality") {
+        profile.webp_quality = parse_quality(&v, "webp-quality")?;
     }
-    if let Some(value) = overrides.background_fill.clone() {
-        profile.background_fill = value;
+    if let Some(v) = get_string(matches, "gif-quality") {
+        profile.gif_quality = parse_quality(&v, "gif-quality")?;
     }
-    if let Some(value) = overrides.jpeg_quality {
-        profile.jpeg_quality = value;
+    if let Some(v) = get_string(matches, "avif-quality") {
+        profile.avif_quality = parse_quality(&v, "avif-quality")?;
     }
-    if let Some(value) = overrides.png_quality {
-        profile.png_quality = value;
-    }
-    if let Some(value) = overrides.webp_quality {
-        profile.webp_quality = value;
-    }
-    if let Some(value) = overrides.gif_quality {
-        profile.gif_quality = value;
-    }
-    if let Some(value) = overrides.avif_quality {
-        profile.avif_quality = value;
-    }
-    profile
+    Ok(profile)
 }
 
-fn load_settings_data() -> Result<SettingsData, String> {
-    let path = default_settings_path()
-        .ok_or_else(|| "Unable to resolve settings directory from environment".to_string())?;
-    if !path.exists() {
-        return Ok(SettingsData::new());
-    }
-    let text = fs::read_to_string(&path)
-        .map_err(|err| format!("Failed to read {}: {err}", path.display()))?;
-    let value: serde_json::Value =
-        serde_json::from_str(&text).map_err(|err| format!("Invalid settings JSON: {err}"))?;
-
-    // tauri-plugin-store usually wraps values in an object map by key.
-    let settings_value = value.get("settings").unwrap_or(&value);
-
-    let mut warnings = Vec::new();
-    settings::check_missing_keys(settings_value, &mut warnings);
-    for warning in &warnings {
-        eprintln!("Warning: {warning}");
-    }
-
-    serde_json::from_value(settings_value.clone())
-        .map_err(|err| format!("Invalid settings payload: {err}"))
-}
-
-fn default_settings_path() -> Option<PathBuf> {
-    #[cfg(target_os = "macos")]
-    {
-        let home = env::var("HOME").ok()?;
-        return Some(
-            Path::new(&home)
-                .join("Library")
-                .join("Application Support")
-                .join(APP_IDENTIFIER)
-                .join("settings.json"),
-        );
-    }
-    #[cfg(target_os = "linux")]
-    {
-        let home = env::var("HOME").ok()?;
-        return Some(
-            Path::new(&home)
-                .join(".local")
-                .join("share")
-                .join(APP_IDENTIFIER)
-                .join("settings.json"),
-        );
-    }
-    #[cfg(target_os = "windows")]
-    {
-        let app_data = env::var("APPDATA").ok()?;
-        return Some(
-            Path::new(&app_data)
-                .join(APP_IDENTIFIER)
-                .join("settings.json"),
-        );
-    }
-    #[allow(unreachable_code)]
-    None
-}
-
-fn print_help() {
-    println!("alic-cli --input=<path> [--input=<path> ...] [options]");
+pub fn print_help() {
+    println!("Alic Image Compressor v{}", env!("CARGO_PKG_VERSION"));
+    println!();
+    println!("Usage: Alic --input <path> [--input <path> ...] [options]");
+    println!();
     println!("Options:");
-    println!("  --profile=<name-or-id>");
-    println!("  --threads=<n>  (number of images to process concurrently)");
-    println!("  --recursive=<true|false>");
-    println!("  --resize=<WIDTHxHEIGHT>");
-    println!("  --reformat=<jpeg|png|webp|gif|tiff|avif>");
-    println!("  --overwrite=<true|false>");
-    println!("  --postfix=<text>");
-    println!("  --add-postfix=<true|false>");
-    println!("  --jpeg-quality=<1-100>");
-    println!("  --png-quality=<1-100>");
-    println!("  --webp-quality=<1-100>");
-    println!("  --gif-quality=<1-100>");
-    println!("  --avif-quality=<1-100>");
-    println!("  --lossy=<true|false>");
-    println!("  --keep-metadata=<true|false>");
-    println!("  --keep-timestamps=<true|false>");
-    println!("  --enable-background-fill=<true|false>");
-    println!("  --background-fill=<#RRGGBB>");
-    println!("  --help");
-    println!("  --version");
+    println!("  --input <path>              Input file or directory (required, repeatable)");
+    println!("  --profile <name-or-id>      Profile to use");
+    println!("  --threads <n>               Images to process concurrently (default: 1)");
+    println!("  --recursive / --no-recursive");
+    println!("                              Recurse into directories (default: recursive)");
+    println!("  --resize <WIDTHxHEIGHT>     Resize images");
+    println!("  --reformat <format>          Convert (jpeg|png|webp|gif|tiff|avif)");
+    println!("  --overwrite / --no-overwrite");
+    println!("  --postfix <text>             Postfix text for output filenames");
+    println!("  --add-postfix / --no-postfix");
+    println!("  --lossy / --no-lossy");
+    println!("  --keep-metadata / --no-keep-metadata");
+    println!("  --keep-timestamps / --no-keep-timestamps");
+    println!("  --background-fill <#RRGGBB> / --no-background-fill");
+    println!("  --jpeg-quality <1-100>");
+    println!("  --png-quality <1-100>");
+    println!("  --webp-quality <1-100>");
+    println!("  --gif-quality <1-100>");
+    println!("  --avif-quality <1-100>");
+    println!("  --help                       Show this help");
+    println!("  --version                    Show version");
+    println!();
+    println!("Boolean flags override the selected profile. Omitted flags use the profile value.");
 }
 
 #[cfg(test)]
@@ -455,36 +329,29 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parses_resize_and_reformat_flags() {
-        let args = vec![
-            "--input=fixtures".to_string(),
-            "--resize=123x456".to_string(),
-            "--reformat=jpg".to_string(),
-            "--threads=3".to_string(),
-        ];
-        let parsed = parse_args(&args).expect("args should parse");
-        assert_eq!(parsed.inputs, vec!["fixtures".to_string()]);
-        assert_eq!(parsed.threads, 3);
-        assert_eq!(parsed.overrides.resize_width, Some(123));
-        assert_eq!(parsed.overrides.resize_height, Some(456));
-        assert_eq!(parsed.overrides.convert_extension, Some(ImageType::JPEG));
-        assert_eq!(parsed.overrides.should_convert, Some(true));
+    fn parse_resize_valid() {
+        let (w, h) = parse_resize("123x456").unwrap();
+        assert_eq!(w, 123);
+        assert_eq!(h, 456);
     }
 
     #[test]
-    fn rejects_short_flags() {
-        let args = vec!["-i".to_string(), "fixtures".to_string()];
-        let err = parse_args(&args).expect_err("short flag must fail");
-        assert!(err.contains("Only long-form flags"));
+    fn parse_resize_invalid() {
+        assert!(parse_resize("abc").is_err());
+        assert!(parse_resize("0x100").is_err());
     }
 
     #[test]
-    fn validates_quality_range() {
-        let args = vec![
-            "--input=a.png".to_string(),
-            "--jpeg-quality=101".to_string(),
-        ];
-        let err = parse_args(&args).expect_err("quality must fail");
-        assert!(err.contains("between 1 and 100"));
+    fn parse_image_type_valid() {
+        assert_eq!(parse_image_type("jpg").unwrap(), ImageType::JPEG);
+        assert_eq!(parse_image_type("WEBP").unwrap(), ImageType::WEBP);
+        assert_eq!(parse_image_type("avif").unwrap(), ImageType::AVIF);
+    }
+
+    #[test]
+    fn parse_quality_valid() {
+        assert_eq!(parse_quality("80", "test").unwrap(), 80);
+        assert!(parse_quality("0", "test").is_err());
+        assert!(parse_quality("101", "test").is_err());
     }
 }

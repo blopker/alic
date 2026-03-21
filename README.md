@@ -58,35 +58,50 @@ Drag and drop images (or folders) into the window, images will automatically sta
 
 Having trouble? Hover over the status icons for helpful hints!
 
-### CLI Usage (standalone)
+### CLI Usage
 
-You can also run the standalone CLI binary with long-form flags only:
+The Alic app binary doubles as a CLI. Pass `--input` to compress images without opening the GUI:
 
-`cargo run --manifest-path src-tauri/Cargo.toml --bin alic-cli -- --input=/path/to/image.jpg --resize=123x123 --reformat=jpg`
+```
+Alic --input /path/to/image.jpg
+Alic --input /path/to/images/ --reformat webp --lossy --webp-quality 80
+```
 
-Core flags:
+On macOS you can run the binary inside the app bundle:
 
-- `--input=<path>` (repeatable, required)
-- `--profile=<name-or-id>`
-- `--threads=<n>`
-- `--recursive=<true|false>`
-- `--resize=<WIDTHxHEIGHT>`
-- `--reformat=<jpeg|png|webp|gif|tiff|avif>`
-- `--overwrite=<true|false>`
-- `--postfix=<text>`
-- `--add-postfix=<true|false>`
-- `--jpeg-quality=<1-100>`
-- `--png-quality=<1-100>`
-- `--webp-quality=<1-100>`
-- `--gif-quality=<1-100>`
-- `--avif-quality=<1-100>`
-- `--lossy=<true|false>`
-- `--keep-metadata=<true|false>`
-- `--keep-timestamps=<true|false>`
-- `--enable-background-fill=<true|false>`
-- `--background-fill=<#RRGGBB>`
-- `--help`
-- `--version`
+```
+"/Applications/Alic Image Compressor.app/Contents/MacOS/Alic" --input /path/to/image.jpg
+```
+
+Or create a shell alias for convenience:
+
+```
+alias alic='"/Applications/Alic Image Compressor.app/Contents/MacOS/Alic"'
+```
+
+Run `Alic --help` for all options. Boolean flags use `--flag` / `--no-flag` pairs (e.g. `--lossy` / `--no-lossy`). Omitted flags use the selected profile's value.
+
+Flags:
+
+- `--input <path>` — Input file or directory (required, repeatable)
+- `--profile <name-or-id>` — Profile to use
+- `--threads <n>` — Concurrent image processing (default: 1)
+- `--recursive` / `--no-recursive` — Recurse into directories (default: recursive)
+- `--resize <WIDTHxHEIGHT>` — Resize images
+- `--reformat <format>` — Convert (jpeg|png|webp|gif|tiff|avif)
+- `--overwrite` / `--no-overwrite`
+- `--postfix <text>` — Postfix text for output filenames
+- `--add-postfix` / `--no-postfix`
+- `--lossy` / `--no-lossy`
+- `--keep-metadata` / `--no-keep-metadata`
+- `--keep-timestamps` / `--no-keep-timestamps`
+- `--background-fill <#RRGGBB>` / `--no-background-fill`
+- `--jpeg-quality <1-100>`
+- `--png-quality <1-100>`
+- `--webp-quality <1-100>`
+- `--gif-quality <1-100>`
+- `--avif-quality <1-100>`
+- `--help` / `--version`
 
 ## Privacy
 

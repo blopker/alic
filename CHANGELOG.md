@@ -5,11 +5,11 @@ Changelog with major user-facing changes. See commit log for details.
 # 2.4.9
 
 - Fix release
+- Add CLI support — run `Alic --input <path>` to compress images from the command line
+- Add "Startup Profile" setting to choose which profile activates on app launch
 
 # 2.4.8
 
-- Add CLI support — run `Alic --input <path>` to compress images from the command line
-- Add "Startup Profile" setting to choose which profile activates on app launch
 - Fix settings with missing or corrupt values silently resetting to defaults
 
 # 2.4.7

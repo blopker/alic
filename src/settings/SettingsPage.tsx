@@ -18,10 +18,12 @@ import {
   SettingsInput,
   SettingsNumberInput,
   SettingsPage,
+  SettingsSelect,
 } from "./SettingsUI";
 import {
   createProfile,
   resetSettings,
+  setDefaultProfileId,
   setThreads,
   settings,
 } from "./settingsData";
@@ -116,10 +118,46 @@ function SettingsSideBar() {
   );
 }
 
+const LAST_USED_LABEL = "Last Used Profile";
+
 function GeneralPage() {
+  const profileOptions = () => {
+    return [
+      LAST_USED_LABEL,
+      ...settings.profiles
+        .map((p) => p.name)
+        .sort((a, b) => a.localeCompare(b)),
+    ];
+  };
+  const selectedLabel = () => {
+    if (settings.default_profile_id === null) return LAST_USED_LABEL;
+    const profile = settings.profiles.find(
+      (p) => p.id === settings.default_profile_id,
+    );
+    return profile?.name ?? LAST_USED_LABEL;
+  };
   return (
     <SettingsPage title="General">
       <SettingBox title="">
+        <SettingRow
+          title="Startup Profile"
+          helpText="Profile to activate on startup."
+        >
+          <SettingsSelect
+            value={selectedLabel()}
+            options={profileOptions()}
+            onChange={(label) => {
+              if (label === LAST_USED_LABEL) {
+                setDefaultProfileId(null);
+                return;
+              }
+              const profile = settings.profiles.find((p) => p.name === label);
+              if (profile) {
+                setDefaultProfileId(profile.id);
+              }
+            }}
+          />
+        </SettingRow>
         <SettingRow
           title="Threads"
           helpText="Number of images to process in parallel. Setting this to 0 will use all available cores."

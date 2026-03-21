@@ -5,6 +5,16 @@ import { addToast } from "../Toast";
 
 const [settings, setSettings] = createStore<SettingsData>(await getSettings());
 
+// On startup, switch to the default profile if one is configured
+if (settings.default_profile_id !== null) {
+  const defaultExists = settings.profiles.some(
+    (p) => p.id === settings.default_profile_id,
+  );
+  if (defaultExists) {
+    setProfileActive(settings.default_profile_id);
+  }
+}
+
 settingsChangedListener(async () => {
   // console.log("settings changed");
   setSettings(await getSettings());
@@ -49,6 +59,11 @@ function setThreads(threads: SettingsData["threads"]) {
     _threads = 0;
   }
   setSettings("threads", threads);
+  saveSettings();
+}
+
+function setDefaultProfileId(id: number | null) {
+  setSettings("default_profile_id", id);
   saveSettings();
 }
 
@@ -99,6 +114,7 @@ function getProfileActive() {
 export {
   settings,
   setThreads,
+  setDefaultProfileId,
   resetSettings,
   updateProfile,
   deleteProfile,

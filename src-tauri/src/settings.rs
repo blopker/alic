@@ -17,6 +17,7 @@ pub struct SettingsData {
     pub version: u32,
     pub theme: ThemeKind,
     pub threads: i32,
+    pub default_profile_id: Option<u32>,
     pub profiles: Vec<ProfileData>,
 }
 
@@ -34,6 +35,7 @@ impl Default for SettingsData {
             version: 1,
             theme: ThemeKind::System,
             threads: 0,
+            default_profile_id: None,
             profiles: vec![ProfileData::default()],
         }
     }
@@ -178,6 +180,9 @@ pub async fn delete_profile(app: tauri::AppHandle, profile_id: u32) -> Result<()
         .iter()
         .position(|p| p.id == profile_id)
         .map(|i| settings.profiles.remove(i));
+    if settings.default_profile_id == Some(profile_id) {
+        settings.default_profile_id = None;
+    }
     set_settings_data(&app, settings);
     Ok(())
 }

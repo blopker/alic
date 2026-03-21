@@ -133,6 +133,32 @@ pub async fn process_img(
     file: FileEntry,
     parallel_images: i32,
 ) -> Result<CompressResult, AlicError> {
+    process_img_internal(parameters, file, parallel_images)
+}
+
+pub fn process_path(
+    parameters: settings::ProfileData,
+    path: String,
+    parallel_images: i32,
+) -> Result<CompressResult, AlicError> {
+    let file = FileEntry {
+        path,
+        file: None,
+        status: FileEntryStatus::Processing,
+        size: None,
+        original_size: None,
+        ext: None,
+        savings: None,
+        error: None,
+    };
+    process_img_internal(parameters, file, parallel_images)
+}
+
+fn process_img_internal(
+    parameters: settings::ProfileData,
+    file: FileEntry,
+    parallel_images: i32,
+) -> Result<CompressResult, AlicError> {
     // check file exists,
     // get type,
     // need conversion?,
@@ -498,6 +524,50 @@ where
             find_images(&path, on_event);
         } else if is_image(&path) {
             on_event(path.to_string_lossy().to_string());
+        }
+    }
+}
+
+pub fn gather_image_paths(path: &str, recursive: bool) -> Vec<String> {
+    let mut output = Vec::new();
+    let file = Path::new(path);
+    if !file.exists() {
+        return output;
+    }
+    if file.is_file() {
+        if is_image(file) {
+            output.push(path.to_string());
+        }
+        return output;
+    }
+
+    gather_images_into(file, recursive, &mut output);
+    output
+}
+
+fn gather_images_into(path: &Path, recursive: bool, output: &mut Vec<String>) {
+    let entries = match fs::read_dir(path) {
+        Ok(entries) => entries,
+        Err(err) => {
+            eprintln!("Warning: cannot read directory {}: {err}", path.display());
+            return;
+        }
+    };
+
+    for entry in entries {
+        let path = match entry {
+            Ok(e) => e.path(),
+            Err(err) => {
+                eprintln!("Warning: skipping directory entry: {err}");
+                continue;
+            }
+        };
+        if path.is_dir() {
+            if recursive {
+                gather_images_into(&path, recursive, output);
+            }
+        } else if is_image(&path) {
+            output.push(path.to_string_lossy().to_string());
         }
     }
 }

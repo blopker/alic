@@ -58,6 +58,36 @@ Drag and drop images (or folders) into the window, images will automatically sta
 
 Having trouble? Hover over the status icons for helpful hints!
 
+### CLI Usage (standalone)
+
+You can also run the standalone CLI binary with long-form flags only:
+
+`cargo run --manifest-path src-tauri/Cargo.toml --bin alic-cli -- --input=/path/to/image.jpg --resize=123x123 --reformat=jpg`
+
+Core flags:
+
+- `--input=<path>` (repeatable, required)
+- `--profile=<name-or-id>`
+- `--threads=<n>`
+- `--recursive=<true|false>`
+- `--resize=<WIDTHxHEIGHT>`
+- `--reformat=<jpeg|png|webp|gif|tiff|avif>`
+- `--overwrite=<true|false>`
+- `--postfix=<text>`
+- `--add-postfix=<true|false>`
+- `--jpeg-quality=<1-100>`
+- `--png-quality=<1-100>`
+- `--webp-quality=<1-100>`
+- `--gif-quality=<1-100>`
+- `--avif-quality=<1-100>`
+- `--lossy=<true|false>`
+- `--keep-metadata=<true|false>`
+- `--keep-timestamps=<true|false>`
+- `--enable-background-fill=<true|false>`
+- `--background-fill=<#RRGGBB>`
+- `--help`
+- `--version`
+
 ## Privacy
 
 Your data stays on your machine! No sneaky analytics or tracking here. Alic doesn't phone home, which means you'll need to manually check for updates through the [releases page][project-release-url] or by clicking "Check for Updates" in the app menu bar.

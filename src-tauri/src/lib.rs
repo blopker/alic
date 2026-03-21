@@ -1,6 +1,6 @@
 pub mod cli;
 pub mod compress;
-pub mod errors;
+pub(crate) mod errors;
 mod events;
 mod macos;
 mod resize;

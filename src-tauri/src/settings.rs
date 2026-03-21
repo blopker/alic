@@ -27,14 +27,20 @@ pub enum ThemeKind {
     System,
 }
 
-impl SettingsData {
-    pub fn new() -> Self {
+impl Default for SettingsData {
+    fn default() -> Self {
         Self {
             version: 1,
             theme: ThemeKind::System,
             threads: 0,
-            profiles: vec![ProfileData::new()],
+            profiles: vec![ProfileData::default()],
         }
+    }
+}
+
+impl SettingsData {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -78,8 +84,8 @@ fn default_color() -> String {
     "#000".to_string()
 }
 
-impl ProfileData {
-    pub fn new() -> Self {
+impl Default for ProfileData {
+    fn default() -> Self {
         Self {
             name: "Default".to_string(),
             id: 0,
@@ -105,12 +111,20 @@ impl ProfileData {
         }
     }
 
+}
+
+impl ProfileData {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     pub fn new_with_params(id: u32, name: String) -> Self {
-        let mut this = Self::new();
-        this.id = id;
-        this.name = name;
-        this.active = false;
-        this
+        Self {
+            id,
+            name,
+            active: false,
+            ..Self::default()
+        }
     }
 }
 

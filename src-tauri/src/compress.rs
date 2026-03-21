@@ -548,13 +548,19 @@ pub fn gather_image_paths(path: &str, recursive: bool) -> Vec<String> {
 fn gather_images_into(path: &Path, recursive: bool, output: &mut Vec<String>) {
     let entries = match fs::read_dir(path) {
         Ok(entries) => entries,
-        Err(_) => return,
+        Err(err) => {
+            eprintln!("Warning: cannot read directory {}: {err}", path.display());
+            return;
+        }
     };
 
     for entry in entries {
         let path = match entry {
             Ok(e) => e.path(),
-            Err(_) => continue,
+            Err(err) => {
+                eprintln!("Warning: skipping directory entry: {err}");
+                continue;
+            }
         };
         if path.is_dir() {
             if recursive {

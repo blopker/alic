@@ -5,7 +5,10 @@ use std::collections::HashSet;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::mpsc;
+use std::thread;
 
+// Must match "identifier" in tauri.conf.json
 const APP_IDENTIFIER: &str = "io.kbl.alic";
 
 #[derive(Clone, Debug)]
@@ -75,27 +78,49 @@ pub fn run_with_args(args: &[String]) -> Result<(), String> {
         return Err("No supported image files found in --input paths".to_string());
     }
 
+    let thread_count = config.threads;
+    let (tx, rx) = mpsc::channel();
+
+    // Process images in chunks of `thread_count` for concurrency
+    for chunk in paths.chunks(thread_count) {
+        let handles: Vec<_> = chunk
+            .iter()
+            .map(|path| {
+                let tx = tx.clone();
+                let profile = profile.clone();
+                let path = path.clone();
+                let parallel = thread_count as i32;
+                thread::spawn(move || {
+                    let result = process_path(profile, path.clone(), parallel);
+                    tx.send((path, result)).unwrap();
+                })
+            })
+            .collect();
+        for handle in handles {
+            handle.join().unwrap();
+        }
+    }
+    drop(tx);
+
     let mut ok = 0_u32;
     let mut already_smaller = 0_u32;
     let mut errors = 0_u32;
-    for path in paths {
-        match process_path(profile.clone(), path.clone(), config.threads as i32) {
+    for (path, result) in rx {
+        match result {
             Ok(result) => {
                 ok += 1;
                 println!("ok\t{}\t{}", result.path, result.out_path);
             }
-            Err(err) => {
-                match err.error_type {
-                    AlicErrorType::NotSmaller => {
-                        already_smaller += 1;
-                        println!("skip\t{}\t{}", path, err.error);
-                    }
-                    _ => {
-                        errors += 1;
-                        eprintln!("err\t{}\t{}", path, err.error);
-                    }
-                };
-            }
+            Err(err) => match err.error_type {
+                AlicErrorType::NotSmaller => {
+                    already_smaller += 1;
+                    println!("skip\t{}\t{}", path, err.error);
+                }
+                _ => {
+                    errors += 1;
+                    eprintln!("err\t{}\t{}", path, err.error);
+                }
+            },
         }
     }
 
@@ -399,7 +424,7 @@ fn print_help() {
     println!("alic-cli --input=<path> [--input=<path> ...] [options]");
     println!("Options:");
     println!("  --profile=<name-or-id>");
-    println!("  --threads=<n>");
+    println!("  --threads=<n>  (number of images to process concurrently)");
     println!("  --recursive=<true|false>");
     println!("  --resize=<WIDTHxHEIGHT>");
     println!("  --reformat=<jpeg|png|webp|gif|tiff|avif>");

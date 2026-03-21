@@ -4,6 +4,7 @@ version = "2.4.7"
 description = "Alic Image Compressor"
 authors = ["blopker"]
 edition = "2024"
+default-run = "alic"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -38,17 +39,18 @@ tauri-plugin-shell = "2"
 tauri-plugin-store = "2"
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
 tokio = "1.42.0"
-objc2-foundation = { version = "0.3.0", features = [
-    "NSFileManager",
-    "NSAutoreleasePool",
-] }
+objc2-foundation = { version = "0.3.0", features = ["NSFileManager", "NSAutoreleasePool"] }
 tauri-plugin-persisted-scope = "2"
 tauri-plugin-fs = "2"
 tauri-plugin-opener = "2.5.0"
 kamadak-exif = "0.6.1"
 tauri-plugin-log = "2"
 log = "0.4.27"
-objc2-app-kit = { version = "0.3.1", features = ["NSApplication", "NSDockTile", "NSRunningApplication"] }
+objc2-app-kit = { version = "0.3.1", features = [
+  "NSApplication",
+  "NSDockTile",
+  "NSRunningApplication",
+] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }

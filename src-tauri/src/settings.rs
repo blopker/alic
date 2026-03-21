@@ -12,18 +12,19 @@ use crate::compress::ImageType;
 const SETTINGS_KEY: &str = "settings";
 
 #[derive(serde::Serialize, serde::Deserialize, Type, Debug, Clone)]
+#[serde(default)]
 pub struct SettingsData {
     pub version: u32,
     pub theme: ThemeKind,
-    #[serde(default)]
     pub threads: i32,
     pub profiles: Vec<ProfileData>,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Type, Debug, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Type, Debug, Clone, Default)]
 pub enum ThemeKind {
     Light,
     Dark,
+    #[default]
     System,
 }
 
@@ -45,6 +46,7 @@ impl SettingsData {
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Type, Debug, Clone)]
+#[serde(default)]
 pub struct ProfileData {
     pub name: String,
     pub id: u32,
@@ -52,17 +54,12 @@ pub struct ProfileData {
     pub should_resize: bool,
     pub should_convert: bool,
     pub should_overwrite: bool,
-    #[serde(default)]
     pub enable_lossy: bool,
-    #[serde(default)]
     pub keep_timestamps: bool,
-    #[serde(default)]
     pub keep_metadata: bool,
-    #[serde(default, alias = "add_posfix")]
+    #[serde(alias = "add_posfix")]
     pub add_postfix: bool,
-    #[serde(default)]
     pub should_background_fill: bool,
-    #[serde(default = "default_color")]
     pub background_fill: String,
     pub convert_extension: ImageType,
     pub postfix: String,
@@ -72,12 +69,7 @@ pub struct ProfileData {
     pub png_quality: u32,
     pub webp_quality: u32,
     pub gif_quality: u32,
-    #[serde(default = "default_avif_quality")]
     pub avif_quality: u32,
-}
-
-fn default_avif_quality() -> u32 {
-    80
 }
 
 fn default_color() -> String {
@@ -110,7 +102,6 @@ impl Default for ProfileData {
             avif_quality: 80,
         }
     }
-
 }
 
 impl ProfileData {
@@ -128,10 +119,22 @@ impl ProfileData {
     }
 }
 
+#[derive(serde::Serialize, Type, Debug, Clone)]
+pub struct SettingsResult {
+    pub settings: SettingsData,
+    pub warning: Option<String>,
+}
+
 #[tauri::command]
 #[specta::specta]
-pub async fn get_settings(app: tauri::AppHandle) -> Result<SettingsData, String> {
-    Ok(get_settings_data(&app))
+pub async fn get_settings(app: tauri::AppHandle) -> Result<SettingsResult, String> {
+    let (settings, warnings) = get_settings_data(&app)?;
+    let warning = if warnings.is_empty() {
+        None
+    } else {
+        Some(warnings.join("\n"))
+    };
+    Ok(SettingsResult { settings, warning })
 }
 
 #[tauri::command]
@@ -151,7 +154,7 @@ pub async fn reset_settings(app: tauri::AppHandle) -> Result<(), String> {
 #[tauri::command]
 #[specta::specta]
 pub async fn reset_profile(app: tauri::AppHandle, profile_id: u32) -> Result<(), String> {
-    let mut settings = get_settings_data(&app);
+    let mut settings = get_settings_data(&app)?.0;
     let profile_idx = settings.profiles.iter().position(|p| p.id == profile_id);
     if profile_idx.is_none() {
         return Err("Profile not found".to_string());
@@ -169,7 +172,7 @@ pub async fn delete_profile(app: tauri::AppHandle, profile_id: u32) -> Result<()
     if profile_id == 0 {
         return Err("Cannot delete default profile".to_string());
     }
-    let mut settings = get_settings_data(&app);
+    let mut settings = get_settings_data(&app)?.0;
     settings
         .profiles
         .iter()
@@ -182,7 +185,7 @@ pub async fn delete_profile(app: tauri::AppHandle, profile_id: u32) -> Result<()
 #[tauri::command]
 #[specta::specta]
 pub async fn add_profile(app: tauri::AppHandle, mut name: String) -> Result<(), String> {
-    let mut settings = get_settings_data(&app);
+    let mut settings = get_settings_data(&app)?.0;
     let profile_idx = settings.profiles.iter().position(|p| p.name == name);
     if let Some(id) = profile_idx {
         name = format!("{} ({})", name, id + 1);
@@ -231,19 +234,82 @@ fn get_store(app: &tauri::AppHandle) -> Arc<Store<Wry>> {
         .expect("Failed to get settings from store")
 }
 
-pub fn get_settings_data(app: &tauri::AppHandle) -> SettingsData {
+pub fn get_settings_data(app: &tauri::AppHandle) -> Result<(SettingsData, Vec<String>), String> {
     let store = get_store(app);
-    let settings: Option<SettingsData> = store
-        .get(SETTINGS_KEY)
-        .and_then(|v| serde_json::from_value(v).ok());
+    let mut warnings = Vec::new();
 
-    if settings.is_none() {
-        let settings = SettingsData::new();
+    let value = match store.get(SETTINGS_KEY) {
+        Some(v) => v,
+        None => {
+            // If the settings file exists on disk but the store has no
+            // data, the file was likely corrupt JSON that the store
+            // plugin silently discarded.
+            let settings_path = app
+                .path()
+                .app_data_dir()
+                .map(|p| p.join("settings.json"))
+                .unwrap_or_default();
+
+            let settings = SettingsData::new();
+            store.set(SETTINGS_KEY, json!(settings));
+            if settings_path.exists() {
+                warnings
+                    .push("Settings file was corrupt and has been reset to defaults.".to_string());
+            }
+            return Ok((settings, warnings));
+        }
+    };
+
+    check_missing_keys(&value, &mut warnings);
+
+    let settings: SettingsData =
+        serde_json::from_value(value).map_err(|err| format!("Failed to load settings: {err}"))?;
+    if !warnings.is_empty() {
         store.set(SETTINGS_KEY, json!(settings));
-        return settings;
+    }
+    Ok((settings, warnings))
+}
+
+pub fn check_missing_keys(value: &serde_json::Value, warnings: &mut Vec<String>) {
+    let obj = match value.as_object() {
+        Some(o) => o,
+        None => return,
+    };
+
+    let default_settings = json!(SettingsData::new());
+    if let Some(expected) = default_settings.as_object() {
+        for (key, default_val) in expected {
+            if !obj.contains_key(key) {
+                warnings.push(format!(
+                    "Missing setting \"{key}\". Setting to {default_val}"
+                ));
+            }
+        }
     }
 
-    settings.unwrap()
+    let default_profile = json!(ProfileData::default());
+    let expected_profile = match default_profile.as_object() {
+        Some(o) => o,
+        None => return,
+    };
+
+    if let Some(profiles) = obj.get("profiles").and_then(|p| p.as_array()) {
+        for profile in profiles.iter() {
+            if let Some(profile_obj) = profile.as_object() {
+                let profile_name = profile_obj
+                    .get("name")
+                    .and_then(|n| n.as_str())
+                    .unwrap_or("Unknown");
+                for (key, default_val) in expected_profile {
+                    if !profile_obj.contains_key(key) {
+                        warnings.push(format!(
+                            "Profile \"{profile_name}\" missing \"{key}\". Setting to {default_val}"
+                        ));
+                    }
+                }
+            }
+        }
+    }
 }
 
 fn set_settings_data(app: &tauri::AppHandle, settings: SettingsData) {

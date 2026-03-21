@@ -1,6 +1,7 @@
 import { createStore } from "solid-js/store";
 import { settingsChangedListener } from "@/listeners";
 import { commands, type ProfileData, type SettingsData } from "../bindings";
+import { addToast } from "../Toast";
 
 const [settings, setSettings] = createStore<SettingsData>(await getSettings());
 
@@ -26,8 +27,10 @@ async function getSettings() {
   if (opt.status === "error") {
     throw new Error(opt.error);
   }
-  // console.log(opt.data);
-  return opt.data;
+  if (opt.data.warning) {
+    addToast({ message: opt.data.warning, type: "warning", duration: 0 });
+  }
+  return opt.data.settings;
 }
 
 async function resetSettings() {

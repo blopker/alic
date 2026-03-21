@@ -1,5 +1,9 @@
 # Unreleased
 
+- Fix settings with missing or corrupt values silently resetting to defaults
+- Warn users via toast/stderr when settings keys are missing and filled with defaults
+- Use container-level serde defaults so new settings fields are always backwards-compatible
+
 # 2.4.7
 
 - Fix release

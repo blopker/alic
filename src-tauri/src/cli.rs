@@ -1,6 +1,6 @@
 use crate::compress::{ImageType, gather_image_paths, process_path};
 use crate::errors::AlicErrorType;
-use crate::settings::{ProfileData, SettingsData};
+use crate::settings::{self, ProfileData, SettingsData};
 use std::collections::HashSet;
 use std::env;
 use std::fs;
@@ -377,11 +377,16 @@ fn load_settings_data() -> Result<SettingsData, String> {
         serde_json::from_str(&text).map_err(|err| format!("Invalid settings JSON: {err}"))?;
 
     // tauri-plugin-store usually wraps values in an object map by key.
-    if let Some(settings_value) = value.get("settings") {
-        return serde_json::from_value(settings_value.clone())
-            .map_err(|err| format!("Invalid settings payload: {err}"));
+    let settings_value = value.get("settings").unwrap_or(&value);
+
+    let mut warnings = Vec::new();
+    settings::check_missing_keys(settings_value, &mut warnings);
+    for warning in &warnings {
+        eprintln!("Warning: {warning}");
     }
-    serde_json::from_value(value).map_err(|err| format!("Invalid settings payload: {err}"))
+
+    serde_json::from_value(settings_value.clone())
+        .map_err(|err| format!("Invalid settings payload: {err}"))
 }
 
 fn default_settings_path() -> Option<PathBuf> {

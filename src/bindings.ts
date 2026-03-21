@@ -35,7 +35,7 @@ async getAllImages(path: string) : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
-async getSettings() : Promise<Result<SettingsData, string>> {
+async getSettings() : Promise<Result<SettingsResult, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_settings") };
 } catch (e) {
@@ -154,9 +154,10 @@ export type FileEntryStatus = "Processing" | "Compressing" | "Complete" | "Alrea
 export type FileInfoResult = { size: number; extension: string; filename: string }
 export type ImageType = "JPEG" | "PNG" | "WEBP" | "GIF" | "TIFF" | "AVIF"
 export type OpenAddFileDialogEvent = null
-export type ProfileData = { name: string; id: number; active: boolean; should_resize: boolean; should_convert: boolean; should_overwrite: boolean; enable_lossy?: boolean; keep_timestamps?: boolean; keep_metadata?: boolean; add_postfix?: boolean; should_background_fill?: boolean; background_fill?: string; convert_extension: ImageType; postfix: string; resize_width: number; resize_height: number; jpeg_quality: number; png_quality: number; webp_quality: number; gif_quality: number; avif_quality?: number }
+export type ProfileData = { name: string; id: number; active: boolean; should_resize: boolean; should_convert: boolean; should_overwrite: boolean; enable_lossy: boolean; keep_timestamps: boolean; keep_metadata: boolean; add_postfix: boolean; should_background_fill: boolean; background_fill: string; convert_extension: ImageType; postfix: string; resize_width: number; resize_height: number; jpeg_quality: number; png_quality: number; webp_quality: number; gif_quality: number; avif_quality: number }
 export type SettingsChangedEvent = null
-export type SettingsData = { version: number; theme: ThemeKind; threads?: number; profiles: ProfileData[] }
+export type SettingsData = { version: number; theme: ThemeKind; threads: number; profiles: ProfileData[] }
+export type SettingsResult = { settings: SettingsData; warning: string | null }
 export type ThemeKind = "Light" | "Dark" | "System"
 export type UpdateStateEvent = { type: "CheckingForUpdate"; message: string } | { type: "NoUpdate"; message: string } | { type: "Error"; message: string } | { type: "Downloading"; percent: number; bytes_downloaded: number; total_bytes: number } | { type: "Success"; version: string; release_notes: string | null }
 

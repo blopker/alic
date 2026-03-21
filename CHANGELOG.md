@@ -2,6 +2,10 @@ Changelog with major user-facing changes. See commit log for details.
 
 # Unreleased
 
+# 2.4.9
+
+- Fix release
+
 # 2.4.8
 
 - Add CLI support — run `Alic --input <path>` to compress images from the command line

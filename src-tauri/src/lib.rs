@@ -295,7 +295,7 @@ pub fn run() {
 
             // Handle CLI args — if --input was provided, process and exit
             if let Ok(matches) = app.cli().matches() {
-                cli::handle_matches(&app.handle(), matches);
+                cli::handle_matches(app.handle(), matches);
             }
 
             Ok(())

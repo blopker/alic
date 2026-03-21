@@ -1,9 +1,11 @@
+Changelog with major user-facing changes. See commit log for details.
+
 # Unreleased
+
+# 2.4.8
 
 - Add standalone CLI for image compression (`alic-cli`)
 - Fix settings with missing or corrupt values silently resetting to defaults
-- Warn users via toast/stderr when settings keys are missing and filled with defaults
-- Use container-level serde defaults so new settings fields are always backwards-compatible
 
 # 2.4.7
 

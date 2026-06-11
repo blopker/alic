@@ -45,7 +45,7 @@ function Settings(props: { children?: JSXElement }) {
   return (
     <main class="flex h-screen w-full justify-between bg-secondary">
       <ConfirmModal />
-      <div class="w-40 overflow-y-auto border-accent border-r-[1px]">
+      <div class="w-40 overflow-y-auto border-accent border-r">
         <SettingsSideBar />
       </div>
       <div class="grow bg-primary">{props.children}</div>

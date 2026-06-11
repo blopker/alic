@@ -259,7 +259,7 @@ function MyTable() {
                   }}
                   class={`cursor-default even:bg-secondary hover:bg-accent ${
                     selectedFiles().has(file.path)
-                      ? "!text-white !bg-(--input-accent-color)"
+                      ? "text-white! bg-(--input-accent-color)!"
                       : ""
                   }`}
                 >
@@ -268,7 +268,7 @@ function MyTable() {
                       <StatusIcons status={file.status} />
                     </Tooltip.Trigger>
                     <Tooltip.Portal>
-                      <Tooltip.Content class="border-[1px] border-accent bg-secondary px-2 py-1">
+                      <Tooltip.Content class="border border-accent bg-secondary px-2 py-1">
                         <Show when={file.error} fallback={file.status}>
                           {file.error}
                         </Show>
@@ -278,7 +278,7 @@ function MyTable() {
                   <Tooltip>
                     <Tooltip.Trigger as={MyTD}>{file.file}</Tooltip.Trigger>
                     <Tooltip.Portal>
-                      <Tooltip.Content class="border-[1px] border-accent bg-secondary px-2 py-1">
+                      <Tooltip.Content class="border border-accent bg-secondary px-2 py-1">
                         {file.path}
                       </Tooltip.Content>
                     </Tooltip.Portal>

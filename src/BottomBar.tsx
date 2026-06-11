@@ -58,7 +58,7 @@ export default function BottomBar() {
     return options;
   };
   return (
-    <div class="right-0 left-0 flex h-10 items-center justify-between gap-2 border-accent border-t-[1px] bg-secondary px-2">
+    <div class="right-0 left-0 flex h-10 items-center justify-between gap-2 border-accent border-t bg-secondary px-2">
       <AddButton />
       <StatusText />
       <span class="grow" />

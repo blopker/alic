@@ -1,6 +1,12 @@
 import { createStore } from "solid-js/store";
 import { settingsChangedListener } from "@/listeners";
-import { commands, type ProfileData, type SettingsData } from "../bindings";
+// The backend always sends fully-populated settings, so use the _Serialize
+// shapes (all fields required) rather than the _Deserialize unions.
+import {
+  commands,
+  type ProfileData_Serialize as ProfileData,
+  type SettingsData_Serialize as SettingsData,
+} from "../bindings";
 import { addToast } from "../Toast";
 
 const [settings, setSettings] = createStore<SettingsData>(await getSettings());

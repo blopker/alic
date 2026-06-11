@@ -10,6 +10,7 @@ dev-release:
 test:
 	bun run lint
 	bun run format-check
+	bun run typecheck
 	cd src-tauri && cargo test
 	cd src-tauri && cargo clippy
 

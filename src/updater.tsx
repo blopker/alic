@@ -35,11 +35,10 @@ function UpdateNotification() {
   return <span>{updateTextMap()}</span>;
 }
 
-function Downloading(props: { percent: number }) {
+function Downloading(props: { percent: number | null }) {
   return (
     <span>
-      Downloading update: {props.percent === 0 ? "?" : props.percent.toFixed(2)}
-      %
+      Downloading update: {props.percent ? props.percent.toFixed(2) : "?"}%
     </span>
   );
 }

@@ -1,4 +1,7 @@
-import type { FileEntry, ProfileData } from "./bindings";
+import type {
+  FileEntry,
+  ProfileData_Serialize as ProfileData,
+} from "./bindings";
 import { commands } from "./bindings";
 
 export async function compressImage(

@@ -12,7 +12,8 @@
     "tauri": "tauri",
     "lint": "oxlint",
     "format": "oxfmt",
-    "format-check": "oxfmt --check"
+    "format-check": "oxfmt --check",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@corvu/tooltip": "^0.2.2",
@@ -42,6 +43,7 @@
     "oxfmt": "^0.54.0",
     "oxlint": "^1.69.0",
     "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
     "vite": "^8.0.16",
     "vite-plugin-solid": "^2.11.12"
   }

@@ -23,7 +23,12 @@ function handleDeepLink(urls: string[]) {
   // [Log] deep link: – ["file:///Users/myuser/Downloads/file.jpg"]
   // console.log("deep link:", urls);
   for (const url of urls) {
-    addFile(decodeURI(url.replace("file://", "")));
+    if (url.startsWith("file://")) {
+      // decodeURI misses reserved characters like %23 (#), so parse properly
+      addFile(decodeURIComponent(new URL(url).pathname));
+    } else {
+      addFile(decodeURI(url));
+    }
   }
 }
 

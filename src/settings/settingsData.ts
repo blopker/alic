@@ -68,7 +68,7 @@ function setThreads(threads: SettingsData["threads"]) {
   if (_threads < 0) {
     _threads = 0;
   }
-  setSettings("threads", threads);
+  setSettings("threads", _threads);
   saveSettings();
 }
 

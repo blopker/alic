@@ -116,13 +116,17 @@ function StatusText() {
   const doneFiles = () => store.files.filter((f) => f.status === "Complete");
   const dataSaved = () =>
     doneFiles()
-      .map((f) => f.originalSize ?? 0 - (f.size ?? 0))
+      .map((f) => (f.originalSize ?? 0) - (f.size ?? 0))
       .reduce((a, b) => a + b, 0);
-  const dataSavedPercent = () =>
-    doneFiles()
-      .filter((f) => f.savings)
-      .map((f) => f.savings ?? 0)
-      .reduce((a, b) => a + b, 0) / doneFiles().length;
+  const dataSavedPercent = () => {
+    const savings = doneFiles()
+      .filter((f) => f.savings !== null)
+      .map((f) => f.savings ?? 0);
+    if (savings.length === 0) {
+      return 0;
+    }
+    return savings.reduce((a, b) => a + b, 0) / savings.length;
+  };
   return (
     <Show when={doneFiles().length > 0}>
       {toHumanReadableSize(dataSaved())} saved, average{" "}

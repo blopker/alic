@@ -61,17 +61,19 @@ function MyTable() {
   // Table with columns of status, file, savings, size
   const [sortField, setSortField] = createSignal<keyof FileEntry | null>();
   const [sortDirection, setSortDirection] = createSignal<"asc" | "desc">("asc");
-  const [selectedFiles, setSelectedFiles] = createSignal<Set<FileEntry>>(
+  // Key selection by path: file objects are replaced in the store on every
+  // status update, so object identity does not survive a compression.
+  const [selectedFiles, setSelectedFiles] = createSignal<Set<string>>(
     new Set(),
   );
+  const [lastSelected, setLastSelected] = createSignal<string | null>(null);
 
   // Handle keyboard events for selection and removal
   const handleKeyDown = (e: KeyboardEvent) => {
     // Select all with Cmd+A
     if (e.key === "a" && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
-      const allPaths = sortedFiles().map((file) => file);
-      setSelectedFiles(new Set(allPaths));
+      setSelectedFiles(new Set(sortedFiles().map((file) => file.path)));
     }
 
     // Remove selected files with Backspace or Delete
@@ -84,16 +86,16 @@ function MyTable() {
 
     // Escape to clear selection
     if (e.key === "Escape") {
-      setSelectedFiles(new Set<FileEntry>());
+      setSelectedFiles(new Set<string>());
     }
   };
 
   // Remove selected files from the queue
   const removeSelectedFiles = () => {
-    for (const file of selectedFiles()) {
-      removeFile(file);
+    for (const path of selectedFiles()) {
+      removeFile(path);
     }
-    setSelectedFiles(new Set<FileEntry>());
+    setSelectedFiles(new Set<string>());
   };
 
   // Toggle file selection
@@ -102,31 +104,33 @@ function MyTable() {
     const newSelection = new Set(selectedFiles());
 
     if (e.shiftKey && selectedFiles().size > 0) {
-      // Range selection
+      // Range selection from the last clicked row
       const fileList = sortedFiles();
-      const lastSelectedIndex = fileList.findIndex((f) =>
-        selectedFiles().has(f),
-      );
+      const anchorIndex = fileList.findIndex((f) => f.path === lastSelected());
       const currentIndex = fileList.findIndex((f) => f.path === file.path);
 
-      if (lastSelectedIndex !== -1) {
-        const start = Math.min(lastSelectedIndex, currentIndex);
-        const end = Math.max(lastSelectedIndex, currentIndex);
+      if (anchorIndex !== -1) {
+        const start = Math.min(anchorIndex, currentIndex);
+        const end = Math.max(anchorIndex, currentIndex);
         for (let i = start; i <= end; i++) {
-          newSelection.add(fileList[i]);
+          newSelection.add(fileList[i].path);
         }
+      } else {
+        newSelection.add(file.path);
       }
     } else if (e.metaKey || e.ctrlKey) {
       // Toggle selection for this file only
-      if (newSelection.has(file)) {
-        newSelection.delete(file);
+      if (newSelection.has(file.path)) {
+        newSelection.delete(file.path);
       } else {
-        newSelection.add(file);
+        newSelection.add(file.path);
       }
+      setLastSelected(file.path);
     } else {
       // Select only this file
       newSelection.clear();
-      newSelection.add(file);
+      newSelection.add(file.path);
+      setLastSelected(file.path);
     }
 
     setSelectedFiles(newSelection);
@@ -239,7 +243,7 @@ function MyTable() {
           // Clear selection when clicking on empty space
           // Check if the click was directly on the container, not on a table row
           if (e.target === e.currentTarget) {
-            setSelectedFiles(new Set<FileEntry>());
+            setSelectedFiles(new Set<string>());
           }
         }}
       >
@@ -254,7 +258,7 @@ function MyTable() {
                     console.log(commands.openFinderAtPath(file.path));
                   }}
                   class={`cursor-default even:bg-secondary hover:bg-accent ${
-                    selectedFiles().has(file)
+                    selectedFiles().has(file.path)
                       ? "!text-white !bg-(--input-accent-color)"
                       : ""
                   }`}
@@ -280,7 +284,7 @@ function MyTable() {
                     </Tooltip.Portal>
                   </Tooltip>
                   <MyTD class="w-28">
-                    <Show when={file.savings} fallback="?">
+                    <Show when={file.savings !== null} fallback="?">
                       {(file.savings ?? 0).toFixed(1)}%
                     </Show>
                   </MyTD>

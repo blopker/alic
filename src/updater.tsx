@@ -30,6 +30,8 @@ function UpdateNotification() {
         return "No updates available.";
       case "Error":
         return <span>Update error: {state.message}</span>;
+      case "Success":
+        return `Update ${state.version} installed. Restarting...`;
     }
   };
   return <span>{updateTextMap()}</span>;

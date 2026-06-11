@@ -41,7 +41,8 @@ const [toasts, setToasts] = createStore<Toast[]>([]);
 export const addToast = (toast: Omit<Toast, "id">) => {
   // get max id + 1
   const id = toasts.reduce((max, t) => Math.max(max, t.id), 0) + 1;
-  const duration = toast.duration || 5000;
+  // 0 or negative means the toast stays until manually closed
+  const duration = toast.duration ?? 5000;
 
   setToasts([...toasts, { ...toast, id }]);
 

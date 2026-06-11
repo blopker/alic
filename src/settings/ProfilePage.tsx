@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "@solidjs/router";
+import { createEffect } from "solid-js";
 import { commands, type ImageType } from "../bindings";
 import { confirmModal } from "./ConfirmModal";
 import {
@@ -19,15 +20,16 @@ const imageTypes: ImageType[] = ["JPEG", "PNG", "WEBP", "GIF", "TIFF", "AVIF"];
 function ProfilePage() {
   const navigate = useNavigate();
   const params = useParams();
-  const data = () => {
-    const d = settings.profiles.find(
-      (p) => p.id.toString() === params.profileid,
-    );
-    if (!d) {
-      throw new Error(`Profile not found: ${params.profileid}`);
+  const profile = () =>
+    settings.profiles.find((p) => p.id.toString() === params.profileid);
+  // The profile can disappear while this page is open (settings reset,
+  // deletion); redirect instead of crashing.
+  createEffect(() => {
+    if (!profile()) {
+      navigate("/settings", { replace: true });
     }
-    return d;
-  };
+  });
+  const data = () => profile() ?? settings.profiles[0];
   const lossy = () => data().enable_lossy ?? false;
   return (
     <SettingsPage title={`Profile | ${data().name}`}>

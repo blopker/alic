@@ -197,12 +197,12 @@ function SettingsNumberInput(props: {
   return (
     <input
       class="w-20 rounded-md border-0 bg-secondary py-1.5 shadow-sm sm:text-sm/6"
-      type="text"
-      min="1"
+      type="number"
+      min="0"
       value={props.value}
       onInput={(e) => {
         const value = Number.parseInt(e.target.value, 10);
-        if (Number.isNaN(value)) {
+        if (Number.isNaN(value) || value < 0) {
           return;
         }
         props.onChange(value);

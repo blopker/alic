@@ -66,7 +66,10 @@ async function addFile(path: string) {
   await semaphore.acquire();
   syncSemaphore();
   try {
-    await compressFile(file);
+    // The file may have been removed or cleared while waiting in the queue
+    if (store.files.some((f) => f.path === file.path)) {
+      await compressFile(file);
+    }
   } finally {
     semaphore.release();
     updateDockBadge();
@@ -138,8 +141,8 @@ function clearFiles() {
   commands.setDockBadge(0);
 }
 
-function removeFile(file: FileEntry) {
-  setStore("files", (f) => f.filter((f) => f.path !== file.path));
+function removeFile(path: string) {
+  setStore("files", (f) => f.filter((f) => f.path !== path));
 }
 
 export { store, addFile, updateFile, clearFiles, removeFile };

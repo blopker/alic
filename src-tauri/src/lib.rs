@@ -311,6 +311,10 @@ pub fn run() {
                 cli::handle_matches(app.handle(), matches);
             }
 
+            // After CLI handling so CLI runs keep using the last active
+            // profile rather than the startup default
+            settings::activate_startup_profile(app.handle());
+
             Ok(())
         })
         .run(tauri::generate_context!())

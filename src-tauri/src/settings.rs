@@ -241,6 +241,28 @@ pub async fn open_settings_folder(_app: tauri::AppHandle) -> Result<(), String> 
     Ok(())
 }
 
+/// On app launch, activate the configured startup profile, if any.
+/// This runs once during setup, before any webview loads settings.
+pub fn activate_startup_profile(app: &tauri::AppHandle) {
+    let mut settings = match get_settings_data(app) {
+        Ok((settings, _)) => settings,
+        Err(err) => {
+            log::error!("Could not load settings to activate startup profile: {err}");
+            return;
+        }
+    };
+    let Some(default_id) = settings.default_profile_id else {
+        return;
+    };
+    if !settings.profiles.iter().any(|p| p.id == default_id) {
+        return;
+    }
+    for profile in settings.profiles.iter_mut() {
+        profile.active = profile.id == default_id;
+    }
+    set_settings_data(app, settings);
+}
+
 fn get_store(app: &tauri::AppHandle) -> Arc<Store<Wry>> {
     app.store("settings.json")
         .expect("Failed to get settings from store")

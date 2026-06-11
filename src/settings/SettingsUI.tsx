@@ -7,21 +7,21 @@ function SettingsButton(props: {
   disabled?: boolean;
   onClick: () => void;
   children: JSXElement;
-  style?: "secondary" | "primary" | "danger";
+  variant?: "secondary" | "primary" | "danger";
   autoFocus?: boolean;
 }) {
   return (
     <button
       autofocus={props.autoFocus === true}
       disabled={props.disabled === true}
-      onClick={props.onClick}
+      onClick={() => props.onClick()}
       type="button"
       classList={{
         "bg-(--input-accent-color) text-white": [undefined, "primary"].includes(
-          props.style,
+          props.variant,
         ),
-        "bg-accent": props.style === "secondary",
-        "bg-red-500 hover:bg-red-700": props.style === "danger",
+        "bg-accent": props.variant === "secondary",
+        "bg-red-500 hover:bg-red-700": props.variant === "danger",
       }}
       class="col-start-2 inline-flex w-full justify-center rounded-md px-3 py-2 font-semibold text-sm shadow-sm hover:bg-(--input-accent-color) focus-visible:outline focus-visible:outline-(--input-accent-color) focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     >
@@ -58,7 +58,7 @@ function SettingRow(props: {
               class="inline cursor-help opacity-50"
             />
             <Tooltip.Portal>
-              <Tooltip.Content class="max-w-[30rem] border-[1px] border-accent bg-secondary px-2 py-1">
+              <Tooltip.Content class="max-w-120 border border-accent bg-secondary px-2 py-1">
                 {props.helpText}
               </Tooltip.Content>
             </Tooltip.Portal>
@@ -215,7 +215,7 @@ function SettingsPage(props: { title: string; children: JSXElement }) {
   return (
     <div class="relative flex flex-col">
       {/* If the height changes here, change the max-h below too */}
-      <div class="flex h-[40px] items-center border-b border-b-accent pl-4">
+      <div class="flex h-10 items-center border-b border-b-accent pl-4">
         <h1 class="text-left font-bold text-lg">{props.title}</h1>
       </div>
       <div class="max-h-[calc(100vh-40px)] grow overflow-y-auto p-4">

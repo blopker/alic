@@ -200,6 +200,7 @@ function MyTable() {
     if (!field) {
       return files;
     }
+    const direction = sortDirection();
     return files.sort((a, b) => {
       let aValue = a[field] ?? "";
       let bValue = b[field] ?? "";
@@ -207,8 +208,8 @@ function MyTable() {
         aValue = statusOrder.indexOf(a.status);
         bValue = statusOrder.indexOf(b.status);
       }
-      if (aValue < bValue) return sortDirection() === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortDirection() === "asc" ? 1 : -1;
+      if (aValue < bValue) return direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return direction === "asc" ? 1 : -1;
       return 0;
     });
   };

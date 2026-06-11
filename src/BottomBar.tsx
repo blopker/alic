@@ -147,7 +147,7 @@ function Button(props: {
   return (
     <button
       type="button"
-      onClick={props.onClick}
+      onClick={() => props.onClick()}
       disabled={props.disabled}
       class={`${props.class} relative m-0 min-h-6 min-w-10 rounded-sm border-[0.5px] border-accent p-0 text-center leading-none transition-all enabled:hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50`}
     >

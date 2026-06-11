@@ -270,7 +270,7 @@ function ProfilePage() {
                 text: "Are you sure you want to reset this profile to the default values?",
               });
             }}
-            style="danger"
+            variant="danger"
           >
             Reset
           </SettingsButton>
@@ -287,7 +287,7 @@ function ProfilePage() {
                 text: "Are you sure you want to delete this profile?",
               });
             }}
-            style="danger"
+            variant="danger"
           >
             Delete
           </SettingsButton>

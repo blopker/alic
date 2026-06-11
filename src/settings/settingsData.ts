@@ -5,7 +5,10 @@ import { addToast } from "../Toast";
 
 const [settings, setSettings] = createStore<SettingsData>(await getSettings());
 
-// On startup, switch to the default profile if one is configured
+// On startup, switch to the default profile if one is configured.
+// Reading the store outside a tracked scope is intentional: this must run
+// exactly once and should not re-run when settings change.
+/* oxlint-disable solid/reactivity */
 if (settings.default_profile_id !== null) {
   const defaultExists = settings.profiles.some(
     (p) => p.id === settings.default_profile_id,
@@ -14,6 +17,7 @@ if (settings.default_profile_id !== null) {
     setProfileActive(settings.default_profile_id);
   }
 }
+/* oxlint-enable solid/reactivity */
 
 settingsChangedListener(async () => {
   // console.log("settings changed");

@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": ["src/bindings.ts"],
+  "jsPlugins": ["eslint-plugin-solid"],
+  "rules": {
+    // Solid assigns `let ref` variables via JSX `ref={...}`, which oxlint can't see.
+    "no-unassigned-vars": "off",
+    // eslint-plugin-solid's "typescript" preset.
+    "solid/jsx-no-duplicate-props": "error",
+    "solid/jsx-no-undef": ["error", { "typescriptEnabled": true }],
+    "solid/jsx-uses-vars": "error",
+    "solid/no-innerhtml": "error",
+    "solid/jsx-no-script-url": "error",
+    "solid/components-return-once": "warn",
+    "solid/no-destructure": "error",
+    "solid/prefer-for": "error",
+    "solid/reactivity": "warn",
+    "solid/event-handlers": "warn",
+    "solid/imports": "warn",
+    "solid/style-prop": "warn",
+    "solid/no-react-deps": "warn",
+    "solid/no-react-specific-props": "warn",
+    "solid/self-closing-comp": "warn"
+  }
+}

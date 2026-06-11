@@ -23,7 +23,7 @@ Changelog with major user-facing changes. See commit log for details.
 
 # 2.4.5
 
-- Refresh dependencies 
+- Refresh dependencies
 
 # 2.4.4
 
@@ -52,7 +52,6 @@ Changelog with major user-facing changes. See commit log for details.
 - Increase memory limits to accommodate larger image files
 - Add a button in the General settings to open the folder where settings are located for backup and debugging
 - Switch to universal binaries
-
 
 # 2.3.2
 

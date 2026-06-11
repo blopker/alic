@@ -174,13 +174,11 @@ function GeneralPage() {
           helpText="Open the folder containing the settings file for debugging purposes."
         >
           <SettingsButton
-            style="secondary"
-            onClick={async () => {
-              try {
-                await commands.openSettingsFolder();
-              } catch (err) {
+            variant="secondary"
+            onClick={() => {
+              commands.openSettingsFolder().catch((err) => {
                 console.error("Failed to open settings folder:", err);
-              }
+              });
             }}
           >
             Open Folder
@@ -188,13 +186,13 @@ function GeneralPage() {
         </SettingRow>
         <SettingRow title="Reset All Settings">
           <SettingsButton
-            onClick={async () => {
+            onClick={() => {
               confirmModal({
                 text: "Are you sure you want to reset all settings?",
                 onConfirm: resetSettings,
               });
             }}
-            style="danger"
+            variant="danger"
           >
             Reset
           </SettingsButton>
@@ -235,7 +233,7 @@ function NewProfilePage() {
             placeholder="Name"
             label="Name"
             value=""
-            onChange={async (value) => {
+            onChange={(value) => {
               setNewProfileName(value);
             }}
           />

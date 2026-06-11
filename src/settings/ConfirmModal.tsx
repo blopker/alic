@@ -46,7 +46,7 @@ function ConfirmModal() {
             </div>
             <div class="flex gap-2 p-4 pt-0">
               <SettingsButton
-                style="secondary"
+                variant="secondary"
                 autoFocus={true}
                 onClick={() => {
                   confirmOpts().onCancel();

@@ -47,40 +47,25 @@
     "createUpdaterArtifacts": true,
     "fileAssociations": [
       {
-        "ext": [
-          "jpg"
-        ]
+        "ext": ["jpg"]
       },
       {
-        "ext": [
-          "jpeg",
-          "jpg"
-        ]
+        "ext": ["jpeg", "jpg"]
       },
       {
-        "ext": [
-          "png"
-        ]
+        "ext": ["png"]
       },
       {
-        "ext": [
-          "gif"
-        ]
+        "ext": ["gif"]
       },
       {
-        "ext": [
-          "webp"
-        ]
+        "ext": ["webp"]
       },
       {
-        "ext": [
-          "tiff"
-        ]
+        "ext": ["tiff"]
       }
     ],
-    "icon": [
-      "icons/icon.icns"
-    ],
+    "icon": ["icons/icon.icns"],
     "macOS": {
       "minimumSystemVersion": "13"
     }
@@ -88,10 +73,7 @@
   "plugins": {
     "deep-link": {
       "desktop": {
-        "schemes": [
-          "alic",
-          "alicscheme"
-        ]
+        "schemes": ["alic", "alicscheme"]
       }
     },
     "cli": {

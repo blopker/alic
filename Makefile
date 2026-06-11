@@ -8,6 +8,8 @@ dev-release:
 	bun run tauri dev --release
 
 test:
+	bun run lint
+	bun run format-check
 	cd src-tauri && cargo test
 	cd src-tauri && cargo clippy
 

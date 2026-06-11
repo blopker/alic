@@ -159,12 +159,10 @@ fn resize_gif(image_buffer: &[u8], width: u32, height: u32) -> Result<Vec<u8>, A
                 error: e.to_string(),
                 error_type: AlicErrorType::ImageResizeError,
             })?;
-        encoder
-            .encode_frames(new_frames.into_iter())
-            .map_err(|e| AlicError {
-                error: e.to_string(),
-                error_type: AlicErrorType::ImageResizeError,
-            })?;
+        encoder.encode_frames(new_frames).map_err(|e| AlicError {
+            error: e.to_string(),
+            error_type: AlicErrorType::ImageResizeError,
+        })?;
     }
 
     Ok(out_buffer)

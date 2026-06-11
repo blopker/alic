@@ -9,6 +9,7 @@ dev-release:
 
 test:
 	cd src-tauri && cargo test
+	cd src-tauri && cargo clippy
 
 setup:
 	bun install

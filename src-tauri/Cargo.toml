@@ -23,20 +23,20 @@ image = { version = "0.25", features = ["avif"] }
 infer = "0.19.0"
 libc = "0.2.168"
 libcaesium = "0.20.0"
-muda = "<0.18"
+muda = "<0.20"
 objc2 = "0.6.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-specta = "=2.0.0-rc.22"
-specta-typescript = "0.0.9"
-specta-util = "0.0.9"
+specta = "=2.0.0-rc.25"
+specta-typescript = "0.0.12"
+specta-util = "0.0.12"
 tauri = { version = "2", features = [] }
 tauri-plugin-clipboard-manager = "2.2.0"
 tauri-plugin-deep-link = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-shell = "2"
 tauri-plugin-store = "2"
-tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
+tauri-specta = { version = "=2.0.0-rc.25", features = ["derive", "typescript"] }
 tokio = "1.42.0"
 objc2-foundation = { version = "0.3.0", features = ["NSFileManager", "NSAutoreleasePool"] }
 tauri-plugin-persisted-scope = "2"

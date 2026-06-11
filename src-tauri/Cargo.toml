@@ -21,7 +21,6 @@ tauri-build = { version = "2", features = [] }
 # tauri = { version = "2", features = ["devtools"] }
 image = { version = "0.25", features = ["avif"] }
 infer = "0.19.0"
-libc = "0.2.168"
 libcaesium = "0.20.0"
 muda = "<0.20"
 objc2 = "0.6.0"

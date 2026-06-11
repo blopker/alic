@@ -41,7 +41,6 @@ dependencies = [
  "image",
  "infer",
  "kamadak-exif",
- "libc",
  "libcaesium",
  "log",
  "muda",

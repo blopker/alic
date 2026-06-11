@@ -1,5 +1,3 @@
-use std::mem;
-extern crate libc;
 use log::warn;
 use objc2_app_kit::{NSApp, NSColor, NSColorSpace, NSRequestUserAttentionType};
 use objc2_foundation::{MainThreadMarker, NSFileManager, NSString, NSURL};
@@ -14,13 +12,13 @@ pub async fn open_finder_at_path(path: String, app_handle: tauri::AppHandle) -> 
         .args(["-R", path.as_str()])
         .output()
         .await
-        .unwrap();
-    if output.status.success() {
-        let result = String::from_utf8(output.stdout);
-        println!("Result: {result:?}");
-    } else {
-        let code = output.status.code().unwrap();
-        println!("Exit with code: {code}");
+        .map_err(|e| format!("Failed to run open: {e}"))?;
+    if !output.status.success() {
+        return Err(format!(
+            "open exited with code {:?}: {}",
+            output.status.code(),
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
     Ok(())
 }
@@ -28,18 +26,9 @@ pub async fn open_finder_at_path(path: String, app_handle: tauri::AppHandle) -> 
 #[tauri::command]
 #[specta::specta]
 pub async fn get_cpu_count() -> i32 {
-    unsafe {
-        let mut num_cores = 0;
-        let mut len = mem::size_of::<libc::size_t>() as libc::size_t;
-        libc::sysctlbyname(
-            c"hw.ncpu".as_ptr(),
-            &mut num_cores as *mut _ as *mut libc::c_void,
-            &mut len,
-            core::ptr::null_mut(),
-            0,
-        );
-        num_cores
-    }
+    std::thread::available_parallelism()
+        .map(|p| p.get() as i32)
+        .unwrap_or(1)
 }
 
 pub fn trash_file(file_path: &str) -> Result<(), String> {

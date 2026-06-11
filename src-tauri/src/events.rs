@@ -11,6 +11,10 @@ pub struct BadFileEvent(pub String);
 #[derive(Serialize, Deserialize, Debug, Clone, Type, Event)]
 pub struct ClearFilesEvent;
 
+/// A backend error the frontend should surface as a toast.
+#[derive(Serialize, Deserialize, Debug, Clone, Type, Event)]
+pub struct ErrorEvent(pub String);
+
 #[derive(Serialize, Deserialize, Debug, Clone, Type, Event)]
 pub struct SettingsChangedEvent;
 

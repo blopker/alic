@@ -62,6 +62,7 @@ fn run_cli(
 
     let (tx, rx) = mpsc::channel();
 
+    let mut panicked = 0_u32;
     for chunk in paths.chunks(thread_count) {
         let handles: Vec<_> = chunk
             .iter()
@@ -77,14 +78,17 @@ fn run_cli(
             })
             .collect();
         for handle in handles {
-            handle.join().unwrap();
+            if handle.join().is_err() {
+                eprintln!("err\t<unknown>\tworker thread panicked");
+                panicked += 1;
+            }
         }
     }
     drop(tx);
 
     let mut ok = 0_u32;
     let mut already_smaller = 0_u32;
-    let mut errors = 0_u32;
+    let mut errors = panicked;
     for (path, result) in rx {
         match result {
             Ok(result) => {

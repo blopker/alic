@@ -5,8 +5,8 @@ import * as __TAURI_EVENT from "@tauri-apps/api/event";
 
 /** Commands */
 export const commands = {
-	openSettingsWindow: (path: string | null) => __TAURI_INVOKE<void>("open_settings_window", { path }),
-	openLinkInBrowser: (url: string) => __TAURI_INVOKE<void>("open_link_in_browser", { url }),
+	openSettingsWindow: (path: string | null) => typedError<null, string>(__TAURI_INVOKE("open_settings_window", { path })),
+	openLinkInBrowser: (url: string) => typedError<null, string>(__TAURI_INVOKE("open_link_in_browser", { url })),
 	processImg: (parameters: ProfileData_Deserialize, file: FileEntry, parallelImages: number) => typedError<CompressResult, AlicError>(__TAURI_INVOKE("process_img", { parameters, file, parallelImages })),
 	getFileInfo: (path: string) => typedError<FileInfoResult, string>(__TAURI_INVOKE("get_file_info", { path })),
 	getAllImages: (path: string) => typedError<null, string>(__TAURI_INVOKE("get_all_images", { path })),
@@ -29,6 +29,7 @@ export const events = {
 	addFileEvent: makeEvent<AddFileEvent>("add-file-event"),
 	badFileEvent: makeEvent<BadFileEvent>("bad-file-event"),
 	clearFilesEvent: makeEvent<ClearFilesEvent>("clear-files-event"),
+	errorEvent: makeEvent<ErrorEvent>("error-event"),
 	openAddFileDialogEvent: makeEvent<OpenAddFileDialogEvent>("open-add-file-dialog-event"),
 	settingsChangedEvent: makeEvent<SettingsChangedEvent>("settings-changed-event"),
 	updateStateEvent: makeEvent<UpdateStateEvent>("update-state-event"),
@@ -54,6 +55,9 @@ export type CompressResult = {
 	outPath: string,
 	result: string,
 };
+
+/**  A backend error the frontend should surface as a toast. */
+export type ErrorEvent = string;
 
 export type FileEntry = {
 	path: string,

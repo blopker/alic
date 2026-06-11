@@ -4,7 +4,7 @@ use image::codecs::gif::{GifDecoder, GifEncoder};
 use image::imageops::FilterType;
 use image::{
     AnimationDecoder, DynamicImage, Frame, GenericImage, GenericImageView, ImageDecoder,
-    ImageFormat, ImageReader, Limits,
+    ImageFormat, ImageReader, Limits, Pixel,
 };
 use log::debug;
 
@@ -175,19 +175,23 @@ fn add_background(
     background_fill: &str,
 ) -> Result<DynamicImage, AlicError> {
     let color = Color::from_hex(background_fill)?;
+    let background = image::Rgba([color.r, color.g, color.b, 255]);
     let mut bg_image = DynamicImage::new_rgb8(width, height);
-    let x_offset = (width - image.width()) / 2;
-    let y_offset = (height - image.height()) / 2;
-    // Iterate over the coordinates and pixels of the image
-    for (x, y, _) in bg_image.clone().pixels() {
-        if x >= x_offset
-            && x < image.width() + x_offset
-            && y >= y_offset
-            && y < image.height() + y_offset
-        {
-            bg_image.put_pixel(x, y, image.get_pixel(x - x_offset, y - y_offset));
-        } else {
-            bg_image.put_pixel(x, y, image::Rgba([color.r, color.g, color.b, 1]));
+    let x_offset = width.saturating_sub(image.width()) / 2;
+    let y_offset = height.saturating_sub(image.height()) / 2;
+    for y in 0..height {
+        for x in 0..width {
+            let mut pixel = background;
+            if x >= x_offset
+                && x < image.width() + x_offset
+                && y >= y_offset
+                && y < image.height() + y_offset
+            {
+                // Alpha-blend the source over the fill so semi-transparent
+                // pixels pick up the background color instead of hard edges
+                pixel.blend(&image.get_pixel(x - x_offset, y - y_offset));
+            }
+            bg_image.put_pixel(x, y, pixel);
         }
     }
     Ok(bg_image)

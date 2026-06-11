@@ -241,16 +241,17 @@ fn process_img_internal(
         });
     }
 
-    if out_path == file.path {
-        let res = macos::trash_file(&file.path);
-        if res.is_err() {
-            return Err(AlicError {
-                error: res.err().unwrap().to_string(),
-                error_type: AlicErrorType::Unknown,
-            });
-        }
+    // Never permanently delete anything: whatever currently sits at the
+    // output path (the original on overwrite, or an unrelated/previous
+    // output file) goes to the trash so it can be recovered.
+    if Path::new(&out_path).exists()
+        && let Err(e) = macos::trash_file(&out_path)
+    {
+        return Err(AlicError {
+            error: format!("Could not move existing file at {out_path} to trash: {e}"),
+            error_type: AlicErrorType::Unknown,
+        });
     }
-    let _ = fs::remove_file(&out_path);
     let mut new_file = match fs::File::create_new(&out_path) {
         Ok(file) => file,
         Err(e) => {
@@ -599,7 +600,10 @@ pub async fn get_file_info(path: &str) -> Result<FileInfoResult, String> {
         .to_string_lossy()
         .to_string();
 
-    let filename = _path.file_name().unwrap().to_string_lossy().to_string();
+    let filename = match _path.file_name() {
+        Some(name) => name.to_string_lossy().to_string(),
+        None => return Err(format!("Invalid file path: {path}")),
+    };
 
     Ok(FileInfoResult {
         size,

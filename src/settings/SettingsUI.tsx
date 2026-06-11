@@ -207,6 +207,15 @@ function SettingsNumberInput(props: {
         }
         props.onChange(value);
       }}
+      onBlur={(e) => {
+        // The input is uncontrolled while focused, so invalid text (e.g.
+        // "-100") stays visible even though it was never committed. On blur,
+        // clamp and sync the display back to the committed value.
+        const value = Number.parseInt(e.currentTarget.value, 10);
+        const clamped = Number.isNaN(value) ? props.value : Math.max(0, value);
+        e.currentTarget.value = clamped.toString();
+        props.onChange(clamped);
+      }}
     />
   );
 }

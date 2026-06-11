@@ -18,6 +18,12 @@ function badFileListener(cb: (path: string) => void) {
   });
 }
 
+function errorListener(cb: (message: string) => void) {
+  return events.errorEvent.listen((event) => {
+    cb(event.payload);
+  });
+}
+
 function clearFilesListener(cb: () => void) {
   return events.clearFilesEvent.listen(() => {
     cb();
@@ -40,6 +46,7 @@ export {
   openFileDialogListener,
   addFileListener,
   clearFilesListener,
+  errorListener,
   settingsChangedListener,
   updateResultListener,
   badFileListener,

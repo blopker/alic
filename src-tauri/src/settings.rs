@@ -191,11 +191,18 @@ pub async fn delete_profile(app: tauri::AppHandle, profile_id: u32) -> Result<()
 #[specta::specta]
 pub async fn add_profile(app: tauri::AppHandle, mut name: String) -> Result<(), String> {
     let mut settings = get_settings_data(&app)?.0;
-    let profile_idx = settings.profiles.iter().position(|p| p.name == name);
-    if let Some(id) = profile_idx {
-        name = format!("{} ({})", name, id + 1);
+    if settings.profiles.iter().any(|p| p.name == name) {
+        let mut n = 2;
+        while settings
+            .profiles
+            .iter()
+            .any(|p| p.name == format!("{name} ({n})"))
+        {
+            n += 1;
+        }
+        name = format!("{name} ({n})");
     }
-    let highest_id = settings.profiles.iter().max_by_key(|p| p.id).unwrap().id;
+    let highest_id = settings.profiles.iter().map(|p| p.id).max().unwrap_or(0);
     settings
         .profiles
         .push(ProfileData::new_with_params(highest_id + 1, name));

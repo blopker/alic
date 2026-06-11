@@ -7,7 +7,7 @@ mod resize;
 pub mod settings;
 mod update;
 
-use events::{AddFileEvent, ClearFilesEvent, OpenAddFileDialogEvent, UpdateStateEvent};
+use events::{AddFileEvent, ClearFilesEvent, ErrorEvent, OpenAddFileDialogEvent, UpdateStateEvent};
 use std::{
     hash::{DefaultHasher, Hash, Hasher},
     path::Path,
@@ -26,80 +26,89 @@ use tauri_specta::{Builder, Event, collect_commands, collect_events};
 
 #[tauri::command]
 #[specta::specta]
-async fn open_settings_window(app: tauri::AppHandle, path: Option<String>) {
-    _open_settings_window(&app, path);
+async fn open_settings_window(app: tauri::AppHandle, path: Option<String>) -> Result<(), String> {
+    _open_settings_window(&app, path)
 }
 
 #[tauri::command]
 #[specta::specta]
-async fn open_link_in_browser(app: tauri::AppHandle, url: String) {
-    app.opener().open_url(url, None::<&str>).unwrap();
+async fn open_link_in_browser(app: tauri::AppHandle, url: String) -> Result<(), String> {
+    app.opener()
+        .open_url(url, None::<&str>)
+        .map_err(|e| format!("Failed to open link: {e}"))
 }
 
-fn _open_settings_window(app: &tauri::AppHandle, path: Option<String>) {
+fn _open_settings_window(app: &tauri::AppHandle, path: Option<String>) -> Result<(), String> {
     let window_label = "settings";
-    let config = &app
+    let config = app
         .config()
         .app
         .windows
         .iter()
         .find(|w| w.label == window_label)
-        .unwrap();
+        .ok_or("Settings window configuration not found")?;
     let path = path.unwrap_or("/settings".to_string());
     if let Some(window) = app.get_webview_window(window_label) {
         // If the window already exists, bring it to the front
-        let mut url = window.url().unwrap();
+        let mut url = window.url().map_err(|e| e.to_string())?;
         url.set_fragment(Some(&path));
-        window.navigate(url).unwrap();
-        window.show().unwrap();
+        window.navigate(url).map_err(|e| e.to_string())?;
+        window.show().map_err(|e| e.to_string())?;
     } else {
         // If the window does not exist, create it
         let url = format!("/index.html#{path}");
         let new_conf = WindowConfig {
             url: WebviewUrl::App(Path::new(&url).to_path_buf()),
-            ..(*config).clone().to_owned()
+            ..config.clone()
         };
         tauri::WebviewWindowBuilder::from_config(app, &new_conf)
-            .unwrap()
+            .map_err(|e| e.to_string())?
             .build()
-            .unwrap();
+            .map_err(|e| e.to_string())?;
     };
+    Ok(())
 }
 
-fn save_clipboard_image(app: &tauri::AppHandle) {
-    // Try reading image
-    let image_result = app.clipboard().read_image();
-    if image_result.is_err() {
-        println!("clip: no image {image_result:?}");
-        return;
+fn open_settings_window_or_toast(app: &tauri::AppHandle, path: Option<String>) {
+    if let Err(err) = _open_settings_window(app, path) {
+        log::error!("Failed to open settings window: {err}");
+        let _ = ErrorEvent(format!("Failed to open settings: {err}")).emit(app);
     }
-    let clip_image = image_result.unwrap();
+}
 
-    // Read filename
-    let text_result = app.clipboard().read_text();
-    if text_result.is_ok() {
-        println!("Not just image data, probably a file copy. Not supported: {text_result:?}");
-        return;
+fn save_clipboard_image(app: &tauri::AppHandle) -> Result<(), String> {
+    // No image on the clipboard (e.g. a plain text paste) is not an error
+    let Ok(clip_image) = app.clipboard().read_image() else {
+        log::debug!("clip: no image in clipboard");
+        return Ok(());
+    };
+
+    // If there is also text, this is probably a file copy. Not supported.
+    if let Ok(text) = app.clipboard().read_text() {
+        log::debug!("clip: clipboard has text, probably a file copy. Not supported: {text:?}");
+        return Ok(());
     }
 
-    // get nicely printed current time to the second, with no external dependencies
     let image = image::RgbaImage::from_raw(
         clip_image.width(),
         clip_image.height(),
         clip_image.rgba().into(),
     )
-    .unwrap();
+    .ok_or("Invalid image data in clipboard")?;
     let mut hasher = DefaultHasher::new();
     clip_image.rgba().hash(&mut hasher);
     let h = hasher.finish();
     // put in $HOME/Documents/alic
-    let home = std::env::var("HOME").unwrap();
+    let home =
+        std::env::var("HOME").map_err(|e| format!("Could not find home directory: {e}"))?;
     let dir = format!("{home}/Documents/alic");
     // ensure dir exists
-    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::create_dir_all(&dir).map_err(|e| format!("Could not create {dir}: {e}"))?;
     let path = format!("{dir}/{h}.png");
-    image.save(&path).unwrap();
-    AddFileEvent(path).emit(app).unwrap()
+    image
+        .save(&path)
+        .map_err(|e| format!("Could not save image to {path}: {e}"))?;
+    AddFileEvent(path).emit(app).map_err(|e| e.to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -140,6 +149,7 @@ pub fn run() {
             events::AddFileEvent,
             events::BadFileEvent,
             events::ClearFilesEvent,
+            events::ErrorEvent,
             events::SettingsChangedEvent,
             events::OpenAddFileDialogEvent,
             events::UpdateStateEvent,
@@ -254,15 +264,18 @@ pub fn run() {
         })
         .on_menu_event(|app, event| match event.id().0.as_str() {
             "settings" => {
-                _open_settings_window(app, None);
+                open_settings_window_or_toast(app, None);
             }
             "newprofile" => {
-                _open_settings_window(app, Some("/settings/newprofile".to_string()));
+                open_settings_window_or_toast(app, Some("/settings/newprofile".to_string()));
             }
             "open" => OpenAddFileDialogEvent.emit(app).unwrap(),
             "clear" => ClearFilesEvent.emit(app).unwrap(),
             "paste" => {
-                save_clipboard_image(app);
+                if let Err(err) = save_clipboard_image(app) {
+                    log::error!("Paste failed: {err}");
+                    let _ = ErrorEvent(format!("Paste failed: {err}")).emit(app);
+                }
             }
             "update_check" => {
                 println!("Checking for updates");

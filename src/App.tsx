@@ -1,7 +1,11 @@
 import { getCurrent, onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import BottomBar from "./BottomBar";
 import Dropper from "./Dropper";
-import { badFileListener, updateResultListener } from "./listeners";
+import {
+  badFileListener,
+  errorListener,
+  updateResultListener,
+} from "./listeners";
 import ProgressBar from "./ProgressBar";
 import { addFile } from "./store";
 import Table from "./Table";
@@ -12,6 +16,12 @@ updateResultListener(showUpdateToast);
 badFileListener((path) => {
   addToast({
     message: `Unsupported file: ${path}`,
+    type: "error",
+  });
+});
+errorListener((message) => {
+  addToast({
+    message,
     type: "error",
   });
 });

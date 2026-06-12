@@ -193,16 +193,18 @@ function SettingsInput(props: {
 function SettingsNumberInput(props: {
   value: number;
   onChange: (value: number) => void;
+  min?: number;
 }) {
+  const min = () => props.min ?? 0;
   return (
     <input
       class="w-20 rounded-md border-0 bg-secondary py-1.5 shadow-sm sm:text-sm/6"
       type="number"
-      min="0"
+      min={min()}
       value={props.value}
       onInput={(e) => {
         const value = Number.parseInt(e.target.value, 10);
-        if (Number.isNaN(value) || value < 0) {
+        if (Number.isNaN(value) || value < min()) {
           return;
         }
         props.onChange(value);
@@ -212,7 +214,9 @@ function SettingsNumberInput(props: {
         // "-100") stays visible even though it was never committed. On blur,
         // clamp and sync the display back to the committed value.
         const value = Number.parseInt(e.currentTarget.value, 10);
-        const clamped = Number.isNaN(value) ? props.value : Math.max(0, value);
+        const clamped = Number.isNaN(value)
+          ? props.value
+          : Math.max(min(), value);
         e.currentTarget.value = clamped.toString();
         props.onChange(clamped);
       }}

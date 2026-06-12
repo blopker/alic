@@ -1,6 +1,6 @@
 use super::settings;
 use crate::errors::{AlicError, AlicErrorType};
-use crate::events::{AddFileEvent, BadFileEvent};
+use crate::events::{AddFileEvent, ErrorEvent};
 use crate::macos;
 use crate::resize;
 use caesium::parameters::CSParameters;
@@ -182,7 +182,12 @@ fn process_img_internal(
 
     let out_path = get_out_path(&parameters, &file.path, &image_data.image_type);
 
-    if file.path == out_path && !parameters.should_overwrite {
+    // String equality misses case-insensitive filesystems (IMG.JPG vs
+    // IMG.jpg is the same file on default APFS), so compare inodes when
+    // something exists at the output path.
+    let replacing_original = is_same_file(&file.path, &out_path);
+
+    if replacing_original && !parameters.should_overwrite {
         return Err(AlicError {
             error:
                 "Image would be overwritten. Enable \"Allow Overwrite\" in settings to allow this."
@@ -241,16 +246,27 @@ fn process_img_internal(
         });
     }
 
-    // Never permanently delete anything: whatever currently sits at the
-    // output path (the original on overwrite, or an unrelated/previous
-    // output file) goes to the trash so it can be recovered.
+    // Whatever currently sits at the output path (the original on
+    // overwrite, or an unrelated/previous output file) goes to the trash
+    // so it can be recovered.
     if Path::new(&out_path).exists()
         && let Err(e) = macos::trash_file(&out_path)
     {
-        return Err(AlicError {
-            error: format!("Could not move existing file at {out_path} to trash: {e}"),
-            error_type: AlicErrorType::Unknown,
-        });
+        // Trashing can fail on volumes without Trash support (network
+        // shares). Hard-fail only when we would destroy the original;
+        // stale outputs are deleted like previous versions did.
+        if replacing_original {
+            return Err(AlicError {
+                error: format!("Could not move {out_path} to trash: {e}"),
+                error_type: AlicErrorType::Unknown,
+            });
+        }
+        if let Err(e) = fs::remove_file(&out_path) {
+            return Err(AlicError {
+                error: format!("Could not replace existing file at {out_path}: {e}"),
+                error_type: AlicErrorType::Unknown,
+            });
+        }
     }
     let mut new_file = match fs::File::create_new(&out_path) {
         Ok(file) => file,
@@ -464,10 +480,19 @@ fn compress_avif(
     Ok(output)
 }
 
-fn num_cpus() -> usize {
+pub fn num_cpus() -> usize {
     std::thread::available_parallelism()
         .map(|p| p.get())
         .unwrap_or(1)
+}
+
+/// Whether two paths refer to the same file on disk. Falls back to string
+/// comparison when either path doesn't exist yet.
+fn is_same_file(a: &str, b: &str) -> bool {
+    match (fs::metadata(a), fs::metadata(b)) {
+        (Ok(ma), Ok(mb)) => ma.ino() == mb.ino() && ma.dev() == mb.dev(),
+        _ => a == b,
+    }
 }
 
 fn remove_extension(path: &Path) -> String {
@@ -496,7 +521,7 @@ pub async fn get_all_images(app: tauri::AppHandle, path: String) -> Result<(), S
     }
     if file.is_file() {
         if !is_image(file) {
-            BadFileEvent(path).emit(&app).unwrap();
+            let _ = ErrorEvent(format!("Unsupported file: {path}")).emit(&app);
             return Ok(());
         }
         on_event(path);
@@ -616,7 +641,7 @@ fn is_image(path: &Path) -> bool {
     if !path.is_file() {
         return false;
     }
-    let supported_exts = ["png", "jpeg", "jpg", "gif", "webp", "tiff", "avif"];
+    let supported_exts = ["png", "jpeg", "jpg", "gif", "webp", "tiff", "tif", "avif"];
     let ext = path
         .extension()
         .unwrap_or_default()

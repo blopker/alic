@@ -1,6 +1,7 @@
 node_modules
 dist
 .DS_Store
+scratch
 
 src-tauri/icons/**
 !src-tauri/icons/icon.icns

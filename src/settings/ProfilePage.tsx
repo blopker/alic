@@ -110,6 +110,7 @@ function ProfilePage() {
         </SettingRow>
         <SettingRow title="Resize Width">
           <SettingsNumberInput
+            min={1}
             value={data().resize_width}
             onChange={(value) => {
               updateProfile(data().id, {
@@ -121,6 +122,7 @@ function ProfilePage() {
         </SettingRow>
         <SettingRow title="Resize Height">
           <SettingsNumberInput
+            min={1}
             value={data().resize_height}
             onChange={(value) => {
               updateProfile(data().id, {

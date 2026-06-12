@@ -12,12 +12,6 @@ function addFileListener(cb: (path: string) => void) {
   });
 }
 
-function badFileListener(cb: (path: string) => void) {
-  return events.badFileEvent.listen((event) => {
-    cb(event.payload);
-  });
-}
-
 function errorListener(cb: (message: string) => void) {
   return events.errorEvent.listen((event) => {
     cb(event.payload);
@@ -49,5 +43,4 @@ export {
   errorListener,
   settingsChangedListener,
   updateResultListener,
-  badFileListener,
 };

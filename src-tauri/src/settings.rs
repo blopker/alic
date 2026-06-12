@@ -2,7 +2,7 @@ use crate::events::SettingsChangedEvent;
 use serde::{self};
 use serde_json::json;
 use specta::Type;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use tauri::{Manager, Wry};
 use tauri_plugin_store::{Store, StoreExt};
 use tauri_specta::Event;
@@ -10,6 +10,11 @@ use tauri_specta::Event;
 use crate::compress::ImageType;
 
 const SETTINGS_KEY: &str = "settings";
+
+/// Warnings from the settings read during app setup. The setup read heals
+/// the store as a side effect, so the frontend's later reads would never
+/// see them; stash them here for get_settings to surface.
+static STARTUP_WARNINGS: Mutex<Vec<String>> = Mutex::new(Vec::new());
 
 #[derive(serde::Serialize, serde::Deserialize, Type, Debug, Clone)]
 #[serde(default)]
@@ -130,7 +135,15 @@ pub struct SettingsResult {
 #[tauri::command]
 #[specta::specta]
 pub async fn get_settings(app: tauri::AppHandle) -> Result<SettingsResult, String> {
-    let (settings, warnings) = get_settings_data(&app)?;
+    let (settings, mut warnings) = get_settings_data(&app)?;
+    {
+        let mut startup_warnings = STARTUP_WARNINGS.lock().unwrap();
+        if !startup_warnings.is_empty() {
+            let mut all: Vec<String> = startup_warnings.drain(..).collect();
+            all.append(&mut warnings);
+            warnings = all;
+        }
+    }
     let warning = if warnings.is_empty() {
         None
     } else {
@@ -245,7 +258,12 @@ pub async fn open_settings_folder(_app: tauri::AppHandle) -> Result<(), String> 
 /// This runs once during setup, before any webview loads settings.
 pub fn activate_startup_profile(app: &tauri::AppHandle) {
     let mut settings = match get_settings_data(app) {
-        Ok((settings, _)) => settings,
+        Ok((settings, warnings)) => {
+            if !warnings.is_empty() {
+                STARTUP_WARNINGS.lock().unwrap().extend(warnings);
+            }
+            settings
+        }
         Err(err) => {
             log::error!("Could not load settings to activate startup profile: {err}");
             return;
@@ -255,6 +273,14 @@ pub fn activate_startup_profile(app: &tauri::AppHandle) {
         return;
     };
     if !settings.profiles.iter().any(|p| p.id == default_id) {
+        return;
+    }
+    // Skip the write and change event when already active
+    if settings
+        .profiles
+        .iter()
+        .all(|p| p.active == (p.id == default_id))
+    {
         return;
     }
     for profile in settings.profiles.iter_mut() {
@@ -352,5 +378,7 @@ fn set_settings_data(app: &tauri::AppHandle, settings: SettingsData) {
         SETTINGS_KEY,
         serde_json::to_value(settings.clone()).unwrap(),
     );
-    SettingsChangedEvent.emit(app).unwrap()
+    if let Err(err) = SettingsChangedEvent.emit(app) {
+        log::error!("Failed to emit settings changed event: {err}");
+    }
 }

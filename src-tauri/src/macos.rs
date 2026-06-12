@@ -26,9 +26,7 @@ pub async fn open_finder_at_path(path: String, app_handle: tauri::AppHandle) -> 
 #[tauri::command]
 #[specta::specta]
 pub async fn get_cpu_count() -> i32 {
-    std::thread::available_parallelism()
-        .map(|p| p.get() as i32)
-        .unwrap_or(1)
+    crate::compress::num_cpus() as i32
 }
 
 pub fn trash_file(file_path: &str) -> Result<(), String> {

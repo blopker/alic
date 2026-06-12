@@ -27,7 +27,6 @@ export const commands = {
 /** Events */
 export const events = {
 	addFileEvent: makeEvent<AddFileEvent>("add-file-event"),
-	badFileEvent: makeEvent<BadFileEvent>("bad-file-event"),
 	clearFilesEvent: makeEvent<ClearFilesEvent>("clear-files-event"),
 	errorEvent: makeEvent<ErrorEvent>("error-event"),
 	openAddFileDialogEvent: makeEvent<OpenAddFileDialogEvent>("open-add-file-dialog-event"),
@@ -44,8 +43,6 @@ export type AlicError = {
 };
 
 export type AlicErrorType = "Unknown" | "FileTooLarge" | "FileNotFound" | "UnsupportedFileType" | "WontOverwrite" | "NotSmaller" | "ImageResizeError" | "InvalidHexColor";
-
-export type BadFileEvent = string;
 
 export type ClearFilesEvent = null;
 

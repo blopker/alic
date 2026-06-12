@@ -2,6 +2,17 @@ Changelog with major user-facing changes. See commit log for details.
 
 # Unreleased
 
+- Fix the active profile switching back to the startup profile when the settings window opens
+- Files at the output path are now moved to the Trash instead of permanently deleted
+- Add AVIF and TIF files to the file picker
+- Fix the "saved" total in the status bar being wildly overstated
+- Fix files removed from the queue still being compressed in the background
+- Fix table selection clearing when a file finishes compressing
+- Background fill is now opaque and blends smoothly with transparent images
+- Paste and update errors now show a notification instead of failing silently
+- Fix blank update notification after an update finishes downloading
+- Fix opening files with special characters in their names via "Open With"
+
 # 2.4.9
 
 - Fix release

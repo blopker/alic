@@ -3,8 +3,7 @@ use std::io::Cursor;
 use image::codecs::gif::{GifDecoder, GifEncoder};
 use image::imageops::FilterType;
 use image::{
-    AnimationDecoder, DynamicImage, Frame, GenericImage, GenericImageView, ImageDecoder,
-    ImageFormat, ImageReader, Limits, Pixel,
+    AnimationDecoder, DynamicImage, Frame, ImageDecoder, ImageFormat, ImageReader, Limits,
 };
 use log::debug;
 
@@ -175,25 +174,15 @@ fn add_background(
     background_fill: &str,
 ) -> Result<DynamicImage, AlicError> {
     let color = Color::from_hex(background_fill)?;
-    let background = image::Rgba([color.r, color.g, color.b, 255]);
-    let mut bg_image = DynamicImage::new_rgb8(width, height);
+    let mut bg_image = DynamicImage::ImageRgb8(image::RgbImage::from_pixel(
+        width,
+        height,
+        image::Rgb([color.r, color.g, color.b]),
+    ));
     let x_offset = width.saturating_sub(image.width()) / 2;
     let y_offset = height.saturating_sub(image.height()) / 2;
-    for y in 0..height {
-        for x in 0..width {
-            let mut pixel = background;
-            if x >= x_offset
-                && x < image.width() + x_offset
-                && y >= y_offset
-                && y < image.height() + y_offset
-            {
-                // Alpha-blend the source over the fill so semi-transparent
-                // pixels pick up the background color instead of hard edges
-                pixel.blend(&image.get_pixel(x - x_offset, y - y_offset));
-            }
-            bg_image.put_pixel(x, y, pixel);
-        }
-    }
+    // overlay alpha-blends the image onto the fill and clips to the canvas
+    image::imageops::overlay(&mut bg_image, image, x_offset as i64, y_offset as i64);
     Ok(bg_image)
 }
 

@@ -1,6 +1,6 @@
 Changelog with major user-facing changes. See commit log for details.
 
-# Unreleased
+# 2.4.10
 
 - Fix the active profile switching back to the startup profile when the settings window opens
 - Files at the output path are now moved to the Trash instead of permanently deleted

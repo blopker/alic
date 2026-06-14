@@ -49,7 +49,12 @@ async function main() {
     // Make sure we're on main branch and it's clean
     await $`git diff-index --quiet HEAD --`;
     await $`git checkout main`;
-    await $`git pull origin main`;
+    // Fetch + ff-only merge instead of `git pull`: a user's per-branch rebase
+    // config (branch.main.rebase=true) turns `git pull` into a rebase, which
+    // fails here with "Cannot rebase onto multiple branches". This fast-forwards
+    // main to origin/main and aborts if it has diverged.
+    await $`git fetch origin main`;
+    await $`git merge --ff-only origin/main`;
 
     // Bump patch version with user confirmation
     const currentVersion = getVersion();

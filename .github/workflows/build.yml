@@ -42,4 +42,5 @@ jobs:
           # See: https://github.com/tauri-apps/tauri-action/issues/740
           CI: false
         with:
-          args: --target aarch64-apple-darwin
+          args: --target universal-apple-darwin
+          uploadWorkflowArtifacts: true

@@ -50,6 +50,7 @@ jobs:
         run: cd src-tauri && cargo test
 
       - name: build universal app (unsigned)
+        id: tauri
         uses: tauri-apps/tauri-action@v0.6.2
         env:
           # CI=false so tauri's DMG bundler renders the background image correctly
@@ -57,8 +58,28 @@ jobs:
           # See: https://github.com/tauri-apps/tauri-action/issues/740
           CI: false
         with:
-          args: --target universal-apple-darwin
-          uploadWorkflowArtifacts: true
+          # CI has no TAURI_SIGNING_PRIVATE_KEY (least privilege), so disable updater
+          # artifact generation — tauri.conf.json's createUpdaterArtifacts otherwise
+          # tries to sign the .app.tar.gz and fails. The .app/.dmg still build.
+          args: '--target universal-apple-darwin --config {"bundle":{"createUpdaterArtifacts":false}}'
+
+      # tauri-action's own `uploadWorkflowArtifacts` input is unreleased (dev only),
+      # so we upload its `artifactPaths` output (a JSON array) ourselves.
+      - name: collect artifact paths
+        id: artifacts
+        run: |
+          {
+            echo 'paths<<EOF'
+            jq -r '.[]' <<< '${{ steps.tauri.outputs.artifactPaths }}'
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: alic-universal
+          path: ${{ steps.artifacts.outputs.paths }}
+          if-no-files-found: error
 
   release:
     if: github.ref == 'refs/heads/release'
@@ -115,6 +136,7 @@ jobs:
           echo "Certificate imported."
 
       - name: build and publish a draft release
+        id: tauri
         uses: tauri-apps/tauri-action@v0.6.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -142,5 +164,22 @@ jobs:
             [Changelog](https://github.com/blopker/alic/blob/main/CHANGELOG.md)
           releaseDraft: true
           prerelease: false
-          uploadWorkflowArtifacts: true
           args: --target universal-apple-darwin
+
+      # See note in the build job: replace the unreleased `uploadWorkflowArtifacts`
+      # input by uploading the action's `artifactPaths` output ourselves.
+      - name: collect artifact paths
+        id: artifacts
+        run: |
+          {
+            echo 'paths<<EOF'
+            jq -r '.[]' <<< '${{ steps.tauri.outputs.artifactPaths }}'
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: alic-universal
+          path: ${{ steps.artifacts.outputs.paths }}
+          if-no-files-found: error

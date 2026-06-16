@@ -209,6 +209,15 @@ fn process_img_internal(
     // Handle resize ourselves to get around memory limit issues
     let cs_params = create_cs_parameters(&parameters);
 
+    // When metadata is kept and we stay in the same EXIF-capable format,
+    // libcaesium preserves the orientation flag, so the image stays upright
+    // without re-encoding through the image crate (which would drop *all*
+    // metadata, not just orientation). In every other case the flag would be
+    // lost — metadata stripped, format converted, or AVIF which can't carry it
+    // — so we bake the orientation into the pixels instead.
+    let preserves_orientation_flag =
+        parameters.keep_metadata && !should_convert && *target_format != ImageType::AVIF;
+
     let data = match parameters.should_resize {
         true => resize::resize(
             image_data.data,
@@ -218,7 +227,11 @@ fn process_img_internal(
             &parameters.background_fill,
             image_data.image_type == ImageType::GIF,
         )?,
-        false => image_data.data,
+        false if preserves_orientation_flag => image_data.data,
+        false => resize::normalize_orientation(
+            image_data.data,
+            image_data.image_type == ImageType::GIF,
+        )?,
     };
 
     // AVIF uses ravif directly instead of libcaesium

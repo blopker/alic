@@ -2,6 +2,7 @@ use std::io::Cursor;
 
 use image::codecs::gif::{GifDecoder, GifEncoder};
 use image::imageops::FilterType;
+use image::metadata::Orientation;
 use image::{
     AnimationDecoder, DynamicImage, Frame, ImageDecoder, ImageFormat, ImageReader, Limits,
 };
@@ -67,22 +68,21 @@ pub fn resize(
         return resize_gif(&image_buffer, width, height);
     }
 
-    let (mut desired_width, mut desired_height) = (width, height);
     let (mut image, format) = read_image(&image_buffer)?;
-    if format == ImageFormat::Jpeg {
-        let orientation = get_jpeg_orientation(&image_buffer);
-        (desired_width, desired_height) = match orientation {
-            5..=8 => (height, width),
-            _ => (width, height),
-        };
+    // The encoder strips EXIF on output, so any orientation flag would be lost.
+    // Bake the orientation into the pixels here so the result is upright
+    // regardless of EXIF, for any format that carries it. Formats without EXIF
+    // orientation report 1 (identity), making this a no-op.
+    if let Some(orientation) = Orientation::from_exif(get_exif_orientation(&image_buffer) as u8) {
+        image.apply_orientation(orientation);
     }
 
-    if image.width() >= desired_width || image.height() >= desired_height {
-        image = image.resize(desired_width, desired_height, FilterType::Lanczos3);
+    if image.width() >= width || image.height() >= height {
+        image = image.resize(width, height, FilterType::Lanczos3);
     }
 
     if should_background_fill {
-        image = add_background(&image, desired_width, desired_height, background_fill)?;
+        image = add_background(&image, width, height, background_fill)?;
     }
 
     let mut resized_file_buffer: Vec<u8> = vec![];
@@ -212,7 +212,35 @@ fn read_image(image_buffer: &Vec<u8>) -> Result<(DynamicImage, ImageFormat), Ali
     Ok((image, format))
 }
 
-fn get_jpeg_orientation(data: &[u8]) -> u32 {
+/// Bake any EXIF orientation into the pixels and return re-encoded bytes in the
+/// same format, so downstream compressors produce an upright image even when
+/// metadata is stripped or the target format can't carry orientation.
+///
+/// This is a cheap no-op for images with no orientation (or identity
+/// orientation): they are returned untouched without a re-encode. Only images
+/// that actually need rotating pay the decode/encode cost. GIFs are returned
+/// as-is to avoid collapsing animation into a single frame.
+pub fn normalize_orientation(image_buffer: Vec<u8>, is_gif: bool) -> Result<Vec<u8>, AlicError> {
+    if is_gif || get_exif_orientation(&image_buffer) == 1 {
+        return Ok(image_buffer);
+    }
+
+    let (mut image, format) = read_image(&image_buffer)?;
+    if let Some(orientation) = Orientation::from_exif(get_exif_orientation(&image_buffer) as u8) {
+        image.apply_orientation(orientation);
+    }
+
+    let mut out: Vec<u8> = vec![];
+    image
+        .write_to(&mut Cursor::new(&mut out), format)
+        .map_err(|e| AlicError {
+            error: e.to_string(),
+            error_type: AlicErrorType::ImageResizeError,
+        })?;
+    Ok(out)
+}
+
+fn get_exif_orientation(data: &[u8]) -> u32 {
     let reader = exif::Reader::new();
     let mut cursor = Cursor::new(data);
 

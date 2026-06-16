@@ -1,5 +1,9 @@
 Changelog with major user-facing changes. See commit log for details.
 
+# 2.4.11
+
+- Fix photos with EXIF orientation (e.g. from iPhones) coming out rotated after compressing
+
 # 2.4.10
 
 - Fix the active profile switching back to the startup profile when the settings window opens
